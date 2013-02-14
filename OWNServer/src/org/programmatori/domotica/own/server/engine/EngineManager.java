@@ -29,7 +29,6 @@ import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
-import org.programmatori.domotica.own.server.engine.core.Emulator;
 
 /**
  * SCSEngine Load the class that manage the bus. This class and is 
