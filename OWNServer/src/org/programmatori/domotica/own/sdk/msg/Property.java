@@ -18,31 +18,11 @@
  * License along with OWN Server.  If not, see 
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.server;
+package org.programmatori.domotica.own.sdk.msg;
 
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+public class Property extends Param {
 
-public class OpenWebNetProtocol {
-	//private static final Log log = LogFactory.getLog(OpenWebNetProtocol.class);
-
-	public static final SCSMsg MSG_WELCOME = SCSMsg.MSG_ACK;
-	public static SCSMsg MSG_MODE_COMMAND;
-	public static SCSMsg MSG_MODE_MONITOR;
-	public static SCSMsg MSG_MODE_TEST;
-	public static final String STATUS_CHAR_WHO = "#";
-
-	public static final int MODE_COMMAND = 0;
-	public static final int MODE_MONITOR = 1;
-	public static final int MODE_TEST = 2;
-
-
-	static {
-		try {
-			MSG_MODE_COMMAND = new SCSMsg("*99*0##");
-			MSG_MODE_MONITOR = new SCSMsg("*99*1##");
-			MSG_MODE_TEST = new SCSMsg("*99*2##");
-	    } catch ( Exception e ) {
-	      // Stub !!
-	    }
+	public Property(String param) {
+		super(param);
 	}
 }

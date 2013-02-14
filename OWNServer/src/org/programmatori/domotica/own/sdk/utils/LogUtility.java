@@ -18,43 +18,29 @@
  * License along with OWN Server.  If not, see 
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.server;
+package org.programmatori.domotica.own.sdk.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 
 /**
- * Collect all client connection for server
- *
+ * Utility for manage the log.
+ * 
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0
- * @since OWNServer v0.1.0
  */
-public class ClientList {
-	private static final Log log = LogFactory.getLog(ClientList.class);
-	private List<ClientConnection> listClient = null;
+public class LogUtility {
+	
+	/**
+	 * Print the stack trace of the error in the log
+	 */
+	public static String getErrorTrace(Throwable e) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream( 1024 );
 
-	public ClientList() {
-	    listClient = new ArrayList<ClientConnection>();
-    }
+		PrintWriter pw = new PrintWriter( baos );
 
-	public int add(ClientConnection client) {
-		listClient.add(client);
-		return listClient.size();
-    }
+		e.printStackTrace(pw);
+		pw.flush();
 
-	public int getSize() {
-		return listClient.size();
+		return baos.toString();
 	}
-
-	public void remove(ClientConnection con) {
-		listClient.remove(con);
-		String name = "Conn #" + con.getId();
-		log.debug("Connection removed " + (listClient.size()+1) + ": '" + name + "'");
-	}
-
-
 }

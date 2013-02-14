@@ -18,7 +18,7 @@
  * License along with OWN Server.  If not, see 
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.server;
+package org.programmatori.domotica.own.server;
 
 import java.io.*;
 import java.net.*;

@@ -18,19 +18,18 @@
  * License along with OWN Server.  If not, see 
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.server;
-
-import java.util.Calendar;
+package org.programmatori.domotica.own.sdk.msg;
 
 /**
- * Generate a id for any client connection
- *
+ * This error occurred when the SCS Message is not well formatted
+ * 
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @since TCPIPServer v0.1.1
+ * @version 1.0.0, 21/03/2010
  */
-public class GeneratorID {
-	public static synchronized long get() {
-
-		return Calendar.getInstance().getTimeInMillis();
+public class MessageFormatException extends Exception {
+	private static final long serialVersionUID = 1584054744811135388L;
+	
+	public MessageFormatException() {
+		super("Message Format Error");
 	}
 }
