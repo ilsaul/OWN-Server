@@ -1,7 +1,7 @@
 OWNServer
 ==========
 
-This java application is a Server for recive connect from a client that want to
+This java application is a Server for receive connect from a client that want to
 send and/or recive information to a SCS Bus. The SCS Bus is a Bus make from
 BTicino.
 
