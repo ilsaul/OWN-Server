@@ -1,0 +1,176 @@
+/*
+ * OWN Server is 
+ * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * 
+ * This file is part of OWN Server.
+ * 
+ * OWN Server is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ * 
+ * OWN Server is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with OWN Server.  If not, see 
+ * <http://www.gnu.org/licenses/>.
+ */
+package org.programmatori.domotica.own.emulator;
+
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.utils.LogUtility;
+
+/**
+ * This class represent the real wire. Receive the message and delivery to all
+ * component connected to the bus.
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @since TCPIPServer v0.1.0
+ */
+public class SCSBus extends ConfigBus {
+	private static final Log log = LogFactory.getLog(SCSBus.class);
+
+	private List<SCSComponent> components;
+	private BlockingQueue<MsgBus> msgQueue;
+	private boolean ready; // Tell if the bus is ready
+
+	public SCSBus() {
+		setName("SCS Bus");
+		setDaemon(true);
+		Config.getInstance().addThread(this);
+
+		components = new ArrayList<SCSComponent>();
+		msgQueue = new ArrayBlockingQueue<MsgBus>(1); // On the bus only 1 msg can go
+
+		//cmdQuit = false;
+		ready = true;
+	}
+
+	/**
+	 * Add a new component to the bus.
+	 *
+	 * @param c new component to add
+	 * @return if the bus have realy add the component
+	 */
+	@Override
+	public boolean add(SCSComponent c) {
+		boolean result = true;
+
+		if (c == null || components.indexOf(c) > -1) {
+			result = false;
+		} else {
+			components.add(c);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Send command to the bus
+	 *
+	 * @param msg is SCSMsg that need to send
+	 */
+	@Override
+	public void sendCommand(SCSMsg msg, SCSComponent sender) {
+		try {
+			if (msg == null) throw new Exception("msg can't be empty");
+
+			ready = false;
+			log.debug("Msg Rx: " + msg);
+			MsgBus msgBus = new MsgBus(msg, sender);
+			msgQueue.put(msgBus);
+		} catch (Exception e) {
+			log.error(LogUtility.getErrorTrace(e));
+		}
+	}
+
+	@Override
+	public void run() {
+		while (!Config.getInstance().isExit()) {
+			MsgBus msgBus = null;
+			try {
+				msgBus = msgQueue.take();
+				log.debug("MSG Send To Component: " + msgBus.getMsg().toString());
+			} catch (InterruptedException e) {
+				log.error(LogUtility.getErrorTrace(e));
+			}
+
+			notifyComponents(msgBus);
+			ready = true;
+		}
+	}
+
+	private void notifyComponents(MsgBus msgBus) {
+		for (Iterator<SCSComponent> iter = components.iterator(); iter.hasNext();) {
+			SCSComponent c = (SCSComponent) iter.next();
+
+			if (!c.equals(msgBus.getComponent())) {
+				c.reciveMessage(msgBus.getMsg());
+				log.debug("Send to component: " + c.toString());
+			} else {
+				log.debug("I don't send to sender");
+			}
+
+		}
+	}
+
+	public static void main(String[] args) {
+		SCSBus emu = new SCSBus();
+		emu.start();
+		emu.loadConfig(Config.getInstance().getConfigPath() + "/emuNew.xml");
+
+		// Create Light
+//		SCSMsg lightStatus = new SCSMsg("*1*0*11##");
+//		Light light = new Light(lightStatus);
+//		emu.add(light);
+//
+//		lightStatus = new SCSMsg("*1*0*12##");
+//		light = new Light(lightStatus);
+//		emu.add(light);
+
+
+		SCSMsg msg;
+		try {
+			msg = new SCSMsg("*#1*11##");
+			emu.sendCommand(msg, null);
+			//System.out.println("Status:" + msg);
+
+			msg = new SCSMsg("*#1*12##");
+			emu.sendCommand(msg, null);
+			//System.out.println("Status:" + msg);
+
+			msg = new SCSMsg("*1*1*0##");
+			emu.sendCommand(msg, null);
+			//System.out.println("Status:" + msg);
+
+			msg = new SCSMsg("*#1*11##");
+			emu.sendCommand(msg, null);
+			//System.out.println("Status:" + msg);
+
+			msg = new SCSMsg("*#1*12##");
+			emu.sendCommand(msg, null);
+			//System.out.println("Status:" + msg);
+
+			Config.getInstance().setExit(true);
+
+		} catch (MessageFormatException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean isReady() {
+		return ready;
+	}
+}
