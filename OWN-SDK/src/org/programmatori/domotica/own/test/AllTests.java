@@ -29,8 +29,8 @@ public class AllTests {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		//$JUnit-BEGIN$
 		//suite.addTest(SCSServerTest.suite());
-		suite.addTest(SCSCommandTest.suite());
-		//suite.addTest(SCSMsgTest.suite());
+		//suite.addTest(SCSCommandTest.suite());
+		suite.addTest(SCSMsgTest.suite());
 		//$JUnit-END$
 		return suite;
 	}
