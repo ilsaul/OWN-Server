@@ -1,4 +1,4 @@
-OWN-Server
+OWNServer
 ==========
 
 This java application is a Server for recive connect from a client that want to
