@@ -1,0 +1,88 @@
+<project name="OWN-SDK" default="create.dist" basedir=".">
+	
+	<!-- SDK Jar -->
+	<property name="sdk.name" value="own-sdk" />
+	<property name="sdk.version" value="0.2.0" />
+	<property name="jar.sdk.name" value="${sdk.name}-${sdk.version}" />
+
+	<!-- general -->
+	<property name="project.home" value="${basedir}" />
+	<property name="workspace" value="${project.home}/.." />
+	<property name="dest" value="dest" />
+	<property name="dir.dist" value="${project.home}/${dest}" />
+	
+
+	<property name="build" value="${project.home}/bin" />
+	<property name="lib.dir" value="/lib" />
+
+	<path id="classpath">
+		<fileset dir="${dir.dist}${lib.dir}" includes="*.jar" />
+	</path>
+
+	<tstamp>
+		<format property="TODAY" pattern="dd/MM/yyyy" />
+	</tstamp>
+
+<target name="clean" description="Destroys all generated files and dirs.">
+	<delete dir="${dir.dist}" />
+</target>
+
+<target name="prepare.dist"> <!-- depends="clean">-->
+	<mkdir dir="${dir.dist}/${lib.dir}" />
+	
+	<!-- copy the libs that you need to "lib" directory  -->
+	<copy todir="${dir.dist}${lib.dir}">
+		<fileset dir="${project.home}${lib.dir}" includes="*.jar" />
+	</copy>
+</target>
+
+<target name="jar.sdk" depends="prepare.dist">
+	<manifestclasspath property="jar.sdk.classpath" jarfile="${dir.dist}/${lib.dir}/${jar.sdk.name}.jar">
+		<classpath refid="classpath" />
+	</manifestclasspath>
+
+	<echo message="lib: ${jar.sdk.classpath}" level="debug" />
+
+	<!-- creates your jar with the contents inside "bin" (now with your .class and .jar dependencies) -->
+	<jar destfile="${dir.dist}/${lib.dir}/${jar.sdk.name}.jar">
+		<fileset dir="${build}">
+			<include name="**/*.class" />
+			<include name="**/*.properties" />
+			<exclude name="**/test/*.class" />
+			<exclude name="**/bus/*.class" />
+			<exclude name="**/emulator/*.class" />
+			<exclude name="**/server/*.class" />
+			<exclude name="**/plugin/*.class" />
+		</fileset>
+		<manifest>
+			<!-- Who is building this jar? -->
+			<attribute name="Built-By" value="${user.name}" />
+			<!-- Information about the program itself -->
+			<attribute name="Implementation-Title" value="${sdk.name}" />
+			<attribute name="Implementation-Version" value="${sdk.version}" />
+			<attribute name="Class-Path" value="${jar.sdk.classpath}" />
+			<attribute name="Built-Date" value="${TODAY}" />
+		</manifest>
+	</jar>
+</target>
+	
+<target name="create.dist" depends="prepare.dist, jar.sdk" description="prepeare the relese of the dist">
+	<!-- copy the louncher to "dist" directory  -->
+	<copy todir="${dir.dist}">
+		<!-- fileset dir="${project.home}" includes="*.bat" -->
+		<!-- fileset dir="${project.home}" includes="*.sh" -->
+		<fileset dir="${project.home}" includes="LICENSE.txt" />
+	</copy>
+
+</target>
+	
+<target name="copy.jar" description="copy jar from other project to lib dir">
+	
+	<delete verbose="true">
+		<fileset dir="${project.home}/${lib.dir}" casesensitive="false">
+		    <include name="own-*"/>
+		</fileset>
+	</delete>
+</target>
+	
+</project>
