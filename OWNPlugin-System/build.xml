@@ -1,0 +1,74 @@
+<project name="OWN-PlugIN-System" default="create.all" basedir=".">
+
+	<!-- project Specific -->
+	<property name="plg.name" value="own-plugin-system" />
+	<property name="plg.version" value="0.3.0" />
+	<property name="jar.name" value="${plg.name}-${plg.version}" />
+
+	<!-- general -->
+	<property name="project.home" value="${basedir}" />
+	<property name="dir.dist" value="${project.home}/dest" />
+
+	<property name="build" value="${project.home}/bin" />
+	<property name="lib.dir" value="/lib" />
+
+	<path id="classpath">
+		<fileset dir="${dir.dist}${lib.dir}" includes="*.jar" />
+	</path>
+
+	<tstamp>
+		<format property="TODAY" pattern="dd/MM/yyyy" />
+	</tstamp>
+
+<target name="clean" description="Destroys all generated files and dirs.">
+	<delete dir="${dir.dist}" />
+</target>
+
+<target name="prepare.dist"> <!-- depends="clean">-->
+	<mkdir dir="${dir.dist}" />
+	
+	<!-- copy the libs that you need to "lib" directory  -->
+	<copy todir="${dir.dist}${lib.dir}">
+		<fileset dir="${project.home}${lib.dir}" includes="*.jar" />
+	</copy>
+</target>
+	
+<target name="create.jar" depends="prepare.dist">
+
+	<manifestclasspath property="jar.classpath" jarfile="${dir.dist}/${jar.name}.jar">
+		<classpath refid="classpath" />
+	</manifestclasspath>
+
+	<echo message="lib: ${jar.classpath}" level="debug" />
+
+	<!-- creates your jar with the contents inside "bin" (now with your .class and .jar dependencies) -->
+	<jar destfile="${dir.dist}/${jar.name}.jar">
+		<fileset dir="${build}">
+			<include name="**/*.class" />
+			<include name="**/*.properties" />
+			<include name="**/*.xml" />
+			<include name="**/*.sql" />
+			<exclude name="**/test/*.class" />
+			<exclude name="**/map/*.class" />
+			<exclude name="**/power/*.class" />			
+		</fileset>
+		<manifest>
+			<!-- Who is building this jar? -->
+			<attribute name="Built-By" value="${user.name}" />
+			<!-- Information about the program itself -->
+			<attribute name="Implementation-Title" value="${plg.name}" />
+			<attribute name="Implementation-Version" value="${plg.version}" />
+			<!-- this tells which class should run when executing your jar -->
+			<attribute name="Class-Path" value="${jar.classpath.4}" />
+			<attribute name="Built-Date" value="${TODAY}" />
+		</manifest>
+	</jar>
+</target>
+	
+<target name="create.all" depends="prepare.dist, create.jar" description="Prepare all for use">
+	<delete dir="${dir.dist}${lib.dir}"></delete>
+	
+	<echo message="Finish" />
+</target>
+	
+</project>
