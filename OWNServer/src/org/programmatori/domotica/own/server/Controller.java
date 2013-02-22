@@ -26,6 +26,13 @@ import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.programmatori.domotica.own.server.engine.EngineManager;
 
+/**
+ * Launcher for OWN Server
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.1.1, 22/02/2013
+ * @since OWNServer 0.5.0
+ */
 public class Controller extends Thread {
 	private static final Log log = LogFactory.getLog(Controller.class);
 	
@@ -47,15 +54,20 @@ public class Controller extends Thread {
 			Config.getInstance().setConfig(configFile);
 		}
 		
-		System.out.println(Config.SERVER_NAME + " is Copyright (C) 2010-2012 Moreno Cattaneo");
-		System.out.println("This program comes with ABSOLUTELY NO WARRANTY.");
-		System.out.println("This is free software, and you are welcome to redistribute it");
-		System.out.println("under certain conditions.");
+		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2013 Moreno Cattaneo";
+		String line2 = "This program comes with ABSOLUTELY NO WARRANTY.";
+		String line3 = "This is free software, and you are welcome to redistribute it";
+		String line4 = "under certain conditions.";
 		
-		log.info(Config.SERVER_NAME + " is Copyright (C) 2010-2012 Moreno Cattaneo");
-		log.info("This program comes with ABSOLUTELY NO WARRANTY.");
-		log.info("This is free software, and you are welcome to redistribute it");
-		log.info("under certain conditions.");
+		System.out.println(line1);
+		System.out.println(line2);
+		System.out.println(line3);
+		System.out.println(line4);
+		
+		log.info(line1);
+		log.info(line2);
+		log.info(line3);
+		log.info(line4);
 		log.info(Config.SERVER_NAME + " v." + Config.SERVER_VERSION + " Start");
 	}
 	
