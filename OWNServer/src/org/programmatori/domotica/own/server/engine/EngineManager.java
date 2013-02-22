@@ -27,11 +27,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 
 /**
- * SCSEngine Load the class that manage the bus. This class and is 
+ * EngineManager Load the class that manage the bus. This class and is 
  * parameter need to be set in the config file.<br>
  * In configuration need to use tag 'bus' with the full-name class.<br>
  * <code>
@@ -42,7 +43,7 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
  * 
  * @author Moreno Cattaneo
  * @version 1.0.1, 29/06/2011
- * @since SCSServer v0.2.0
+ * @since OWNServer v0.2.0
  *
  */
 public class EngineManager extends Thread implements QueueListener {

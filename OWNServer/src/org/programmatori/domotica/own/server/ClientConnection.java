@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.server.engine.Monitor;
+import org.programmatori.domotica.own.sdk.server.engine.Sender;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.programmatori.domotica.own.server.engine.*;
 

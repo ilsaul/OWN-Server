@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.server.engine.Sender;
 
 /**
  * Manage the association between message recived to the bus and the answare received.
