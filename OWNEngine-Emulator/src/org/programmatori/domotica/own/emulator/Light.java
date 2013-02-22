@@ -25,6 +25,13 @@ import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 
+/**
+ * Light, lamp.
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.1.1, 22/02/2013
+ * @since OWNServer 0.5.0
+ */
 public class Light extends SCSBaseComponent {
 	private static final Log log = LogFactory.getLog(Light.class);
 

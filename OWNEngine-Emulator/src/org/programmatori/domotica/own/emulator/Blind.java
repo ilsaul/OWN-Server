@@ -25,6 +25,12 @@ import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 
+/**
+ * Blind, shade, jalousie.
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.1.1, 22/02/2013
+ */
 public class Blind extends SCSBaseComponent {
 	private static final Log log = LogFactory.getLog(Blind.class);
 
