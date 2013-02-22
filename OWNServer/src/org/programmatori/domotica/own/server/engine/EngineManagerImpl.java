@@ -46,8 +46,8 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
  * @since OWNServer v0.2.0
  *
  */
-public class EngineManager extends Thread implements QueueListener {
-	private static final Log log = LogFactory.getLog(EngineManager.class);
+public class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+	private static final Log log = LogFactory.getLog(EngineManagerImpl.class);
 
 	/**
 	 * List of Msg waiting to be send
@@ -75,7 +75,7 @@ public class EngineManager extends Thread implements QueueListener {
 	private int sendTimeout;
 	private boolean changeQueue;
 
-	public EngineManager() {
+	public EngineManagerImpl() {
 		log.trace("Start Create Istance");
 		setName("SCS Engine");
 		//setDaemon(true);
@@ -130,7 +130,7 @@ public class EngineManager extends Thread implements QueueListener {
 			try {
 				Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
 				@SuppressWarnings("unchecked")
-				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
+				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManagerImpl.class);
 
 				PlugIn plugIn = constructor.newInstance(this);
 				plugIn.start();

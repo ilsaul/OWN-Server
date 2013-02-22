@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
-import org.programmatori.domotica.own.server.engine.EngineManager;
+import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
 
 /**
  * Launcher for OWN Server
@@ -36,7 +36,7 @@ import org.programmatori.domotica.own.server.engine.EngineManager;
 public class Controller extends Thread {
 	private static final Log log = LogFactory.getLog(Controller.class);
 	
-	private EngineManager engine;
+	private EngineManagerImpl engine;
 	private TcpIpServer server;
 	
 	/**
@@ -79,7 +79,7 @@ public class Controller extends Thread {
 				
 				if (engine == null || engine.getState() == Thread.State.TERMINATED) {
 					log.warn("Engine is down i load it");
-					engine = new EngineManager();
+					engine = new EngineManagerImpl();
 					engine.start();
 				}
 				

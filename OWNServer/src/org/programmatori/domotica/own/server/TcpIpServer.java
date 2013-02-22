@@ -26,12 +26,13 @@ import java.net.ServerSocket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.server.engine.EngineManager;
+import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
 
 /**
- * This is the main class for start OWNServer. This class is 
- * designed to received Tcp/Ip connections and sort them in new 
- * {@link ClientConnection} create for manage them. 
+ * This class wait the network connection. It's 
+ * designed to received Tcp/Ip connections and send them to 
+ * {@link ClientConnection} for the management. 
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.2.1, 16/10/2010
