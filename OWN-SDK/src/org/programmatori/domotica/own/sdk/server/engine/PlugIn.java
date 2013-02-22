@@ -20,11 +20,9 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
-
 public interface PlugIn extends Monitor, Sender {
 
 	// Only per PlugIn
-
 	void start();
 
 }

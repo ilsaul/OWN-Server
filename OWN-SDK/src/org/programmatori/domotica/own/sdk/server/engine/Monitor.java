@@ -22,6 +22,11 @@ package org.programmatori.domotica.own.sdk.server.engine;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
+/**
+ * Used by Plugin interface for implement receive message interface.
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ */
 public interface Monitor {
 	void reciveMsg(SCSMsg msg);
 
