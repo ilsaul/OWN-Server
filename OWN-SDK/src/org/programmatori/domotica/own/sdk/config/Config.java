@@ -37,7 +37,7 @@ import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 public class Config extends AbstractConfig {
 	private static Log log = LogFactory.getLog(Config.class);
 	private static Config instance = null;
-	public static final String SERVER_VERSION = "0.4.2";
+	public static final String SERVER_VERSION = "0.5.1";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private boolean exit = false; // Tell to the application if it need to shutdown
