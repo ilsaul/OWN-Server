@@ -7,8 +7,10 @@ INSTALL
 
 For install System plugin need to insert in the configuration in the plugin tag
 
-`<plugin><br />
-  <plugin id="1">org.programmatori.domotica.own.plugin.remote.FTPRemote</plugin><br />
+`<plugin>
+
+  <plugin id="1">org.programmatori.domotica.own.plugin.remote.FTPRemote</plugin>
+  
 <plugin>`
 
 the id of the tag plugin is only a counter, then if u have an other plugin that plugin is 2.
