@@ -22,9 +22,14 @@ package org.programmatori.domotica.own.server;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
+/**
+ * This class maintain some constant for the protocol SCS
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 16/10/2010
+ * @since OWNServer v0.1.0
+ */
 public class OpenWebNetProtocol {
-	//private static final Log log = LogFactory.getLog(OpenWebNetProtocol.class);
-
 	public static final SCSMsg MSG_WELCOME = SCSMsg.MSG_ACK;
 	public static SCSMsg MSG_MODE_COMMAND;
 	public static SCSMsg MSG_MODE_MONITOR;

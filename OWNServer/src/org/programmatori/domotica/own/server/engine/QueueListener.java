@@ -20,6 +20,13 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
+/**
+ * This interface is used to manage the object that maintains the queue. 
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 16/10/2010
+ * @since OWNServer v0.1.0
+ */
 public interface QueueListener {
 
 	void changeNotify();
