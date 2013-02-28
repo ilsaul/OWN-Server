@@ -143,7 +143,8 @@ public abstract class AbstractConfig {
 		
 		if (path == null) {
 			try {
-				String home = getHomeDirectory(HOME_FILE);
+				//String home = getOldHomeDirectory(HOME_FILE); // Deprecated System
+				String home = getHomeDirectory();
 				path = home + "/" + DEFAULT_CONFIG_FOLDER;
 
 			} catch (Exception e) {
@@ -181,11 +182,11 @@ public abstract class AbstractConfig {
 	/**
 	 * Give the home of the project. <br>
 	 * For return the home of the project need to have a file in the home
-	 * <p>
 	 *
 	 * @return path of home directory
+	 * @deprecated
 	 */
-	public static String getHomeDirectory(String fileName) throws Exception {
+	public static String getOldHomeDirectory(String fileName) throws Exception {
 		String home = "";
 		String separator = File.separator;
 		boolean first = true;
@@ -235,5 +236,65 @@ public abstract class AbstractConfig {
 
 		return home;
 	}
+	
+	/**
+	 * Give the home of the project. <br>
+	 * For return the home of the project need to have a file in the home
+	 *
+	 * @return path of home directory
+	 */
+	public static String getHomeDirectory() {
+		File f = new File("");
+		
+		String filePath =  f.getAbsolutePath();
+		
+		
+		return getPathFromString(filePath);
+	}
+		
+		private static String getPathFromString(String path) {
+			Log log = LogFactory.getLog(AbstractConfig.class);
+			
+			String separator = File.separator;
+			boolean first = true;
+			String home = "";
+			
+			log.debug("Path " + path);
+			
+			StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
+			//st.nextToken(); // don't calculate "file:"
+			while (st.hasMoreTokens()) {
+				String folder = st.nextToken();
+				log.debug("Foledr: " + folder);
+				
+				boolean bFile = !(folder.equals("file:")); 
+
+				// BUG Linux starting slash
+				if (separator.equals("/") && first) {
+					folder = separator + folder;
+					first = false;
+				}
+
+				// BUG Eclipse put in the bin
+				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
+
+				// BUG jar can not support . then use a real file for find a path
+				//boolean bRealFile = !(folder.equals(fileName) && (st.countTokens() < 1));
+				boolean bRealFile = true;
+
+				// BUG the home directory it cannot end with .jar
+				boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));
+
+				if (bBin && bRealFile && bJar && bFile) { // If i build under bin i don't insert in
+					// home path
+					if (home.length() > 0)
+						home += "/";
+					home = home + folder;
+					log.debug("home: " + home);
+				}
+			}
+			
+			return home;
+		}
 
 }

@@ -20,18 +20,27 @@
  */
 package org.programmatori.domotica.own.test;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.*;
 
-public class AllTests {
+import org.programmatori.domotica.own.sdk.config.AbstractConfig;
+
+public class TestConfig extends TestCase {
+	private final String HandWritePath = "/Users/moreno/git/GitHub_OWN/OWN-SDK";
+	
+	public TestConfig(String name) {
+		super(name);
+	}
+	
+	public void testHomeFolder() {
+		String path = AbstractConfig.getHomeDirectory();
+		
+		assertEquals( "Wrong Path", HandWritePath, path);
+	}
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		//$JUnit-BEGIN$
-		suite.addTest(TestConfig.suite());
-		//suite.addTest(SCSCommandTest.suite());
-		suite.addTest(SCSMsgTest.suite());
-		//$JUnit-END$
+		TestSuite suite = new TestSuite();
+		suite.addTest(new TestConfig("testHomeFolder"));
+		
 		return suite;
 	}
 
