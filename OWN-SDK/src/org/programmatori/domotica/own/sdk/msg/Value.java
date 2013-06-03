@@ -22,6 +22,12 @@ package org.programmatori.domotica.own.sdk.msg;
 
 import java.util.Iterator;
 
+/**
+ * Part of SCS Message
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 21/03/2010
+ */
 public class Value extends Param {
 
 	public Value(String param) {

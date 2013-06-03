@@ -31,7 +31,8 @@ import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 
 /**
  * Configuration
- * @version 1.2 19/03/2012
+ * 
+ * @version 1.2, 19/03/2012
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {

@@ -31,7 +31,7 @@ import org.programmatori.domotica.own.sdk.server.engine.Sender;
  * 
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since OWNServer v0.1.0
- * @version 1.0.0 16/10/2010
+ * @version 1.0.0, 16/10/2010
  */
 public class Command implements Comparable<Command>, Serializable {
 	private static final long serialVersionUID = 3865810383162847583L;

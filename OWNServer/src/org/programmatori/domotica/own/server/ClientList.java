@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * Collect all client connection for server
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0
+ * @version 1.0, 22/02/2013
  * @since OWNServer v0.1.0
  */
 public class ClientList {

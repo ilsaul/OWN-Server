@@ -31,7 +31,8 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
 
 /**
  * Abstract configuration
- * @version 2.1 16/10/2010
+ * 
+ * @version 2.1, 16/10/2010
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public abstract class AbstractConfig {

@@ -25,6 +25,12 @@ import java.util.EventObject;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
+/**
+ * SCS Event
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 21/03/2010
+ */
 public class SCSEvent extends EventObject {
 	private static final long serialVersionUID = -7415969899219144543L;
 	//private static final Log log = LogFactory.getLog(EventObject.class);
