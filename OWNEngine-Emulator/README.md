@@ -4,7 +4,7 @@ OWNServer
 This is my First Engine for the OWN Server and sure not the last.
 This project replace the real SCS BUS for testing purpose.
 
-In the folder `conf` you can see the configuration file of the Virtul Home.
+In the folder `conf` you can see the configuration file of the Virtual Home.
 There is 2 mode to set the configuration the most new seems better.
 
 The scheduler is not finish.
