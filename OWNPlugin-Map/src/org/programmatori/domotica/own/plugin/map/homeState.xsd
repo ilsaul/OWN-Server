@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           
+	<xs:element name="home">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="version" type="xs:string" minOccurs="1" maxOccurs="1"/>
+				<xs:element ref="statusSave" minOccurs="1" maxOccurs="1"/>
+				<xs:element ref="area" minOccurs="1"/>
+				<xs:element ref="scheduler" minOccurs="0" maxOccurs="1"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="statusSave">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:integer">
+					<xs:attribute name="unit" type="xs:string" use="required"/>
+				</xs:extension>
+      		</xs:simpleContent>
+     	</xs:complexType>
+     </xs:element>
+	
+	<xs:element name="area">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="component"/>
+      		</xs:sequence>
+      		<xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+     		<xs:attribute name="name" type="xs:string"/>
+     	</xs:complexType>
+     </xs:element>
+     
+     <xs:element name="scheduler">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="command" type="xs:string"/>
+      		</xs:sequence>
+     	</xs:complexType>
+     </xs:element>
+     
+     <xs:element name="component">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:integer">
+					<xs:attribute name="type" type="xs:string" use="required"/>
+					<xs:attribute ref="pl" use="required"/>
+				</xs:extension>
+      		</xs:simpleContent>
+     	</xs:complexType>
+     </xs:element>
+     
+     <xs:attribute name="pl">
+     	<xs:simpleType>
+     		<xs:restriction base="xs:integer">
+     			<xs:minInclusive value="0"/>
+     			<xs:maxInclusive value="9"/>
+     		</xs:restriction>
+     	</xs:simpleType>
+     </xs:attribute>
+     
+</xs:schema>
