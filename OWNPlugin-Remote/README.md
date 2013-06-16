@@ -13,9 +13,9 @@ For install System plugin need to insert in the configuration in the plugin tag
 <plugin>
 ```
 
-the id of the tag plugin is only a counter, then if you have an other plugin then u set id = 2.
+the id of the tag plugin is only a counter, then if you have an other plugin then you set id = 2 and so on.
 
-You must add this section where ever you want in configuration file for configurate the plugin
+You must add a section similar to this where ever you want in configuration file for configurate the plugin
 ```
 <remoter>
   <protocol>ftp</protocol>
