@@ -1,12 +1,12 @@
 OWNPlugin-System
 ================
-This is a plugin is not necessary for the server.
+This plugin is not really necessary for the server, but it complete the standard functionality.
 This plugin replace the BTicino server answer like date, version, etc.
 
 INSTALL
 -------
 
-For install System plugin need to insert in the configuration in the plugin tag
+For install System plugin you need to insert, in the server configuration, the plugin tag
 
 ```
 <plugin>
@@ -14,9 +14,9 @@ For install System plugin need to insert in the configuration in the plugin tag
 <plugin>
 ```
 
-the id of the tag plugin is only a counter, then if you have an other plugin then u set id = 2.
+the id of the tag plugin is only a counter, then if you have an other plugin then you set id = 2 and so on.
 
-You must add this section where ever you want in configuration file for configurate the plugin
+You must add a section similar to this where ever you want in configuration file for configurate the plugin
 ```
 <system>
 	    <!-- BTicino know model value:
@@ -37,4 +37,4 @@ You must add this section where ever you want in configuration file for configur
 	</system>
 ```
 
-If you set 99 in the `model` the tag `version` is not read but it is used the version of the software.
+If you set 99 in the `model` the tag `version` is not read by the server because it is used the software version.
