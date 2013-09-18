@@ -23,6 +23,12 @@ package org.programmatori.domotica.own.sdk.config;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Thread Killer
+ * 
+ * @version 0.1, 19/03/2012
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ */
 public class KillThread extends Thread {
 	private List<Thread> list;
 

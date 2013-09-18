@@ -20,6 +20,12 @@
  */
 package org.programmatori.domotica.own.sdk.msg;
 
+/**
+ * Part of SCS Message
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 21/03/2010
+ */
 public class Where extends Param {
 
 	public Where(String param) {

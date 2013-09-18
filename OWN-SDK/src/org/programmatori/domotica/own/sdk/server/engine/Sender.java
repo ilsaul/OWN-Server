@@ -22,6 +22,12 @@ package org.programmatori.domotica.own.sdk.server.engine;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
+/**
+ * Sender
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 21/03/2010
+ */
 public interface Sender {
 	void reciveMsg(SCSMsg msg);
 }

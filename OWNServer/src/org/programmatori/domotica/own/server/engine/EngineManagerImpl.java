@@ -41,7 +41,7 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
  * For use with {@link Emulator} no need to change this part of 
  * configuration.
  * 
- * @author Moreno Cattaneo
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
  * @since OWNServer v0.2.0
  *

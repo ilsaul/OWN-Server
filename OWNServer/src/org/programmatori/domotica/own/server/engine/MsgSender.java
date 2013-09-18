@@ -31,6 +31,13 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 
+/**
+ * This class send msg to the bus.
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.1, 27/02/2013
+ * @since OWNServer v0.1.0
+ */
 public class MsgSender extends Thread {
 	private static final Log log = LogFactory.getLog(MsgSender.class);
 

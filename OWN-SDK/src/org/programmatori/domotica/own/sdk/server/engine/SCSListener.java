@@ -22,6 +22,12 @@ package org.programmatori.domotica.own.sdk.server.engine;
 
 import java.util.EventListener;
 
+/**
+ * SCS Listener
+ * 
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 21/03/2010
+ */
 public interface SCSListener extends EventListener {
 	/**
      * Invoked when the value of in SCS Bus has changed.

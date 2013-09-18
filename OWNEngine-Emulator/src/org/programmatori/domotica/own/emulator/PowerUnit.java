@@ -27,10 +27,10 @@ import org.programmatori.domotica.own.sdk.msg.Value;
 
 /**
  * Manage the Central Power Unit
+ * 
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.0, 29/06/2011
  * @since OWNServer 0.4.0
- *
  */
 public class PowerUnit extends SCSBaseComponent {
 	private static final Log log = LogFactory.getLog(PowerUnit.class);
@@ -47,7 +47,7 @@ public class PowerUnit extends SCSBaseComponent {
 	}
 
 	/**
-	 * Acepted Command:<br>
+	 * Accepted Command:<br>
 	 * *#3*10*0##: Request All Information<br>
 	 * *#3*10*1##: Request specific information (from 1 to 4)<br>
 	 * <br>

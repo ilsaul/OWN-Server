@@ -26,7 +26,13 @@ import java.util.concurrent.PriorityBlockingQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
+/**
+ * This class is a {@link PriorityBlockingQueue} that implement listener for chnge data.  
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.1, 27/02/2013
+ * @since OWNServer v0.1.1
+ */
 public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 	private static final Log log = LogFactory.getLog(ListenerPriorityBlockingQueue.class);
 	private static final long serialVersionUID = 8861915379323068946L;

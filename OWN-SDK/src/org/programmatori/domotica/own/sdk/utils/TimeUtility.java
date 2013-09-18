@@ -27,7 +27,7 @@ import java.util.*;
  * Utility for manage the Time.
  * 
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0 (19/03/2012)
+ * @version 1.0, 19/03/2012
  */
 public class TimeUtility {
 	private static final int SECOND = 1000;

@@ -30,14 +30,13 @@ import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
-import org.programmatori.domotica.own.server.engine.*;
 
 /**
  * Manager for a single client Connection.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since OWNServer v0.1.0
- * @version 0.6 29/04/2012
+ * @version 0.6, 29/04/2012
  */
 public class ClientConnection implements Runnable, Monitor, Sender {
 	private static final Log log = LogFactory.getLog(ClientConnection.class);

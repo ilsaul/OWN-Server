@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
-import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
 
 /**
  * This class wait the network connection. It's 

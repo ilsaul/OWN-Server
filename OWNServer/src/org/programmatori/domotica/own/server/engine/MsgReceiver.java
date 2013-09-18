@@ -32,6 +32,13 @@ import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 
+/**
+ * This class manage the message came from the bus
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 1.0.0, 16/10/2010
+ * @since OWNServer v0.1.0
+ */
 public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 	private static final Log log = LogFactory.getLog(MsgReceiver.class);
 

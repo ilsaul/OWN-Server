@@ -31,13 +31,14 @@ import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 
 /**
  * Configuration
- * @version 1.2 19/03/2012
+ * 
+ * @version 1.2, 19/03/2012
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
 	private static Log log = LogFactory.getLog(Config.class);
 	private static Config instance = null;
-	public static final String SERVER_VERSION = "0.4.2";
+	public static final String SERVER_VERSION = "0.5.1";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private boolean exit = false; // Tell to the application if it need to shutdown

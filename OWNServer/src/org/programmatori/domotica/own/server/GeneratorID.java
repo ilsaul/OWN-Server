@@ -27,6 +27,7 @@ import java.util.Calendar;
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since TCPIPServer v0.1.1
+ * @version 1.0, 22/02/2013
  */
 public class GeneratorID {
 	public static synchronized long get() {
