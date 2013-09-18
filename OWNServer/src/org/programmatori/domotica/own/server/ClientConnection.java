@@ -30,7 +30,6 @@ import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
-import org.programmatori.domotica.own.server.engine.*;
 
 /**
  * Manager for a single client Connection.

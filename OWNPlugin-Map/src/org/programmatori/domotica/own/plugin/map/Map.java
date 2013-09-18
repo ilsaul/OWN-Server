@@ -78,6 +78,7 @@ public class Map extends Thread implements PlugIn {
 		setName("SCS Map");
 		setDaemon(true);
 		
+		// Retrive Config Parameters
 		pauseStart = Integer.parseInt(Config.getInstance().getNode("map.pause.start"));
 		pauseUnit = Integer.parseInt(Config.getInstance().getNode("map.pause.unit"));
 		fileName = Config.getInstance().getNode("file");
@@ -97,6 +98,7 @@ public class Map extends Thread implements PlugIn {
 
 		localBus = new TreeMap<Integer, Set<SCSComponent>>();
 		this.engine = engine;
+		
 //		try {
 //			engine.addMonitor(this);
 //		} catch (Exception e) {
@@ -113,6 +115,7 @@ public class Map extends Thread implements PlugIn {
 			log.error(LogUtility.getErrorTrace(e));
 		}
 	}
+	
 	private void prepareBlind() {
 		try {
 			SCSMsg msg = new SCSMsg("*#2*0##");
@@ -313,6 +316,6 @@ public class Map extends Thread implements PlugIn {
 	public static void main(String[] args) {
 		Map map = new Map(null);
 		
-		map.createStatusFile("Prova.xml");
+		map.createStatusFile("test.xml");
 	}
 }

@@ -31,7 +31,6 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
-import org.programmatori.domotica.own.server.ClientConnection;
 
 /**
  * This class manage the message came from the bus
