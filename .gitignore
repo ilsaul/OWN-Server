@@ -1,12 +1,23 @@
+dest/
+.settings/
+log/
+bin/
 
-OWNPlugin-Map/bin
 OWNServer/conf/log4j.xml
 OWNServer/conf/emuNew.xml
-OWNEngine-Emulator/bin
-OWNPlugin-Map/.settings
-OWNServer/log
-OWNEngine-Emulator/dest
-OWN-SDK/dest
-OWNPlugin-Remote/dest
-OWNPlugin-System/dest
-OWNServer/bin
+
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+
+#OWNPlugin-Map/bin
+#OWNEngine-Emulator/bin
+#OWNPlugin-Map/.settings
+#OWNServer/log
+#OWNEngine-Emulator/dest
+#OWN-SDK/dest
+#OWNPlugin-Remote/dest
+#OWNPlugin-System/dest
+#OWNServer/bin
+
