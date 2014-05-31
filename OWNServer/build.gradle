@@ -1,0 +1,14 @@
+version = '0.5.2'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'OWNServer', 'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile project(':OWN-SDK')
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+}
+
+println name
+println project.name

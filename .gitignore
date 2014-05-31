@@ -21,3 +21,5 @@ OWNServer/conf/emuNew.xml
 #OWNPlugin-System/dest
 #OWNServer/bin
 
+.gradle
+OWN-SDK/build
