@@ -25,3 +25,5 @@ OWNServer/conf/emuNew.xml
 .gradle
 #OWN-SDK/build
 #OWNServer/build
+.classpath
+.project
