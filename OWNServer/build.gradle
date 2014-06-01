@@ -11,4 +11,9 @@ jar {
 dependencies {
     compile project(':OWN-SDK')
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+    
+	runtime project(':OWNEngine-Emulator')
+	runtime project(':OWNPlugin-System')
+	runtime project(':OWNPlugin-Remote')
+	runtime project(':OWNPlugin-Map')
 }	
