@@ -1,0 +1,11 @@
+version = '1.0.2'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'OWN-PlugIN-Map', 'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile project(':OWN-SDK')
+    compile project(':OWNEngine-Emulator')
+}

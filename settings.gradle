@@ -1,1 +1,1 @@
-include "OWNServer", "OWN-SDK", "OWNEngine-Emulator", "OWNPlugin-System", "OWNPlugin-Remote"
+include "OWNServer", "OWN-SDK", "OWNEngine-Emulator", "OWNPlugin-System", "OWNPlugin-Remote", "OWNPlugin-Map"
