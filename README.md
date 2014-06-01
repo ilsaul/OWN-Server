@@ -7,11 +7,14 @@ Read the README inside to every project folder for know more information about t
 Any project have a build.gradle that came from a project http://www.gradle.org.
 
 For prepare the project for eclipse use:
-> gradle eclipse
+
+    gradle eclipse
 
 For build the project after modification
-> gradle build
+
+    gradle build
 
 For prepare distribution file use:
-> gradle distZip
+
+    gradle distZip
 
