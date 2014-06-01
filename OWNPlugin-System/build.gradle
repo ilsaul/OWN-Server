@@ -1,0 +1,12 @@
+version = '0.3.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'OWN-PlugIN-System', 'Implementation-Version': version
+    }
+}
+
+distributions {
+    main{
+        baseName = project.name
+	}
+}
