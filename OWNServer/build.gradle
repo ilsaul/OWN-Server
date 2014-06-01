@@ -1,3 +1,6 @@
+apply plugin:'application'
+mainClassName = "org.programmatori.domotica.own.server.Controller"
+
 version = '0.5.2'
 jar {
     manifest {
@@ -8,7 +11,4 @@ jar {
 dependencies {
     compile project(':OWN-SDK')
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
-}
-
-println name
-println project.name
+}	

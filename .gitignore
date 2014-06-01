@@ -2,6 +2,7 @@ dest/
 .settings/
 log/
 bin/
+build/
 
 OWNServer/conf/log4j.xml
 OWNServer/conf/emuNew.xml
@@ -22,4 +23,5 @@ OWNServer/conf/emuNew.xml
 #OWNServer/bin
 
 .gradle
-OWN-SDK/build
+#OWN-SDK/build
+#OWNServer/build

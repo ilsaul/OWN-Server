@@ -1,3 +1,4 @@
+apply plugin: 'java-library-distribution'
 version = '0.2.0'
 jar {
     manifest {
@@ -12,7 +13,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
-
+distributions {
+    main{
+        baseName = project.name
+	}
+}
 
 task build2 << {
     println name
