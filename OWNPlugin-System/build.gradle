@@ -1,0 +1,10 @@
+version = '0.3.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'OWN-PlugIN-System', 'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile project(':OWN-SDK')
+}

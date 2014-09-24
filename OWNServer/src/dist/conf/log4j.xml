@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false" >
+	<appender name="console" class="org.apache.log4j.ConsoleAppender" >
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd-MM-yyyy hh:mm:ss a } %-5p %c %M - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="file" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="log/BTicino.log"/>
+		<param name="MaxFileSize" value="1MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{dd-MM-yyyy HH.mm.ss} %-5p %c %M - %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="fileEngine" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="log/engine.log"/>
+		<param name="MaxFileSize" value="1MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{dd-MM-yyyy HH.mm.ss} %-5p %c %M - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="message" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="log/message.log"/>
+		<param name="MaxFileSize" value="1MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{dd-MM-yyyy HH.mm.ss} %-5p %c %M - %m%n" />
+		</layout>
+	</appender>
+
+	<logger name="org.programmatori" additivity="true">
+    	<level value="trace"/>
+    	<appender-ref ref="file" />
+    	<!-- appender-ref ref="fileXML" / -->
+  	</logger>
+  	
+  	<logger name="org.programmatori.domotica.own.server.engine.core.L4686Sdk" additivity="true">
+    	<level value="trace"/>
+    	<appender-ref ref="fileEngine" />
+    	<!--  appender-ref ref="fileXML" / -->
+  	</logger>
+
+  	<logger name="org.programmatori.domotica.own.message" additivity="true">
+    	<level value="info"/>
+    	<appender-ref ref="message" />
+    	<!-- appender-ref ref="fileXML" / -->
+  	</logger>
+
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="console" />
+		<!-- <appender-ref ref="file" />  -->
+	</root>
+
+</log4j:configuration>
