@@ -1,5 +1,8 @@
+/*
+    OWN SDK
+*/
 apply plugin: 'java-library-distribution'
-version = '0.2.0'
+version = '0.2.1'
 
 jar {
     manifest {
@@ -8,9 +11,9 @@ jar {
 }
 
 dependencies {
-    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.6'
-	compile group: 'commons-lang', name: 'commons-lang', version: '2.4'
-	compile group: 'log4j', name: 'log4j', version: '1.2.+'
+    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.+'
+	compile group: 'commons-lang', name: 'commons-lang', version: '2.+'
+	//compile group: 'log4j', name: 'log4j', version: '1.2.+'
 }
 
 distributions {
@@ -19,7 +22,7 @@ distributions {
 	}
 }
 
-task build2 << {
-    println name
-	println project.name
-}
+//task build2 << {
+//    println name
+//	println project.name
+//}
