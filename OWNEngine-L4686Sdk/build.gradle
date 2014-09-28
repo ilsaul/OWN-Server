@@ -1,0 +1,17 @@
+/*
+	OWN Engine L4686SDK
+*/
+version = '0.1.8'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'OWN-Engine-L4686SDK', 'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile project(':OWN-SDK')
+    //compile 'org.scream3r:jssc:2.8.+'
+    //compile 'org.rxtx:rxtx:2.1.7'
+    compile 'org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2'
+
+}
