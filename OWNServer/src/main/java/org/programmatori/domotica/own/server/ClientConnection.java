@@ -1,21 +1,21 @@
 /*
- * OWN Server is 
+ * OWN Server is
  * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.server;
@@ -124,7 +124,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 						break;
 
 					case STATUS_PASSWORD:
-						//TODO: Implement PASSWORD case
+						//TODO: Implement PASSWORD case - Bug.ID: #91
 						status = STATUS_CONNECTED;
 						break;
 
@@ -171,26 +171,26 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			log.info(getId() + " Mode: Command");
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_MONITOR)) {
 			mode = OpenWebNetProtocol.MODE_MONITOR;
-			
-			//Bug.ID: 3 Monitor don't have time-out
+
+			//Bug.ID: #3 - Monitor don't have time-out
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
 				log.error(LogUtility.getErrorTrace(e));
 			}
-			
+
 			log.info(getId() + " Mode: Monitor");
 			engine.addMonitor(this);
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_TEST)) {
 			mode = OpenWebNetProtocol.MODE_TEST;
-			
+
 			// Mixed mode i disable timeout
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
 				log.error(LogUtility.getErrorTrace(e));
 			}
-			
+
 			log.info(getId() + " Mode: Test");
 			engine.addMonitor(this);
 		} else {

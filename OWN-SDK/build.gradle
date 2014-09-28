@@ -1,5 +1,6 @@
 apply plugin: 'java-library-distribution'
 version = '0.2.0'
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'OWN-SDK', 'Implementation-Version': version
@@ -9,7 +10,7 @@ jar {
 dependencies {
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.6'
 	compile group: 'commons-lang', name: 'commons-lang', version: '2.4'
-	compile group: 'log4j', name: 'log4j', version: '1.2'
+	compile group: 'log4j', name: 'log4j', version: '1.2.+'
 }
 
 distributions {
