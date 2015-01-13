@@ -1,21 +1,21 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * OWN Server is
+ * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.server.engine;
@@ -23,18 +23,18 @@ package org.programmatori.domotica.own.server.engine;
 import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This class is a {@link PriorityBlockingQueue} that implement listener for chnge data.  
+ * This class is a {@link PriorityBlockingQueue} that implement listener for chnge data.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 27/02/2013
  * @since OWNServer v0.1.1
  */
 public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
-	private static final Log log = LogFactory.getLog(ListenerPriorityBlockingQueue.class);
+	private static final Logger logger = LoggerFactory.getLogger(ListenerPriorityBlockingQueue.class);
 	private static final long serialVersionUID = 8861915379323068946L;
 
 	List<QueueListener> listeners;
@@ -54,7 +54,7 @@ public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 	public boolean remove(Object o) {
 		fireChange();
 		boolean ret = super.remove(o);
-		log.debug("queue: " + size());
+		logger.debug("queue: {}", size());
 
 		return ret;
 	}
@@ -63,7 +63,7 @@ public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 	public void put(T e) {
 		fireChange();
 		super.put(e);
-		log.debug("queue: " + size());
+		logger.debug("queue: {}", size());
 	}
 
 	private void fireChange() {
