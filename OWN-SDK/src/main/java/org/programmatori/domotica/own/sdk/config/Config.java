@@ -23,10 +23,8 @@ package org.programmatori.domotica.own.sdk.config;
 import java.util.*;
 
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -40,7 +38,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
-	private static Log log = LogFactory.getLog(Config.class);
+	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Config instance = null;
 	public static final String SERVER_VERSION = "0.5.1";
 	public static final String SERVER_NAME = "OWN Server";
@@ -81,7 +79,7 @@ public class Config extends AbstractConfig {
 		if (isConfigLoaded()) {
 			// Check File Version to update information
 			String version = getString("version");
-			log.debug("config file version: " + version);
+			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
@@ -172,7 +170,7 @@ public class Config extends AbstractConfig {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Errore:", e); //LogUtility.getErrorTrace(e));
 			desc = "" + who;
 		}
 

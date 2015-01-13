@@ -25,8 +25,6 @@ import java.util.*;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,7 +196,8 @@ public abstract class AbstractConfig {
 		boolean first = true;
 
 		try {
-			Log log = LogFactory.getLog(AbstractConfig.class);
+			//Log log = LogFactory.getLog(AbstractConfig.class);
+			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 			// for solve bug in the jar use a real file instead a "."
 			String filePath = null;
@@ -206,12 +205,12 @@ public abstract class AbstractConfig {
 			// check presence of "filename", if it isn't raise an Exception
 			filePath = ClassLoader.getSystemResource(fileName).toString();
 
-			log.debug("Path of " + fileName + ": " + filePath);
+			logger.debug("Path of {}: {}",  fileName, filePath);
 			StringTokenizer st = new StringTokenizer(filePath, "/"); // URI Separator
 			st.nextToken(); // don't calculate "file:"
 			while (st.hasMoreTokens()) {
 				String folder = st.nextToken();
-				log.debug("Foledr: " + folder);
+				logger.debug("Foledr: " + folder);
 
 				// BUG Linux starting slash
 				if (separator.equals("/") && first) {
@@ -233,7 +232,7 @@ public abstract class AbstractConfig {
 					if (home.length() > 0)
 						home += "/";
 					home = home + folder;
-					log.debug("home: " + home);
+					logger.debug("home: {}", home);
 				}
 			}
 		} catch (Exception e) {
@@ -259,19 +258,20 @@ public abstract class AbstractConfig {
 	}
 
 		private static String getPathFromString(String path) {
-			Log log = LogFactory.getLog(AbstractConfig.class);
+			//Log log = LogFactory.getLog(AbstractConfig.class);
+			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 			String separator = File.separator;
 			boolean first = true;
 			String home = "";
 
-			log.debug("Path " + path);
+			logger.debug("Path {}", path);
 
 			StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
 			//st.nextToken(); // don't calculate "file:"
 			while (st.hasMoreTokens()) {
 				String folder = st.nextToken();
-				log.debug("Foledr: " + folder);
+				logger.debug("Foledr: {}", folder);
 
 				boolean bFile = !(folder.equals("file:"));
 
@@ -296,7 +296,7 @@ public abstract class AbstractConfig {
 					if (home.length() > 0)
 						home += "/";
 					home = home + folder;
-					log.debug("home: " + home);
+					logger.debug("home: {}", home);
 				}
 			}
 
