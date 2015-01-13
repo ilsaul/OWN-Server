@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2014 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,28 +19,28 @@
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.engine.l4686sdk;
+
 import gnu.io.*;
 
 import java.io.*;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This Engine use the BTicino component L4686SDK to talk with the bus scs.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.2.1
+ * @version 0.2.2, 13/01/2015
  */
 public class L4686Sdk implements Engine, SerialPortEventListener {
-	private static final Log log = LogFactory.getLog(L4686Sdk.class);
+	private static final Logger logger = LoggerFactory.getLogger(L4686Sdk.class);
 
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
@@ -89,7 +89,7 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 				CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
 				msg += " " + currPortId.getName();
 			}
-			log.warn(msg);
+			logger.warn(msg);
 
 			throw e;
 		}
@@ -102,7 +102,7 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 			if (commPort instanceof SerialPort) {
 				serialPort = (SerialPort) commPort;
 				serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-				log.info("L4686Sdk Connected");
+				logger.info("L4686Sdk Connected");
 
 				in = serialPort.getInputStream();
 				out = serialPort.getOutputStream();
@@ -111,7 +111,7 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 				serialPort.notifyOnDataAvailable(true);
 
 			} else {
-				log.error("Only serial ports are manage.");
+				logger.error("Only serial ports are manage.");
 			}
 		}
 	}
@@ -147,9 +147,9 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 						byte buffer[] = new byte[available];
 						in.read(buffer, 0, available);
 
-						log.debug("available: " + available + " buffer.length: " + buffer.length);
+						logger.debug("available: {} buffer.length: {}", available, buffer.length);
 						data = new String(buffer, 0, buffer.length);
-						log.debug("Serial data: " + data);
+						logger.debug("Serial data: {}", data);
 					}
 
 					// Add dirty information to the data
@@ -165,7 +165,7 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 							String cmd = data.substring(0, pos+2);
 							dirtyBuffer = data.substring(pos+2, data.length());
 
-							log.debug("RX from BUS: " + cmd);
+							logger.debug("RX from BUS: {}", cmd);
 							SCSEvent event = new SCSEvent(this, cmd);
 							notifyListeners(event);
 						} else {
@@ -175,21 +175,21 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 					}
 
 				} catch (IOException e) {
-					log.error(LogUtility.getErrorTrace(e));
+					logger.error("Error:", e);
 					System.exit(-1);
 				}
 			}
 
 			// There is something on the buffer but i don't understand what is
 			if (dirtyBuffer != null && dirtyBuffer.length() > 0) {
-				log.warn("Dirty Message: " + dirtyBuffer);
+				logger.warn("Dirty Message: {}", dirtyBuffer);
 			}
 
 		} else {
-			log.debug("Event occured: " + oEvent.getEventType());
+			logger.debug("Event occured: {}", oEvent.getEventType());
 		}
 
-		log.trace("End serialEvent");
+		logger.trace("End serialEvent");
 	}
 
 	private void notifyListeners(SCSEvent event) {
@@ -200,10 +200,10 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 	@Override
 	public synchronized void sendCommand(SCSMsg msg) {
 		try {
-			log.debug("TX to BUS: " + msg.toString());
+			logger.debug("TX to BUS: {}", msg.toString());
 			out.write(msg.toString().getBytes());
 		} catch (IOException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:", e);
 		}
 	}
 
