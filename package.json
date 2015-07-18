@@ -13,7 +13,10 @@
   "url": "https://github.com/ilsaul/OWN-Server/issues"
 },
   "dependencies": {
-    "commons-collections": "3.2"
+    "commons-collections": "3.2",
+    "commons-configuration": "1.6",
+    "commons-lang": "2.4",
+    "log4j": "1.2"
   },
   "private": true,
   "analyze": true,
