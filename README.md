@@ -1,7 +1,5 @@
 OWN-Server
 ==========
-[![Dependency Status](https://david-dm.org/ilsaul/OWN-Server.svg)](https://david-dm.org/ilsaul/OWN-Server)
-
 This project was created to help developers of applications for MyHome© BTicino©. The project replaces the Server Gateway Biticino emulating © SCS bus or by connecting to it.
 
 Any Folder you find here is a project folder.
