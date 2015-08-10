@@ -26,4 +26,9 @@ You must add a section similar to this where ever you want in configuration file
 	<intervall unit="min">10</intervall>
 	<file version="2.0">homeState.xml</file>
 </map>
+<areas>
+	<area id="1">Bathroom</area>
+	<area id="2">Living Room</area>
+	<area id="3">Main Bedroom</area>
+</areas>
 ```

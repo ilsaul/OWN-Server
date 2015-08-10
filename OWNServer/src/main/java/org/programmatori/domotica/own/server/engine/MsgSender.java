@@ -1,21 +1,21 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * OWN Server is
+ * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.server.engine;
@@ -24,12 +24,11 @@ import java.util.Calendar;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class send msg to the bus.
@@ -39,7 +38,7 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
  * @since OWNServer v0.1.0
  */
 public class MsgSender extends Thread {
-	private static final Log log = LogFactory.getLog(MsgSender.class);
+	private static final Logger logger = LoggerFactory.getLogger(MsgSender.class);
 
 	private BlockingQueue<Command> msgSendToBus;
 	private BlockingQueue<Command> msgSended;
@@ -47,7 +46,7 @@ public class MsgSender extends Thread {
 	private int sendTimeout;
 
 	public MsgSender(Engine engine, BlockingQueue<Command> queueSended) {
-		log.trace("Start Create Istance");
+		logger.trace("Start Create Istance");
 		setName("MsgSender");
 		setDaemon(true);
 		Config.getInstance().addThread(this);
@@ -57,25 +56,25 @@ public class MsgSender extends Thread {
 		this.engine = engine;
 
 		sendTimeout = Config.getInstance().getSendTimeout();
-		log.trace("End Create Istance");
+		logger.trace("End Create Istance");
 	}
 
 	@Override
 	public void run() {
-		log.trace("Start Run");
+		logger.trace("Start Run");
 		while (!Config.getInstance().isExit()) {
 			Command command = null;
 			try {
 				if (command == null) {
 					command = msgSendToBus.take();
-					log.debug("Received Command: " + command.toString());
+					logger.debug("Received Command: {}", command.toString());
 				}
 
 				if (engine.isReady()) {
 					engine.sendCommand(command.getSendMsg());
 					command.setTimeSend(Calendar.getInstance().getTime());
 					msgSended.put(command);
-					log.debug("TX To Bus " + command.toString());
+					logger.debug("TX To Bus {}", command.toString());
 
 					command = null;
 				} else {
@@ -86,23 +85,23 @@ public class MsgSender extends Thread {
 						command.setStatus(SCSMsg.MSG_COLL);
 						command.setTimeSend(Calendar.getInstance().getTime());
 						msgSended.put(command);
-						log.debug("TX To Bus " + command.toString());
+						logger.debug("TX To Bus {}", command.toString());
 						command = null;
 
 					}
 				}
 			} catch (InterruptedException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				logger.error("Error:" , e);
 			}
 		}
 
-		log.trace("End Run");
+		logger.trace("End Run");
 	}
 
 	public void sendToBus(Command command) throws InterruptedException {
-		log.trace("Start sendToBus");
+		logger.trace("Start sendToBus");
 		msgSendToBus.put(command);
-		log.debug("Sending queue: " + msgSendToBus.size());
-		log.trace("End sendToBus");
+		logger.debug("Sending queue: {}", msgSendToBus.size());
+		logger.trace("End sendToBus");
 	}
 }

@@ -1,21 +1,21 @@
 /*
- * OWN Server is 
+ * OWN Server is
  * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.sdk.config;
@@ -23,20 +23,22 @@ package org.programmatori.domotica.own.sdk.config;
 import java.util.*;
 
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 
 /**
  * Configuration
- * 
+ *
  * @version 1.2, 19/03/2012
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
-	private static Log log = LogFactory.getLog(Config.class);
+	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Config instance = null;
 	public static final String SERVER_VERSION = "0.5.1";
 	public static final String SERVER_NAME = "OWN Server";
@@ -49,20 +51,35 @@ public class Config extends AbstractConfig {
 
 	private Config() {
 		super();
-		
+
 		startTime = GregorianCalendar.getInstance();
 
-		DOMConfigurator.configure(getConfigPath() + "/log4j.xml");
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		JoranConfigurator jc = new JoranConfigurator();
+		jc.setContext(context);
+		context.reset(); // override default configuration
+		// inject the name of the current application as "application-name"
+		// property of the LoggerContext
+		context.putProperty("application-name", "OWNServer");
+		try {
+			jc.doConfigure(getConfigPath() + "/logback.xml");
+		} catch (JoranException e) {
+			e.printStackTrace();
+		}
+
+
+
+		//DOMConfigurator.configure(getConfigPath() + "/log4j.xml");
 		//DOMConfigurator.configureAndWatch(getConfigPath() + "/log4j.xml");
 		//Log log2 = LogFactory.getLog(Config.class);
 		//Logger log3 = Logger.getLogger(Config.class);
 		//log3.error("Config Create");
 		//log2.error("Config Create");
-		
+
 		if (isConfigLoaded()) {
 			// Check File Version to update information
 			String version = getString("version");
-			log.debug("config file version: " + version);
+			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
@@ -134,7 +151,7 @@ public class Config extends AbstractConfig {
 //	public String getL4686Sdk() {
 //		return getString("l4686sdk", "COM6");
 //	}
-	
+
 	public String getNode(String nodeName) {
 		return getString(nodeName);
 	}
@@ -148,12 +165,12 @@ public class Config extends AbstractConfig {
 	public String getWhoDescription(int who) {
 		String desc = null;
 
-		
+
 		try {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Errore:", e); //LogUtility.getErrorTrace(e));
 			desc = "" + who;
 		}
 
@@ -172,7 +189,7 @@ public class Config extends AbstractConfig {
 
 		return new ArrayList<String>(plugins.values());
 	}
-	
+
 	public Calendar getStartUpTime() {
 		return startTime;
 	}
@@ -182,14 +199,14 @@ public class Config extends AbstractConfig {
 	 */
 	public void setUserTime(Calendar userTime) {
 		Calendar now = GregorianCalendar.getInstance();
-		
+
 		timeDiff = TimeUtility.timeDiff(userTime, now);
 		timeZone = userTime.getTimeZone();
 	}
-	
+
 	public Calendar getCurentTime() {
 		Calendar now = GregorianCalendar.getInstance();
-		
+
 		Calendar ret = TimeUtility.timeAdd(timeDiff, now);
 		ret.setTimeZone(timeZone);
 		return ret;

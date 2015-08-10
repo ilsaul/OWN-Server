@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -23,10 +23,10 @@ package org.programmatori.domotica.own.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class wait the network connection. It's
@@ -38,7 +38,7 @@ import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
  * @since OWNServer v0.1.0
  */
 public class TcpIpServer implements Runnable {
-	private static final Log log = LogFactory.getLog(TcpIpServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
 	private ClientList list;
@@ -58,17 +58,16 @@ public class TcpIpServer implements Runnable {
 
 		int port = Config.getInstance().getServerPort();
 		try {
-			log.info("Start listen on port: " + port);
+			logger.info("Start listen on port: {}", port);
 			serverSocket = new ServerSocket(port);
 
 		} catch (IOException e) {
-			log.error("Could not listen on port: " + port);
+			logger.error("Could not listen on port: {}", port);
 			System.exit(-1);
 		}
 
 		maxConnections = Config.getInstance().getMaxConnections();
-		log.debug("Max Connections: " + maxConnections);
-
+		logger.debug("Max Connections: {}", maxConnections);
 	}
 
 	@Override
@@ -76,18 +75,18 @@ public class TcpIpServer implements Runnable {
 		while (!Config.getInstance().isExit()) {
 			try {
 				if (list.getSize() < maxConnections) {
-					log.info("Client Connecting ... (Nº" + list.getSize() + ")");
+					logger.info("Client Connecting ... (Nº{})", list.getSize());
 
 					// Connection respond
 					ClientConnection connection = new ClientConnection(serverSocket.accept(), this, engine);
 					int size = list.add(connection);
 
 					String name = "Conn #" + connection.getId();
-					log.debug("Connection " + size + ": '" + name + "'");
+					logger.debug("Connection {}: '{}'", size, name);
 					Thread t = new Thread(connection, name);
 					t.start();
 				} else {
-					log.warn("Maximum number of connection reached " + maxConnections);
+					logger.warn("Maximum number of connection reached {}", maxConnections);
 				}
 
 			} catch (IOException e) {
@@ -95,7 +94,7 @@ public class TcpIpServer implements Runnable {
 			}
 		}
 
-		log.info("Server End");
+		logger.info("Server End");
 	}
 
 	public boolean isRunning() {

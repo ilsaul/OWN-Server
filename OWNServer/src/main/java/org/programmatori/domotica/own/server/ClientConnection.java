@@ -1,21 +1,21 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * OWN Server is
+ * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.server;
@@ -23,13 +23,12 @@ package org.programmatori.domotica.own.server;
 import java.io.*;
 import java.net.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manager for a single client Connection.
@@ -39,7 +38,7 @@ import org.programmatori.domotica.own.sdk.utils.LogUtility;
  * @version 0.6, 29/04/2012
  */
 public class ClientConnection implements Runnable, Monitor, Sender {
-	private static final Log log = LogFactory.getLog(ClientConnection.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
 	private static final int STATUS_DISCONNECTED = -1;
 	private static final int STATUS_START = 0;
@@ -58,14 +57,14 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private int status;
 
 	public ClientConnection(Socket clientSocket, TcpIpServer server, EngineManager engine) {
-		log.trace("Client Start");
+		logger.trace("Client Start");
 		this.server = server;
 		this.clientSocket = clientSocket;
 		this.engine = engine;
 		mode = OpenWebNetProtocol.MODE_COMMAND;
 
 		id = GeneratorID.get();
-		log.debug("Generate ID: " + id);
+		logger.debug("Generate ID: {}", id);
 
 		status = STATUS_START;
 
@@ -75,7 +74,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			// in = new InputStreamReader(clientSocket.getInputStream());
 
 		} catch (IOException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:" , e);
 		}
 	}
 
@@ -85,11 +84,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		try {
 			clientSocket.setSoTimeout(timeout);
 		} catch (SocketException e1) {
-			log.error(LogUtility.getErrorTrace(e1));
+			logger.error("Error:" , e1);
 		}
 
 		// Welcome
-		log.debug("Welcome msg: " + OpenWebNetProtocol.MSG_WELCOME.toString());
+		logger.debug("Welcome msg: {}", OpenWebNetProtocol.MSG_WELCOME.toString());
 		socketOut.print(OpenWebNetProtocol.MSG_WELCOME.toString());
 		socketOut.flush();
 		logSignal(OpenWebNetProtocol.MSG_WELCOME, true);
@@ -106,13 +105,13 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 					if (intch == -1) {
 						if (mode != OpenWebNetProtocol.MODE_COMMAND) engine.removeMonitor(this);
 						server.remove(this);
-						log.trace("Client End");
+						logger.trace("Client End");
 						return;
 					}
 
 					inputLine += (char) intch;
 				} else {
-					log.debug(getId() + " RX MSG: " + inputLine);
+					logger.debug(getId() + " RX MSG: " + inputLine);
 
 
 					SCSMsg msgSCS = new SCSMsg(inputLine);
@@ -124,7 +123,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 						break;
 
 					case STATUS_PASSWORD:
-						//TODO: Implement PASSWORD case
+						//TODO: Implement PASSWORD case - Bug.ID: #91
 						status = STATUS_CONNECTED;
 						break;
 
@@ -137,7 +136,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 						}
 						break;
 					default:
-						log.error("Unknow Status");
+						logger.error("Unknow Status");
 						break;
 					}
 
@@ -146,11 +145,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			}
 
 		} catch (IOException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:" , e);
 		} catch (MessageFormatException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:" , e);
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:" , e);
 		}
 
 		try {
@@ -160,7 +159,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		} catch (IOException e) {
 			// stub
 		}
-		log.trace("Client End");
+		logger.trace("Client End");
 	}
 
 	private void processStart(SCSMsg msgSCS) {
@@ -168,30 +167,30 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 		if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_COMMAND)) {
 			mode = OpenWebNetProtocol.MODE_COMMAND;
-			log.info(getId() + " Mode: Command");
+			logger.info("{} Mode: Command", getId());
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_MONITOR)) {
 			mode = OpenWebNetProtocol.MODE_MONITOR;
-			
-			//Bug.ID: 3 Monitor don't have time-out
+
+			//Bug.ID: #3 - Monitor don't have time-out
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				logger.error("Error:" , e);
 			}
-			
-			log.info(getId() + " Mode: Monitor");
+
+			logger.info("{} Mode: Monitor", getId());
 			engine.addMonitor(this);
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_TEST)) {
 			mode = OpenWebNetProtocol.MODE_TEST;
-			
+
 			// Mixed mode i disable timeout
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				logger.error("Error:" , e);
 			}
-			
-			log.info(getId() + " Mode: Test");
+
+			logger.info("{} Mode: Test", getId());
 			engine.addMonitor(this);
 		} else {
 			response = SCSMsg.MSG_NACK;
@@ -211,7 +210,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 		socketOut.print(response.toString());
 		socketOut.flush();
-		log.debug(getId() + " TX MSG: " + response.toString());
+		logger.debug("{} TX MSG: {}", getId(), response.toString());
 		logSignal(response, true);
 	}
 
@@ -266,7 +265,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	}
 
 	public void logSignal(SCSMsg msg, boolean isSend) {
-		Log log = LogFactory.getLog("org.programmatori.domotica.own.message");
+		Logger log = LoggerFactory.getLogger("org.programmatori.domotica.own.message");
 
 		String direction = (isSend? "TX MSG:" : "RX MSG:");
 
@@ -275,7 +274,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 	@Override
 	public void reciveMsg(SCSMsg msg) {
-		log.debug(getId() + " TX MSG: " + msg.toString());
+		logger.debug("{} TX MSG: {}", getId(), msg.toString());
 
 		logSignal(msg, true);
 		socketOut.print(msg.toString());
