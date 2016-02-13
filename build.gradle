@@ -4,15 +4,16 @@ subprojects {
 
 	repositories {
 		mavenLocal()
-    	mavenCentral()
+		jcenter()
+    	//mavenCentral()
 	}
 
 	dependencies {
 		//compile group: 'commons-logging', name: 'commons-logging', version: '1.+'
-		testCompile group: 'junit', name: 'junit', version: '4.+'
+		testCompile 'junit:junit:4.+'
 
 		compile 'org.slf4j:slf4j-api:1.7.+'
-		runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.+'
+		runtime 'ch.qos.logback:logback-classic:1.1.+'
 	}
 
 	sourceCompatibility = 1.6

@@ -1,11 +1,24 @@
 apply plugin:'application'
 mainClassName = "org.programmatori.domotica.own.server.Controller"
 
-version = '0.5.2'
+version = '0.5.3-SNAPSHOT'
 jar {
     manifest {
-        attributes 'Implementation-Title': 'OWNServer', 'Implementation-Version': version
+        attributes 'Implementation-Title': project.name, //'OWNServer', 
+        'Implementation-Version': project.version, //version
+        'Built-By': System.getProperty('user.name'),
+        'Built-JDK': System.getProperty('java.version'),
+		'Built-Host': InetAddress.getLocalHost().getHostName(),
+		'Built-Date': new Date(),
+		'Source-Compatibility': project.sourceCompatibility,
+		'Target-Compatibility': project.targetCompatibility
     }
+}
+
+repositories {
+	jcenter()
+	//mavenCentral()
+	maven { url "http://clojars.org/repo/" }
 }
 
 dependencies {
@@ -16,4 +29,7 @@ dependencies {
 	runtime project(':OWNPlugin-System')
 	runtime project(':OWNPlugin-Remote')
 	runtime project(':OWNPlugin-Map')
+
+	// Test
+	testCompile group: 'junit', name: 'junit', version: '4.+'
 }	
