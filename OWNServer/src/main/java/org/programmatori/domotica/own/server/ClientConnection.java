@@ -168,6 +168,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_COMMAND)) {
 			mode = OpenWebNetProtocol.MODE_COMMAND;
 			logger.info("{} Mode: Command", getId());
+
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_MONITOR)) {
 			mode = OpenWebNetProtocol.MODE_MONITOR;
 
@@ -180,6 +181,8 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 			logger.info("{} Mode: Monitor", getId());
 			engine.addMonitor(this);
+
+		// If I don't remember wring this mode don't exist in BTicino Server
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_TEST)) {
 			mode = OpenWebNetProtocol.MODE_TEST;
 
@@ -219,6 +222,10 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		return null;
 	}
 
+	/**
+	 * This is for limit who can access to the bus.<br>
+	 * I haven't yet implement.
+	 */
 	private boolean checkValidIP(InetAddress ip) {
 		//FIXME: Now i accept anyone
 		return true;
@@ -264,6 +271,9 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		return id;
 	}
 
+	/**
+	 * Log only message that go on the bus
+	 */
 	public void logSignal(SCSMsg msg, boolean isSend) {
 		Logger log = LoggerFactory.getLogger("org.programmatori.domotica.own.message");
 
