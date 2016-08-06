@@ -41,6 +41,7 @@ public abstract class AbstractConfig {
 
 	public static final String DEFAULT_CONFIG_FOLDER = "conf";
 	public static final String DEFAULT_CONFIG_PATH = "./" + DEFAULT_CONFIG_FOLDER;
+	public static final String DEFAULT_CONFIG_FILE = "config.xml";
 	public static String HOME_FILE = "home.config";
 
 
@@ -49,22 +50,29 @@ public abstract class AbstractConfig {
 
 	private XMLConfiguration config = null;
 
-	protected AbstractConfig(String configPath) {
-		this.configPath = configPath;
-		configLoaded = false;
-
-		loadConfig();
-	}
-
 	protected AbstractConfig() {
 		this(null);
 	}
 
-	private void loadConfig() {
+	protected AbstractConfig(String configPath) {
+		this(configPath, DEFAULT_CONFIG_FILE);
+	}
+
+	protected AbstractConfig(String configPath, String configFile) {
+		this.configPath = configPath;
+		configLoaded = false;
+
+		loadConfig(configFile);
+	}
+
+	private void loadConfig(String configFile) {
+		logger.debug("Config File: {}", configFile);
+		if (configFile == null || configFile.trim().length() == 0) return;
+
 		try {
-			config = new XMLConfiguration(getConfigPath() + "/config.xml");
+			config = new XMLConfiguration(getConfigPath() + File.separatorChar + configFile);
 			config.setAutoSave(true);
-			logger.info("Config File: {}", config.getURL());
+			logger.info("Full Config: {}", config.getURL());
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
@@ -76,10 +84,20 @@ public abstract class AbstractConfig {
 		return configLoaded;
 	}
 
-	public void setConfig(String configPath) {
-		this.configPath = configPath;
+	public void setConfig(String configFile) {
 
-		loadConfig();
+		File f = new File(configFile);
+		String fileName = null;
+
+		if (f.isDirectory()) {
+			this.configPath = configFile;
+			fileName = DEFAULT_CONFIG_FILE;
+		} else {
+			this.configPath = f.getParent();
+			fileName = f.getName();
+		}
+
+		loadConfig(fileName);
 	}
 
 	protected String getString(String key) {
@@ -151,7 +169,6 @@ public abstract class AbstractConfig {
 				path = home + "/" + DEFAULT_CONFIG_FOLDER;
 
 			} catch (Exception e) {
-				//log.error(LogUtility.getErrorTrace(e));
 				logger.error("Error", LogUtility.getErrorTrace(e));
 				path = DEFAULT_CONFIG_PATH;
 			}
@@ -196,7 +213,6 @@ public abstract class AbstractConfig {
 		boolean first = true;
 
 		try {
-			//Log log = LogFactory.getLog(AbstractConfig.class);
 			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 			// for solve bug in the jar use a real file instead a "."
@@ -258,7 +274,6 @@ public abstract class AbstractConfig {
 	}
 
 		private static String getPathFromString(String path) {
-			//Log log = LogFactory.getLog(AbstractConfig.class);
 			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 			String separator = File.separator;
