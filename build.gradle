@@ -1,6 +1,17 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.+'
+	}
+}
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
+	apply plugin: 'com.github.ben-manes.versions'
 
 	repositories {
 		mavenLocal()
@@ -9,11 +20,12 @@ subprojects {
 	}
 
 	dependencies {
-		//compile group: 'commons-logging', name: 'commons-logging', version: '1.+'
-		testCompile 'junit:junit:4.+'
-
+		// Log of each module
 		compile 'org.slf4j:slf4j-api:1.7.+'
 		runtime 'ch.qos.logback:logback-classic:1.1.+'
+
+		// Test
+		testCompile group: 'junit', name: 'junit', version: '4.+'
 	}
 
 	sourceCompatibility = 1.6
