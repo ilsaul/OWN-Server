@@ -20,6 +20,8 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
+import java.lang.Thread.State;
+
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
@@ -46,4 +48,14 @@ public interface EngineManager {
 	 * remove a client from the list of those receiving messages that pass for the bus
 	 */
 	void removeMonitor(Monitor monitor);
+
+	/**
+	 * Start Engine
+	 */
+	void start();
+
+	/**
+	 * Status of the engine
+	 */
+	State getState();
 }

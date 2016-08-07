@@ -30,20 +30,22 @@ import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.server.OpenWebNetProtocol;
 
-public class SCSClient extends Thread {
+public class SCSClient {
 	public static final String MODE_COMMAND = "1";
 	public static final String MODE_MONITOR = "2";
 
 	private String host;
 	private int port;
 	private String mode;
-	private boolean close;
+	//private boolean close;
 
 	private Socket socket;
 	private InputStream is;
 	private OutputStream os;
 
 	private BlockingQueue<String> received;
+
+	private RederSocket reader;
 
 	public SCSClient(String host, int port) {
 		super();
@@ -52,14 +54,14 @@ public class SCSClient extends Thread {
 
 		received = new LinkedBlockingQueue<String>();
 
-		setName("SCS Client");
+		//setName("SCS Client");
 
 		mode = null;
-		close = true;
+		//close = true;
 	}
 
-	public void connect(String mode) {
-		this.mode = mode;
+	public void connect(String newMode) {
+		this.mode = newMode;
 
 		InetAddress address;
 		try {
@@ -67,7 +69,12 @@ public class SCSClient extends Thread {
 			socket = new Socket(address, port);
 			is = socket.getInputStream();
 			os = socket.getOutputStream();
-			close = false;
+			//close = false;
+
+			reader = new RederSocket(is, received);
+			Thread t = new Thread(reader);
+			t.setName("SCS Client");
+			t.start();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,6 +109,7 @@ public class SCSClient extends Thread {
 		}
 	}
 
+	@Deprecated
 	public void checkTimeOut() throws IOException {
 		int inCh = 0;
 		while (inCh > -1) {
@@ -109,32 +117,6 @@ public class SCSClient extends Thread {
 		}
 
 		if (inCh == -1) throw new IOException("Server Close Connection");
-	}
-
-	@Override
-	public void run() {
-		int inCh = 0;
-		String ret = "";
-		while ((inCh > -1)) {
-			if (is != null) {
-				try {
-					//System.out.println("Start read...");
-					inCh = is.read();
-					//System.out.println("end read...");
-				} catch (IOException e) {
-					inCh = -1;
-				}
-
-				if (inCh != -1) ret += (char) inCh;
-
-				if (ret.endsWith("##")) {
-					received.add(ret);
-					ret = "";
-				}
-			}
-		}
-
-		if (inCh == -1) close = true;
 	}
 
 	public String send(String msg) {
@@ -163,7 +145,7 @@ public class SCSClient extends Thread {
 	}
 
 	public boolean isClose() {
-		return close;
+		return reader.isClose();
 	}
 
 	public void close() {

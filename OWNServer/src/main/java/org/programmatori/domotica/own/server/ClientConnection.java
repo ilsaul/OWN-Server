@@ -89,8 +89,8 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 		// Welcome
 		logger.debug("Welcome msg: {}", OpenWebNetProtocol.MSG_WELCOME.toString());
-		socketOut.print(OpenWebNetProtocol.MSG_WELCOME.toString());
-		socketOut.flush();
+		socketOut.println(OpenWebNetProtocol.MSG_WELCOME.toString());
+		//socketOut.flush();
 		logSignal(OpenWebNetProtocol.MSG_WELCOME, true);
 
 		try {
@@ -99,7 +99,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 			while (clientSocket.isConnected() && !Config.getInstance().isExit()) {
 				if (!inputLine.endsWith("##")) {
-					intch = socketIn.read();
+					intch = socketIn.read(); // <-- Stop Here
 
 					// If arrive -1 it mean the connection is close
 					if (intch == -1) {
