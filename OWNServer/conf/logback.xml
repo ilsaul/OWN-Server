@@ -10,27 +10,18 @@
 		</encoder>
 	</appender>
 
-	<!-- <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>log/BTicino.log</file>
-		<append>true</append>
-		<!- - encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default - ->
-		<encoder>
-			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
-		</encoder>
-	</appender> -->
-
 	<appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>log/BTicino.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
 			<fileNamePattern>BTicino-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<!-- or whenever the file size reaches 100MB -->
 				<maxFileSize>100MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
 		</rollingPolicy>
 		<encoder>
-			<pattern>%msg%n</pattern>
+			<!--  pattern>%msg%n</pattern -->
+			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
 		</encoder>
   </appender>
 

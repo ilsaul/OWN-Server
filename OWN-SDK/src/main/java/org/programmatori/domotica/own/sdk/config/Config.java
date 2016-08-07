@@ -62,6 +62,7 @@ public class Config extends AbstractConfig {
 		context.putProperty("application-name", "OWNServer");
 		try {
 			jc.doConfigure(getConfigPath() + "/logback.xml");
+			//jc.doConfigure(getConfigPath() + "/logback.groovy");
 		} catch (Exception e) { // if is logback, error is JoranException
 			e.printStackTrace();
 		}
