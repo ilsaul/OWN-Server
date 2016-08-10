@@ -19,3 +19,4 @@ dest/
 log/
 OWNServer/conf/log4j.xml
 OWNServer/conf/emuNew.xml
+gradle.properties

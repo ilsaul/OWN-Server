@@ -8,10 +8,15 @@ buildscript {
 	}
 }
 
+plugins {
+  id "org.sonarqube" version "2.0.1"
+}
+
+apply plugin: 'com.github.ben-manes.versions'
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
-	apply plugin: 'com.github.ben-manes.versions'
 
 	repositories {
 		mavenLocal()
@@ -21,7 +26,7 @@ subprojects {
 
 	dependencies {
 		// Log of each module
-		compile 'org.slf4j:slf4j-api:1.7.+'
+		compile 'org.slf4j:slf4j-api:1.6.+'
 		runtime 'ch.qos.logback:logback-classic:1.1.+'
 
 		// Test
