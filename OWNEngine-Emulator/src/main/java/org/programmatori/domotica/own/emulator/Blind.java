@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
  * @version 0.1.1, 22/02/2013
  */
 public class Blind extends SCSBaseComponent {
+	private static final long serialVersionUID = 5225952158561315171L;
+
 	private static final Logger logger = LoggerFactory.getLogger(Blind.class);
 
 	public static final int MUST_WHO = 2;

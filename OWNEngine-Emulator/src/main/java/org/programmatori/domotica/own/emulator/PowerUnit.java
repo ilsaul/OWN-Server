@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * @since OWNServer 0.4.0
  */
 public class PowerUnit extends SCSBaseComponent {
+	private static final long serialVersionUID = 6661218877728692531L;
+
 	private static final Logger logger = LoggerFactory.getLogger(PowerUnit.class);
 
 	public static final int MUST_WHO = 3;

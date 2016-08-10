@@ -1,24 +1,26 @@
 /*
- * OWN Server is 
+ * OWN Server is
  * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.sdk.msg;
+
+import java.io.Serializable;
 
 import org.programmatori.domotica.own.sdk.utils.StringIterator;
 
@@ -28,7 +30,9 @@ import org.programmatori.domotica.own.sdk.utils.StringIterator;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.3.0, 02/06/2010
  */
-public class SCSMsg {
+public class SCSMsg implements Serializable {
+	private static final long serialVersionUID = -8822728143247109985L;
+
 	public static final String MSG_STARTER = "*";
 	public static final String MSG_SEPARATOR = "*";
 	public static final String MSG_ENDER = "##";
@@ -133,14 +137,14 @@ public class SCSMsg {
 		this.where = where;
 		this.what = what;
 	}
-	
+
 	public SCSMsg(Who who, Where where, What what, Property property, Value value) {
 		this(who, where, what);
 
 		this.property = property;
 		this.value = value;
 	}
-	
+
 	public SCSMsg(Who who, boolean statusWho, Where where, What what, Property property, Value value) {
 		this(who, where, what);
 

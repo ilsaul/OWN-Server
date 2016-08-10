@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * @since OWNServer 0.5.0
  */
 public class Light extends SCSBaseComponent {
+	private static final long serialVersionUID = 6385568654373192697L;
+
 	private static final Logger logger = LoggerFactory.getLogger(Light.class);
 
 	public static final int MUST_WHO = 1;
