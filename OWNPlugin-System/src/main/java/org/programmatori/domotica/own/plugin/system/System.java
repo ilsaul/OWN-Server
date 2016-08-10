@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * System manage the base command of the GateWay
- * @version 0.1 07/01/2011
+ * @version 0.2 10/08/2016
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class System extends Thread implements PlugIn {
@@ -60,7 +60,6 @@ public class System extends Thread implements PlugIn {
 				case 0: // Time
 					if (msg.isStatusProperty()) {
 						msgResonse = setTime(msg);
-
 					} else {
 						value = getTime();
 					}
@@ -105,17 +104,20 @@ public class System extends Thread implements PlugIn {
 				case 24: // Distribution Version
 					value = getVersion();
 					break;
+
+				default:
+					logger.warn("Function not implemented: {}", msg.getProperty().getMain());
 			}
 
 			if (value != null) {
-				Who who = new Who("" + MUST_WHO);
+				Who who = new Who(Integer.toString(MUST_WHO));
 				msgResonse = new SCSMsg(who, true, msg.getWhere(), null, msg.getProperty(), value);
 			}
 
 			if (msgResonse != null) {
 				// Test purpose
 				if (engine == null) {
-					java.lang.System.out.println("msg: " + msgResonse);
+					logger.debug("msg: {}", msgResonse);
 				} else {
 					engine.sendCommand(msgResonse, this);
 				}
@@ -151,9 +153,7 @@ public class System extends Thread implements PlugIn {
 			firmware = Config.SERVER_VERSION;
 		}
 
-		Value v = devideString(firmware, '.');
-
-		return v;
+		return devideString(firmware, '.');
 	}
 
 	private Value getKernel() {
@@ -161,15 +161,13 @@ public class System extends Thread implements PlugIn {
 		try {
 			kernel = Config.getInstance().getNode("system.kernel");
 		} catch (Exception e) {
-
+			// Stub !!!
 		}
 		if (kernel == null) {
 			kernel = "0.0.0";
 		}
 
-		Value v = devideString(kernel, '.');
-
-		return v;
+		return devideString(kernel, '.');
 	}
 
 	private Value getTimeDate() {
@@ -232,9 +230,7 @@ public class System extends Thread implements PlugIn {
 			firmware = "0.0.0";
 		}
 
-		Value v = devideString(firmware, '.');
-
-		return v;
+		return devideString(firmware, '.');
 	}
 
 	private Value devideString(String str, char devideKey) {
@@ -278,8 +274,8 @@ public class System extends Thread implements PlugIn {
 		if (model == null) {
 			model = "99";
 		}
-		Value v = new Value(model);
-	return v;
+
+		return new Value(model);
 	}
 
 	private Value getMac() {

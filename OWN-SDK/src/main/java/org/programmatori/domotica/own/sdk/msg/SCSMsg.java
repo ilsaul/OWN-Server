@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -28,7 +28,7 @@ import org.programmatori.domotica.own.sdk.utils.StringIterator;
  * This class represent the single message of a SCS Bus
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.3.0, 02/06/2010
+ * @version 1.3.1, 10/08/2016
  */
 public class SCSMsg implements Serializable {
 	private static final long serialVersionUID = -8822728143247109985L;
@@ -261,7 +261,7 @@ public class SCSMsg implements Serializable {
 	}
 
 	private String encode() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(MSG_STARTER);
 		if (statusWho) sb.append(MSG_CHAR_STATUS);
 		if (who != null) sb.append(who.toString());
