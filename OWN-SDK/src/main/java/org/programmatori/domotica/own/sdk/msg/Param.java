@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -27,7 +27,7 @@ import java.util.*;
  * Part of SCS Message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.0, 21/03/2010
+ * @version 1.0.1, 10/08/2016
  */
 public class Param implements Serializable {
 	private static final long serialVersionUID = -7005336258301327377L;
@@ -36,7 +36,7 @@ public class Param implements Serializable {
 
 	private int main = -1;
 	private String sMain;
-	List<String> params = new ArrayList<String>();
+	ArrayList<String> params = new ArrayList<String>();
 
 	public Param(String param) {
 		StringTokenizer st = new StringTokenizer(param, "#");

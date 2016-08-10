@@ -39,9 +39,11 @@ import org.slf4j.LoggerFactory;
  * @version 0.8.1, 13/01/2015
  */
 public class Emulator implements Engine, SCSComponent {
+	private static final long serialVersionUID = -4985192779288083426L;
+
 	private static final Logger logger = LoggerFactory.getLogger(Emulator.class);
 
-	private List<SCSListener> listListener = null;
+	private ArrayList<SCSListener> listListener = null;
 	private SCSBus bus;
 
 	/**

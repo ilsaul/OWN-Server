@@ -1,6 +1,6 @@
 /*
  * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -20,12 +20,18 @@
  */
 package org.programmatori.domotica.own.emulator;
 
+import java.io.Serializable;
+
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
-public interface SCSComponent {
+/**
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.2, 10/08/2016
+ */
+public interface SCSComponent extends Serializable {
 
 	void reciveMessage(SCSMsg msg);
-	//abstract SCSComponent create(String area, String lightPoint, String value);
 
 	SCSMsg getStatus();
 }
