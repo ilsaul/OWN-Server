@@ -45,6 +45,8 @@ public abstract class ConfigBus extends Thread implements Bus {
 
 	abstract public boolean add(SCSComponent c);
 
+	abstract public void run();
+
 	public void loadConfig(String fileName) {
 		try {
 			XMLConfiguration config = new XMLConfiguration(fileName);
