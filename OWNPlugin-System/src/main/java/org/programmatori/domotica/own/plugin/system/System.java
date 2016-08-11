@@ -357,7 +357,9 @@ public class System extends Thread implements PlugIn {
 				}
 				ip = ip.substring(ip.indexOf('.')+1);
 			}
-			v.addValue(ip); // IP End Part
+
+			if (v != null)
+				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -380,7 +382,9 @@ public class System extends Thread implements PlugIn {
 				}
 				ip = ip.substring(ip.indexOf('.')+1);
 			}
-			v.addValue(ip); // IP End Part
+
+			if (v != null)
+				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -416,13 +420,14 @@ public class System extends Thread implements PlugIn {
 		v.addValue(String.format("%tS", cal.getTimeInMillis())); // Seconds
 
 		String tz = String.format("%tz", cal.getTimeInMillis());
-		String sign = "";
+		String sign;
 		if (tz.startsWith("-")) {
 			sign = "1";
 		} else {
 			sign = "0";
 		}
-		if (tz.startsWith("-") || tz.startsWith("+")) tz = tz.substring(1);
+		if (tz.startsWith("-") || tz.startsWith("+"))
+			tz = tz.substring(1);
 		tz = tz.substring(0, 2);
 
 		v.addValue(sign + tz); // Time Zone SNN (S can be 0 = Positive, 1=Negative) (NN it mean NN hour)
@@ -432,7 +437,7 @@ public class System extends Thread implements PlugIn {
 
 	@Override
 	public void run() {
-
+		// Stub !!
 	}
 
 	/**
