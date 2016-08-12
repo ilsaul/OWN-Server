@@ -1,5 +1,4 @@
 /*
- * OWN Server is
  * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
@@ -22,24 +21,54 @@ package org.programmatori.domotica.own.plugin.system;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.StringTokenizer;
 
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.*;
-import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.Value;
+import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * System manage the base command of the GateWay
- * @version 0.2 10/08/2016
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.2 10/08/2016
  */
 public class System extends Thread implements PlugIn {
-	private static final Logger logger = LoggerFactory.getLogger(System.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
 
-	public static final int MUST_WHO = 13; // 13 = Gateway
+	/** 13 = Gateway. */
+	public static final int MUST_WHO = 13;
+
+	/** Manage the time of the Gateway. */
+	private static final int PM_TIME = 0;
+	/** Get the Date of the Gateway. */
+	private static final int PM_DATE = 1;
+	/** Get the IP of the Gateway. */
+	private static final int PM_IP = 10;
+	/** Get the NetMask of the Gateway. */
+	private static final int PM_NETMASK = 11;
+	/** Get the Mac Address of the Gateway. */
+	private static final int PM_MAC_ADDRESS = 12;
+	/** Get the Model of the Gateway. */
+	private static final int PM_SERVER_MODEL = 15;
+	/** Get the Firmware version of the Gateway. */
+	private static final int PM_FIRMWARE_VERSION = 16;
+	/** Get the Starting time of the Gateway. */
+	private static final int PM_STARTUP_TIME = 19;
+	/** Get the current Time and Date of the Gateway. */
+	private static final int PM_TIME_DATE = 22;
+	/** Get the Kernel version of the Gateway. */
+	private static final int PM_KERNEL_VERSION = 23;
+	/** Get the Distributin version of the Gateway. */
+	private static final int PM_DISTRIBUTION_VERSION = 24;
 
 	private EngineManager engine;
 
@@ -50,76 +79,77 @@ public class System extends Thread implements PlugIn {
 
 	@Override
 	public void reciveMsg(SCSMsg msg) {
-		logger.debug("System recived msg: {}", msg);
+		LOGGER.debug("System recived msg: {}", msg);
 		Value value = null;
 		SCSMsg msgResonse = null;
 
 		if (msg.getWho().getMain() == MUST_WHO && msg.isStatus()) {
 
+			// Chose the Command for the output
 			switch (msg.getProperty().getMain()) {
-				case 0: // Time
+				case PM_TIME:
 					if (msg.isStatusProperty()) {
-						msgResonse = setTime(msg);
+						msgResonse = this.setTime(msg);
 					} else {
-						value = getTime();
+						value = this.getTime();
 					}
 					break;
 
-				case 1: // Date
-					value = getDate();
+				case PM_DATE:
+					value = this.getDate();
 					break;
 
-				case 10: // IP
-					value = getIP();
+				case PM_IP:
+					value = this.getIP();
 					break;
 
-				case 11: // NetMask
-					value = getNetMask();
+				case PM_NETMASK:
+					value = this.getNetMask();
 					break;
 
-				case 12: // Mac Address
-					value = getMac();
+				case PM_MAC_ADDRESS:
+					value = this.getMac();
 					break;
 
-				case 15: // Server Model
-					value = getModel();
+				case PM_SERVER_MODEL:
+					value = this.getModel();
 					break;
 
-				case 16: // Firmware Version
-					value = getFirmware();
+				case PM_FIRMWARE_VERSION:
+					value = this.getFirmware();
 					break;
 
-				case 19: // Start-up time
-					value = getStartUpTime();
+				case PM_STARTUP_TIME:
+					value = this.getStartUpTime();
 					break;
 
-				case 22: // Time & Date
-					value = getTimeDate();
+				case PM_TIME_DATE:
+					value = this.getTimeDate();
 					break;
 
-				case 23: // Kernel Version
-					value = getKernel();
+				case PM_KERNEL_VERSION:
+					value = this.getKernel();
 					break;
 
-				case 24: // Distribution Version
-					value = getVersion();
+				case PM_DISTRIBUTION_VERSION:
+					value = this.getVersion();
 					break;
 
 				default:
-					logger.warn("Function not implemented: {}", msg.getProperty().getMain());
+					LOGGER.warn("Function not implemented: {}", msg.getProperty().getMain());
 			}
 
 			if (value != null) {
-				Who who = new Who(Integer.toString(MUST_WHO));
+				final Who who = new Who(Integer.toString(MUST_WHO));
 				msgResonse = new SCSMsg(who, true, msg.getWhere(), null, msg.getProperty(), value);
 			}
 
 			if (msgResonse != null) {
 				// Test purpose
-				if (engine == null) {
-					logger.debug("msg: {}", msgResonse);
+				if (this.engine == null) {
+					LOGGER.debug("msg: {}", msgResonse);
 				} else {
-					engine.sendCommand(msgResonse, this);
+					this.engine.sendCommand(msgResonse, this);
 				}
 			}
 
