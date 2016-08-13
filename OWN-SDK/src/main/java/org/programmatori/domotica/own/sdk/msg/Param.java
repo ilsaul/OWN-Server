@@ -92,7 +92,12 @@ public class Param implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Param other = (Param) obj;
-		if (!sMain.equals(other.sMain)) // Compare sMain because can be different
+
+		//13/08/2016 With system getTime() can create a SCSMsg with sMain to null
+		if (sMain == null) {
+			if (other.sMain != null)
+				return false;
+		} else if (!sMain.equals(other.sMain)) // Compare sMain because can be different
 			return false;
 		if (params == null) {
 			if (other.params != null)

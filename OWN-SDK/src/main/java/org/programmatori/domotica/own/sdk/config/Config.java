@@ -206,8 +206,18 @@ public class Config extends AbstractConfig {
 	public Calendar getCurentTime() {
 		Calendar now = GregorianCalendar.getInstance();
 
-		Calendar ret = TimeUtility.timeAdd(timeDiff, now);
+		Calendar ret;
+		if (timeDiff != 0) {
+			ret = TimeUtility.timeAdd(timeDiff, now);
+		} else {
+			ret = now;
+		}
+
+		if (timeZone == null) {
+			timeZone = TimeZone.getDefault();
+		}
 		ret.setTimeZone(timeZone);
+
 		return ret;
 	}
 }
