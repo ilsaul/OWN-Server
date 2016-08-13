@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @version 0.2 10/08/2016
  */
 public class System extends Thread implements PlugIn {
+	/** log for the class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
 
 	/** 13 = Gateway. */
@@ -423,7 +424,7 @@ public class System extends Thread implements PlugIn {
 	}
 
 	/**
-	 * Date //*#13**1*DW*D*M*Y##
+	 * Date //*#13**1*DW*D*M*Y##.
 	 */
 	private Value getDate() {
 		Calendar cal = Config.getInstance().getCurentTime();
@@ -440,7 +441,7 @@ public class System extends Thread implements PlugIn {
 	}
 
 	/**
-	 * Time //*#13**0*H*M*S*TZ##
+	 * Time //*#13**0*H*M*S*TZ##.
 	 */
 	private Value getTime() {
 		Calendar cal = Config.getInstance().getCurentTime();
@@ -469,53 +470,5 @@ public class System extends Thread implements PlugIn {
 	public void run() {
 		// Stub !!
 	}
-
-	/**
-	 * Test
-	 */
-	public static void main(String[] args) {
-		System sys = new System(null);
-
-		try {
-			SCSMsg msg = new SCSMsg("*#13**0##"); // *#13**0*O*M*S*F##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**1##"); //*#13**1*DW*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**10##"); //*#13**10*IP1*IP2*IP3*IP4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**11##"); //*#13**10*MASK1*MASK2*MASK3*MASK4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**12##"); //*#13**10*MAC1*MAC2*MAC3*MAC4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**15##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**16##"); //*#13**10*Firmware##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**19##"); //*#13**10*H*M*S*TZ*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**22##"); //*#13**10*H*M*S*TZ*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**23##"); //*#13**10*Kernel##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-
-			msg = new SCSMsg("*#13**#0*12*11*01*001##"); //*#13**#0*H*M*S*F## Write Time
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**#1*12*11*01*001##"); //*#13**#1*DW*D*M*Y## Write Date
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**#22*12*11*01*001##"); //*#13**#22*H*m*S*F*DW*M*Y## Write Time and Date
-			sys.reciveMsg(msg);
-
-
-
-		} catch (MessageFormatException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 }
 
