@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,7 +19,12 @@
  */
 package org.programmatori.domotica.own.plugin.remote;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -27,16 +32,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Utility for send and retrive files.
  * @author Marco Cazzaniga
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.2 (14/08/2016)
  */
 public class FTPUtility {
-	private static final Logger logger = LoggerFactory.getLogger(FTPUtility.class);
+	/** log for the class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(FTPUtility.class);
 
+	/** Protocol used from this utility. */
 	public static final String PROTOCOL = "ftp";
 
+	private FTPUtility() {
+		throw new IllegalAccessError("Utility class");
+	}
+
 	/**
-	 * Funzione che consente la connessione ad un Server FTP
+	 * Funzione che consente la connessione ad un Server FTP.
 	 *
 	 * @param ftpServer Server FTP
 	 * @param username Nome utente per l'accesso
@@ -45,33 +58,33 @@ public class FTPUtility {
 	 */
 	public static FTPClient connect(String ftpServer, String username, String password) {
 
-		FTPClient ftp = new FTPClient();
+		final FTPClient ftp = new FTPClient();
 		String replyString;
 		try {
 			ftp.connect(ftpServer);
 			ftp.login(username, password);
-			logger.info("Connesso a {}.", ftpServer);
+			LOGGER.info("Connesso a {}.", ftpServer);
 
 			replyString = ftp.getReplyString();
-			logger.debug(replyString);
+			LOGGER.debug(replyString);
 
 			int reply = ftp.getReplyCode();
 
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
-				logger.error("Il Server FTP ha rifiutato la connessione.");
-				logger.error(replyString);
+				LOGGER.error("Il Server FTP ha rifiutato la connessione.");
+				LOGGER.error(replyString);
 				return null;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Problemi in connessione", e);
 		}
 
 		return ftp;
 	}
 
 	/**
-	 * Funzione che consente la disconnessione da un Server FTP
+	 * Funzione che consente la disconnessione da un Server FTP.
 	 *
 	 * @param ftp Offetto di tipo FTPClient utilizzato per l'accesso
 	 * @return >0 se tutto funziona correttamente; <0 in caso di errori
@@ -85,12 +98,12 @@ public class FTPUtility {
 				return -1;
 			}
 		}
-		logger.info("Disconnessione avvenuta con successo.");
+		LOGGER.info("Disconnessione avvenuta con successo.");
 		return 1;
 	}
 
 	/**
-	 * Funzione che consente di scrivere un file sul sito FTP remoto
+	 * Funzione che consente di scrivere un file sul sito FTP remoto.
 	 *
 	 * @param ftp Oggetto di tipo FTPClient da usare per il salvataggio del file
 	 * @param name Nome del file da inserire sul server remoto
@@ -108,7 +121,7 @@ public class FTPUtility {
 	}
 
 	/**
-	 * Funzione che consente di leggere un file sul sito FTP remoto
+	 * Funzione che consente di leggere un file sul sito FTP remoto.
 	 *
 	 * @param ftp Oggetto di tipo FTPClient da usare per il recupero del file
 	 * @param name Nome del file da recuperare dal server Remoto
@@ -126,7 +139,7 @@ public class FTPUtility {
 	}
 
 	/**
-	 * Funzione che salva un file di testo XML su un server remoto via FTP
+	 * Funzione che salva un file di testo XML su un server remoto via FTP.
 	 *
 	 * @param pathXML Nome e path del file XML da depositare in remoto
 	 * @param ftpServer Server FTP su cui depositare il file
@@ -145,7 +158,7 @@ public class FTPUtility {
 			putFile(ftp, remoteName, file);
 			disconnect(ftp);
 		} catch (FileNotFoundException e) {
-			logger.error("Il file non esiste.");
+			LOGGER.error("Il file non esiste.");
 			e.printStackTrace();
 			return -1;
 		}
@@ -153,7 +166,7 @@ public class FTPUtility {
 	}
 
 	/**
-	 * Funzione che legge un file di testo XML su un server remoto via FTP
+	 * Funzione che legge un file di testo XML su un server remoto via FTP.
 	 *
 	 * @param remoteName Nome e path del file XML da leggere in remoto
 	 * @param localName Nome e path del file XML da scrivere in locale
@@ -171,7 +184,7 @@ public class FTPUtility {
 			file = new FileOutputStream(localName);
 			getFile(ftp, remoteName, file);
 		} catch (FileNotFoundException e) {
-			logger.error("Il file non esiste.");
+			LOGGER.error("Il file non esiste.");
 			e.printStackTrace();
 			return -1;
 		}
