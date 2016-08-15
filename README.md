@@ -1,12 +1,12 @@
 OWN-Server
 ==========
-This project was created to help developers of applications for MyHome© BTicino©. The project replaces the Server Gateway Biticino emulating © SCS bus or by connecting to it.
+This project was created to help applications developers for MyHome [BTicino](http://www.bticino.it/). The project emulate the Server Gateway Biticino for talk with [SCS bus](https://it.wikipedia.org/wiki/Bus_SCS).
 
-Any Folder you find here is a project folder.
+Any Folder you find in the root is a project folder.
 
-Read the README file within each project folder for more information on the individual project.
+Read the 'README.md' file within each project folder for more information on the individual project.
 
-Any project have a build.gradle script that came from a project http://www.gradle.org.
+OWN Server project use [Gradle](http://www.gradle.org). If you don't know it, you can find some istructions below.
 
 For prepare the project for eclipse use:
 

@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -32,21 +31,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EngineManager Load the class that manage the bus. This class and is
- * parameter need to be set in the config file.<br>
- * In configuration need to use tag 'bus' with the full-name class.<br>
+ * EngineManager load the Driver Engine that manage the bus and manage the queue
+ * of receve and trasmit message to the bus.<br>
+ * <br>
+ * This class is configured using a configuration file.<br>
+ * In the configuration you need to use tag 'bus' and inside it a class
+ * full qualified name of the Engine.<br>
  * <code>
  * &lt;bus&gt;org.programmatori.domotica.own.server.engine.core.Emulator&lt;/bus&gt;<br>
  * </code><br>
- * For use with {@link Emulator} no need to change this part of
- * configuration.
+ * The {@link Emulator} is our default and no need to change if don't want other.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
  * @since OWNServer v0.2.0
  *
  */
-public class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
 	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
 
 	/**
@@ -202,6 +203,9 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 		logger.trace("End run");
 	}
 
+	/**
+	 * Indicate if can be wait for an answer. Use only for area message
+	 */
 	private boolean isTimeWait(Command command) {
 		boolean ret = false;
 

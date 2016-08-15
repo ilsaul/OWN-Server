@@ -7,4 +7,6 @@ jar {
 
 dependencies {
     compile project(':OWN-SDK')
+
+    //testRuntime 'commons-configuration:commons-configuration:1.+'
 }

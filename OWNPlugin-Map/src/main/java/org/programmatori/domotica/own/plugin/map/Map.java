@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -42,7 +41,6 @@ import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -64,7 +62,7 @@ public class Map extends Thread implements PlugIn {
 	private int restartEvery;
 	private String fileName;
 
-	private class comparatorPL implements Comparator<SCSComponent> {
+	private class ComparatorPL implements Comparator<SCSComponent> {
 
 		@Override
 		public int compare(SCSComponent o1, SCSComponent o2) {
@@ -98,12 +96,6 @@ public class Map extends Thread implements PlugIn {
 
 		localBus = new TreeMap<Integer, Set<SCSComponent>>();
 		this.engine = engine;
-
-//		try {
-//			engine.addMonitor(this);
-//		} catch (Exception e) {
-//			// stub
-//		}
 	}
 
 	private void prepareLight() {
@@ -127,11 +119,11 @@ public class Map extends Thread implements PlugIn {
 	}
 
 	private void addBus(Integer area, SCSComponent c) {
-		Set<SCSComponent> room = null;
+		Set<SCSComponent> room;
 		if (localBus.containsKey(area)) {
 			room = localBus.get(area);
 		} else {
-			room = new TreeSet<SCSComponent>(new comparatorPL());
+			room = new TreeSet<SCSComponent>(new ComparatorPL());
 		}
 
 		room.add(c);
@@ -146,7 +138,7 @@ public class Map extends Thread implements PlugIn {
 			int area = msg.getWhere().getArea();
 			int lightPoint = msg.getWhere().getPL();
 			int value = msg.getWhat().getMain();
-			SCSComponent c = Light.create(null, "" + area, "" + lightPoint, "" + value);
+			SCSComponent c = Light.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
 			break;
 
@@ -154,7 +146,7 @@ public class Map extends Thread implements PlugIn {
 			area = msg.getWhere().getArea();
 			lightPoint = msg.getWhere().getPL();
 			value = msg.getWhat().getMain();
-			c = Blind.create(null, "" + area, "" + lightPoint, "" + value);
+			c = Blind.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
 			break;
 
@@ -197,12 +189,12 @@ public class Map extends Thread implements PlugIn {
 
 				// Log the status
 				for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-					Integer area = (Integer) iterAree.next();
+					Integer area = iterAree.next();
 
 					logger.info("Room: {} - {}", area, Config.getInstance().getRoomName(area));
 					Set<SCSComponent> rooms = localBus.get(area);
 					for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-						SCSComponent c = (SCSComponent) iterRoom.next();
+						SCSComponent c = iterRoom.next();
 						logger.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 					}
 				}
@@ -224,8 +216,10 @@ public class Map extends Thread implements PlugIn {
 		try {
 			hd = tf.newTransformerHandler();
 		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
+			logger.error("Error:", e);
+			throw new RuntimeException(e);
 		}
+
 		Transformer serializer = hd.getTransformer();
 
 		serializer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
@@ -252,7 +246,7 @@ public class Map extends Thread implements PlugIn {
 
 			// ----------------------------------------- Area
 			for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-				Integer area = (Integer) iterAree.next();
+				Integer area = iterAree.next();
 
 				attrs.clear();
 				attrs.addAttribute("","","id","CDATA", area.toString());
@@ -262,7 +256,7 @@ public class Map extends Thread implements PlugIn {
 				// ----------------------------------------- Component
 				Set<SCSComponent> rooms = localBus.get(area);
 				for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-					SCSComponent c = (SCSComponent) iterRoom.next();
+					SCSComponent c = iterRoom.next();
 					logger.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 
 					attrs.clear();
@@ -296,21 +290,6 @@ public class Map extends Thread implements PlugIn {
 		} catch (SAXException e) {
 			e.printStackTrace();
 		}
-
-
-
-
-
-//		for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-//			Integer area = (Integer) iterAree.next();
-//
-//			log.info("Room: " + area + " - " + Config.getInstance().getRoomName(area));
-//			Set<SCSComponent> rooms = localBus.get(area);
-//			for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-//				SCSComponent c = (SCSComponent) iterRoom.next();
-//				log.info("PL: " + c.getStatus().getWhere().getPL() + "(" + Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()) + ")");
-//			}
-//		}
 	}
 
 	public static void main(String[] args) {

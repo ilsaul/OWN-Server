@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -35,9 +34,11 @@ import org.slf4j.LoggerFactory;
  * component connected to the bus.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @since TCPIPServer v0.1.0
+ * @version 0.2, 10/08/2016
  */
 public class SCSBus extends ConfigBus {
+	private static final long serialVersionUID = -7685595931533082563L;
+
 	private static final Logger logger = LoggerFactory.getLogger(SCSBus.class);
 
 	private List<SCSComponent> components;

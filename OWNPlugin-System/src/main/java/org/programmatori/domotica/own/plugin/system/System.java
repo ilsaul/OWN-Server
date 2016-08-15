@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -22,24 +21,55 @@ package org.programmatori.domotica.own.plugin.system;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.StringTokenizer;
 
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.*;
-import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.Value;
+import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * System manage the base command of the GateWay
- * @version 0.1 07/01/2011
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @version 0.2 10/08/2016
  */
 public class System extends Thread implements PlugIn {
-	private static final Logger logger = LoggerFactory.getLogger(System.class);
+	/** log for the class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
 
-	public static final int MUST_WHO = 13; // 13 = Gateway
+	/** 13 = Gateway. */
+	public static final int MUST_WHO = 13;
+
+	/** Manage the time of the Gateway. */
+	private static final int PM_TIME = 0;
+	/** Get the Date of the Gateway. */
+	private static final int PM_DATE = 1;
+	/** Get the IP of the Gateway. */
+	private static final int PM_IP = 10;
+	/** Get the NetMask of the Gateway. */
+	private static final int PM_NETMASK = 11;
+	/** Get the Mac Address of the Gateway. */
+	private static final int PM_MAC_ADDRESS = 12;
+	/** Get the Model of the Gateway. */
+	private static final int PM_SERVER_MODEL = 15;
+	/** Get the Firmware version of the Gateway. */
+	private static final int PM_FIRMWARE_VERSION = 16;
+	/** Get the Starting time of the Gateway. */
+	private static final int PM_STARTUP_TIME = 19;
+	/** Get the current Time and Date of the Gateway. */
+	private static final int PM_TIME_DATE = 22;
+	/** Get the Kernel version of the Gateway. */
+	private static final int PM_KERNEL_VERSION = 23;
+	/** Get the Distributin version of the Gateway. */
+	private static final int PM_DISTRIBUTION_VERSION = 24;
 
 	private EngineManager engine;
 
@@ -50,74 +80,77 @@ public class System extends Thread implements PlugIn {
 
 	@Override
 	public void reciveMsg(SCSMsg msg) {
-		logger.debug("System recived msg: {}", msg);
+		LOGGER.debug("System recived msg: {}", msg);
 		Value value = null;
 		SCSMsg msgResonse = null;
 
 		if (msg.getWho().getMain() == MUST_WHO && msg.isStatus()) {
 
+			// Chose the Command for the output
 			switch (msg.getProperty().getMain()) {
-				case 0: // Time
+				case PM_TIME:
 					if (msg.isStatusProperty()) {
-						msgResonse = setTime(msg);
-
+						msgResonse = this.setTime(msg);
 					} else {
-						value = getTime();
+						value = this.getTime();
 					}
 					break;
 
-				case 1: // Date
-					value = getDate();
+				case PM_DATE:
+					value = this.getDate();
 					break;
 
-				case 10: // IP
-					value = getIP();
+				case PM_IP:
+					value = this.getIP();
 					break;
 
-				case 11: // NetMask
-					value = getNetMask();
+				case PM_NETMASK:
+					value = this.getNetMask();
 					break;
 
-				case 12: // Mac Address
-					value = getMac();
+				case PM_MAC_ADDRESS:
+					value = this.getMac();
 					break;
 
-				case 15: // Server Model
-					value = getModel();
+				case PM_SERVER_MODEL:
+					value = this.getModel();
 					break;
 
-				case 16: // Firmware Version
-					value = getFirmware();
+				case PM_FIRMWARE_VERSION:
+					value = this.getFirmware();
 					break;
 
-				case 19: // Start-up time
-					value = getStartUpTime();
+				case PM_STARTUP_TIME:
+					value = this.getStartUpTime();
 					break;
 
-				case 22: // Time & Date
-					value = getTimeDate();
+				case PM_TIME_DATE:
+					value = this.getTimeDate();
 					break;
 
-				case 23: // Kernel Version
-					value = getKernel();
+				case PM_KERNEL_VERSION:
+					value = this.getKernel();
 					break;
 
-				case 24: // Distribution Version
-					value = getVersion();
+				case PM_DISTRIBUTION_VERSION:
+					value = this.getVersion();
 					break;
+
+				default:
+					LOGGER.warn("Function not implemented: {}", msg.getProperty().getMain());
 			}
 
 			if (value != null) {
-				Who who = new Who("" + MUST_WHO);
+				final Who who = new Who(Integer.toString(MUST_WHO));
 				msgResonse = new SCSMsg(who, true, msg.getWhere(), null, msg.getProperty(), value);
 			}
 
 			if (msgResonse != null) {
 				// Test purpose
-				if (engine == null) {
-					java.lang.System.out.println("msg: " + msgResonse);
+				if (this.engine == null) {
+					LOGGER.debug("msg: {}", msgResonse);
 				} else {
-					engine.sendCommand(msgResonse, this);
+					this.engine.sendCommand(msgResonse, this);
 				}
 			}
 
@@ -151,9 +184,7 @@ public class System extends Thread implements PlugIn {
 			firmware = Config.SERVER_VERSION;
 		}
 
-		Value v = devideString(firmware, '.');
-
-		return v;
+		return devideString(firmware, '.');
 	}
 
 	private Value getKernel() {
@@ -161,15 +192,13 @@ public class System extends Thread implements PlugIn {
 		try {
 			kernel = Config.getInstance().getNode("system.kernel");
 		} catch (Exception e) {
-
+			// Stub !!!
 		}
 		if (kernel == null) {
 			kernel = "0.0.0";
 		}
 
-		Value v = devideString(kernel, '.');
-
-		return v;
+		return devideString(kernel, '.');
 	}
 
 	private Value getTimeDate() {
@@ -232,9 +261,7 @@ public class System extends Thread implements PlugIn {
 			firmware = "0.0.0";
 		}
 
-		Value v = devideString(firmware, '.');
-
-		return v;
+		return devideString(firmware, '.');
 	}
 
 	private Value devideString(String str, char devideKey) {
@@ -278,8 +305,8 @@ public class System extends Thread implements PlugIn {
 		if (model == null) {
 			model = "99";
 		}
-		Value v = new Value(model);
-	return v;
+
+		return new Value(model);
 	}
 
 	private Value getMac() {
@@ -361,7 +388,9 @@ public class System extends Thread implements PlugIn {
 				}
 				ip = ip.substring(ip.indexOf('.')+1);
 			}
-			v.addValue(ip); // IP End Part
+
+			if (v != null)
+				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -384,7 +413,9 @@ public class System extends Thread implements PlugIn {
 				}
 				ip = ip.substring(ip.indexOf('.')+1);
 			}
-			v.addValue(ip); // IP End Part
+
+			if (v != null)
+				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -393,7 +424,7 @@ public class System extends Thread implements PlugIn {
 	}
 
 	/**
-	 * Date //*#13**1*DW*D*M*Y##
+	 * Date //*#13**1*DW*D*M*Y##.
 	 */
 	private Value getDate() {
 		Calendar cal = Config.getInstance().getCurentTime();
@@ -410,7 +441,7 @@ public class System extends Thread implements PlugIn {
 	}
 
 	/**
-	 * Time //*#13**0*H*M*S*TZ##
+	 * Time //*#13**0*H*M*S*TZ##.
 	 */
 	private Value getTime() {
 		Calendar cal = Config.getInstance().getCurentTime();
@@ -420,13 +451,14 @@ public class System extends Thread implements PlugIn {
 		v.addValue(String.format("%tS", cal.getTimeInMillis())); // Seconds
 
 		String tz = String.format("%tz", cal.getTimeInMillis());
-		String sign = "";
+		String sign;
 		if (tz.startsWith("-")) {
 			sign = "1";
 		} else {
 			sign = "0";
 		}
-		if (tz.startsWith("-") || tz.startsWith("+")) tz = tz.substring(1);
+		if (tz.startsWith("-") || tz.startsWith("+"))
+			tz = tz.substring(1);
 		tz = tz.substring(0, 2);
 
 		v.addValue(sign + tz); // Time Zone SNN (S can be 0 = Positive, 1=Negative) (NN it mean NN hour)
@@ -436,55 +468,7 @@ public class System extends Thread implements PlugIn {
 
 	@Override
 	public void run() {
-
+		// Stub !!
 	}
-
-	/**
-	 * Test
-	 */
-	public static void main(String[] args) {
-		System sys = new System(null);
-
-		try {
-			SCSMsg msg = new SCSMsg("*#13**0##"); // *#13**0*O*M*S*F##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**1##"); //*#13**1*DW*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**10##"); //*#13**10*IP1*IP2*IP3*IP4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**11##"); //*#13**10*MASK1*MASK2*MASK3*MASK4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**12##"); //*#13**10*MAC1*MAC2*MAC3*MAC4##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**15##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**16##"); //*#13**10*Firmware##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**19##"); //*#13**10*H*M*S*TZ*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**22##"); //*#13**10*H*M*S*TZ*D*M*Y##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**23##"); //*#13**10*Kernel##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-			sys.reciveMsg(msg);
-
-			msg = new SCSMsg("*#13**#0*12*11*01*001##"); //*#13**#0*H*M*S*F## Write Time
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**#1*12*11*01*001##"); //*#13**#1*DW*D*M*Y## Write Date
-			sys.reciveMsg(msg);
-			msg = new SCSMsg("*#13**#22*12*11*01*001##"); //*#13**#22*H*m*S*F*DW*M*Y## Write Time and Date
-			sys.reciveMsg(msg);
-
-
-
-		} catch (MessageFormatException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 }
 

@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -38,10 +37,12 @@ import org.slf4j.LoggerFactory;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.8.1, 13/01/2015
  */
-public class Emulator implements Engine, SCSComponent {
+public final class Emulator implements Engine, SCSComponent {
+	private static final long serialVersionUID = -4985192779288083426L;
+
 	private static final Logger logger = LoggerFactory.getLogger(Emulator.class);
 
-	private List<SCSListener> listListener = null;
+	private ArrayList<SCSListener> listListener = null;
 	private SCSBus bus;
 
 	/**

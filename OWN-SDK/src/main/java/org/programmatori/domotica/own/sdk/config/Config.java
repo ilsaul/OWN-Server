@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -29,18 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
 
 /**
  * Configuration
  *
- * @version 1.2, 19/03/2012
+ * @version 1.3, 10/08/2015
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
 	private static Logger logger = LoggerFactory.getLogger(Config.class);
 	private static Config instance = null;
-	public static final String SERVER_VERSION = "0.5.1";
+	public static final String SERVER_VERSION = "0.5.3";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private boolean exit = false; // Tell to the application if it need to shutdown
@@ -63,7 +61,8 @@ public class Config extends AbstractConfig {
 		context.putProperty("application-name", "OWNServer");
 		try {
 			jc.doConfigure(getConfigPath() + "/logback.xml");
-		} catch (JoranException e) {
+			//jc.doConfigure(getConfigPath() + "/logback.groovy");
+		} catch (Exception e) { // if is logback, error is JoranException
 			e.printStackTrace();
 		}
 
@@ -207,8 +206,18 @@ public class Config extends AbstractConfig {
 	public Calendar getCurentTime() {
 		Calendar now = GregorianCalendar.getInstance();
 
-		Calendar ret = TimeUtility.timeAdd(timeDiff, now);
+		Calendar ret;
+		if (timeDiff != 0) {
+			ret = TimeUtility.timeAdd(timeDiff, now);
+		} else {
+			ret = now;
+		}
+
+		if (timeZone == null) {
+			timeZone = TimeZone.getDefault();
+		}
 		ret.setTimeZone(timeZone);
+
 		return ret;
 	}
 }

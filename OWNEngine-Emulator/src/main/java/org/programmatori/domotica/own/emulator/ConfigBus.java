@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -31,9 +30,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since TCPIPServer v1.1.0
- * @version 0.2, 29/06/2011
+ * @version 0.3, 10/08/2016
  */
 public abstract class ConfigBus extends Thread implements Bus {
+	private static final long serialVersionUID = -4352816713514552619L;
+
 	private static final Logger logger = LoggerFactory.getLogger(ConfigBus.class);
 
 	private boolean save; //Save the configuration in the config file
@@ -44,6 +45,8 @@ public abstract class ConfigBus extends Thread implements Bus {
 	}
 
 	abstract public boolean add(SCSComponent c);
+
+	abstract public void run();
 
 	public void loadConfig(String fileName) {
 		try {

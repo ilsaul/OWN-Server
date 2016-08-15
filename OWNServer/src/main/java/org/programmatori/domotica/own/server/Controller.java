@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -21,6 +20,7 @@
 package org.programmatori.domotica.own.server;
 
 import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class Controller extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
-	private EngineManagerImpl engine;
+	private EngineManager engine;
 	private TcpIpServer server;
 
 	/**
@@ -78,7 +78,7 @@ public class Controller extends Thread {
 
 				if (engine == null || engine.getState() == Thread.State.TERMINATED) {
 					logger.warn("Engine is down i load it");
-					engine = new EngineManagerImpl();
+					engine = new EngineManagerImpl(); //TODO: Read from configuration (exist only one)
 					engine.start();
 				}
 
@@ -94,7 +94,14 @@ public class Controller extends Thread {
 		} catch (InterruptedException e) {
 			logger.error("Error:", e);
 		}
+	}
 
+	/**
+	 * For test if the server continue to work. It's use in junit test
+	 * @return
+	 */
+	public boolean isAliveServer() {
+		return server.isRunning();
 	}
 
 	/**

@@ -1,5 +1,4 @@
 /*
- * OWN Server is
  * Copyright (C) 2010-2015 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
@@ -20,6 +19,7 @@
  */
 package org.programmatori.domotica.own.emulator;
 
+import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -28,7 +28,9 @@ import org.programmatori.domotica.own.sdk.msg.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SCSBaseComponent extends Thread implements SCSComponent {
+public abstract class SCSBaseComponent extends Thread implements SCSComponent, Serializable {
+	private static final long serialVersionUID = -4174453941105833387L;
+
 	private static final Logger logger = LoggerFactory.getLogger(SCSBaseComponent.class);
 
 	private Who who;

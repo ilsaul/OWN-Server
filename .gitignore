@@ -1,29 +1,22 @@
-dest/
-.settings/
-log/
-bin/
-build/
-
-OWNServer/conf/log4j.xml
-OWNServer/conf/emuNew.xml
+# OWN Server
 
 #OS junk files
 [Tt]humbs.db
 *.DS_Store
 
-
-#OWNPlugin-Map/bin
-#OWNEngine-Emulator/bin
-#OWNPlugin-Map/.settings
-#OWNServer/log
-#OWNEngine-Emulator/dest
-#OWN-SDK/dest
-#OWNPlugin-Remote/dest
-#OWNPlugin-System/dest
-#OWNServer/bin
-
-.gradle
-#OWN-SDK/build
-#OWNServer/build
+#Eclispe files
+.settings/
+bin/
 .classpath
 .project
+
+#Gradle files
+.gradle
+build/
+
+#Test files
+dest/
+log/
+OWNServer/conf/log4j.xml
+OWNServer/conf/emuNew.xml
+gradle.properties
