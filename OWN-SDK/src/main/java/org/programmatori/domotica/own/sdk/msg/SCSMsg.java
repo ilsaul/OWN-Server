@@ -32,81 +32,62 @@ import org.programmatori.domotica.own.sdk.utils.StringIterator;
 public class SCSMsg implements Serializable {
 	private static final long serialVersionUID = -8822728143247109985L;
 
+	/** Message starter char. */
 	public static final String MSG_STARTER = "*";
+	/** Message char separator. */
 	public static final String MSG_SEPARATOR = "*";
+	/** Message end chars. */
 	public static final String MSG_ENDER = "##";
+	/** Message char separator in a field. */
 	public static final String MSG_FIELD_SEP = "#";
+	/** Message for ask status. */
 	public static final char MSG_CHAR_STATUS = '#';
 
 	public static SCSMsg MSG_NACK;
 	public static SCSMsg MSG_ACK;
 
-	/**
-	 * Command not operative / not know
-	 */
+	/** Command not operative / not know */
 	public static SCSMsg MSG_NOP;
-
-	/**
-	 * Command manage but receiver device don't replay (not exist)
-	 */
+	/** Command manage but receiver device don't replay (not exist) */
 	public static SCSMsg MSG_RET;
-
-	/**
-	 * Command non execute because message collision on bus
-	 */
+	/** Command non execute because message collision on bus */
 	public static SCSMsg MSG_COLL;
-
-	/**
-	 * Command not execute because impossible access to bus
-	 */
+	/** Command not execute because impossible access to bus */
 	public static SCSMsg MSG_NOBUS;
-
-	/**
-	 * Command not execute, because interface already busy in transmission
-	 */
+	/** Command not execute, because interface already busy in transmission */
 	public static SCSMsg MSG_USY;
-
-	/**
-	 * Procedure multiframe not execute complete
-	 */
+	/** Procedure multiframe not execute complete */
 	public static SCSMsg MSG_PROC;
 
 	static {
-	    try {
-	    	MSG_NACK  = new SCSMsg("*#*0##");
-	    	MSG_ACK   = new SCSMsg("*#*1##");
-	    	MSG_NOP   = new SCSMsg("*#*2##");
-	    	MSG_RET   = new SCSMsg("*#*3##");
-	    	MSG_COLL  = new SCSMsg("*#*4##");
-	    	MSG_NOBUS = new SCSMsg("*#*5##");
-	    	MSG_USY   = new SCSMsg("*#*6##");
-	    	MSG_PROC  = new SCSMsg("*#*7##");
-	    } catch ( Exception e ) {
-	      // Stub !!
-	    }
-	  }
+		try {
+			MSG_NACK  = new SCSMsg("*#*0##");
+			MSG_ACK   = new SCSMsg("*#*1##");
+			MSG_NOP   = new SCSMsg("*#*2##");
+			MSG_RET   = new SCSMsg("*#*3##");
+			MSG_COLL  = new SCSMsg("*#*4##");
+			MSG_NOBUS = new SCSMsg("*#*5##");
+			MSG_USY   = new SCSMsg("*#*6##");
+			MSG_PROC  = new SCSMsg("*#*7##");
+		} catch ( Exception e ) {
+			// Stub !!
+		}
+	}
 
-	private Who who;
-	private Where where;
-	private What what;
-	private Property property;
-	private Value value;
-	private boolean statusWho;
-	private boolean statusWhere;
-	private boolean statusProperty;
+	private Who who = null;
+	private Where where = null;
+	private What what = null;
+	private Property property = null;
+	private Value value = null;
+	private boolean statusWho = false;
+	private boolean statusWhere = false;
+	private boolean statusProperty = false;
 
 	/**
 	 * Base Constructor prepare an empty message.
 	 */
 	private SCSMsg() {
-		who = null;
-		where = null;
-		what = null;
-		property = null;
-		value = null;
-		statusWho = false;
-		statusWhere = false;
-		statusProperty = false;
+		// Stub
 	}
 
 
@@ -119,8 +100,8 @@ public class SCSMsg implements Serializable {
 	public SCSMsg(String msg) throws MessageFormatException {
 		this();
 
-		decode(msg);
-    }
+		this.decode(msg);
+	}
 
 	/**
 	 * This constructor start from the base component to construct che msg
@@ -263,26 +244,26 @@ public class SCSMsg implements Serializable {
 		StringBuilder sb = new StringBuilder();
 		sb.append(MSG_STARTER);
 		if (statusWho) sb.append(MSG_CHAR_STATUS);
-		if (who != null) sb.append(who.toString());
-		if (what != null) sb.append(MSG_SEPARATOR).append(what.toString());
+		if (who != null) sb.append(who);
+		if (what != null) sb.append(MSG_SEPARATOR).append(what);
 
 		if (statusWhere) {
 			sb.append(MSG_SEPARATOR).append(MSG_CHAR_STATUS);
-			if (where != null) sb.append(where.toString());
+			if (where != null) sb.append(where);
 		} else {
-			if (where != null) sb.append(MSG_SEPARATOR).append(where.toString());
+			if (where != null) sb.append(MSG_SEPARATOR).append(where);
 		}
 		//if (where != null) sb.append(MSG_SEPARATOR).append(where.toString());
 		if (statusProperty) {
 			sb.append(MSG_SEPARATOR).append(MSG_CHAR_STATUS);
-			if (property != null) sb.append(property.toString());
+			if (property != null) sb.append(property);
 		} else {
-			if (property != null) sb.append(MSG_SEPARATOR).append(property.toString());
+			if (property != null) sb.append(MSG_SEPARATOR).append(property);
 		}
-		if (value != null) sb.append(MSG_SEPARATOR).append(value.toString());
+		if (value != null) sb.append(MSG_SEPARATOR).append(value);
 		sb.append(MSG_ENDER);
 
-	    return sb.toString();
+		return sb.toString();
 	}
 
 	@Override

@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @since OWNServer v0.2.0
  *
  */
-public class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
 	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
 
 	/**

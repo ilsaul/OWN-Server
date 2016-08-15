@@ -25,7 +25,7 @@ import java.io.Serializable;
  * Part of SCS Message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 10/08/2016
+ * @version 1.0.1, 14/08/2016
  */
 public class Who implements Serializable {
 	private static final long serialVersionUID = 1571092377962443998L;
@@ -46,7 +46,7 @@ public class Who implements Serializable {
 		StringBuffer sb = new StringBuffer();
 		if (who != 0) sb.append(Integer.toString(who));
 
-	    return sb.toString();
+		return sb.toString();
 	}
 
 	public int getMain() {
