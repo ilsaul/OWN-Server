@@ -178,7 +178,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			firmware = Config.getInstance().getNode("system.version");
 		} catch (Exception e) {
-
+			LOGGER.error("Error in getVersion", e);
 		}
 		if (firmware == null) {
 			firmware = Config.SERVER_VERSION;
@@ -300,7 +300,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			model = Config.getInstance().getNode("system.model");
 		} catch (Exception e) {
-
+			LOGGER.error("Error in getModel", e);
 		}
 		if (model == null) {
 			model = "99";
@@ -337,7 +337,7 @@ public class System extends Thread implements PlugIn {
 				}
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Error in getMac", e);
 		}
 
 		return v;
@@ -392,7 +392,7 @@ public class System extends Thread implements PlugIn {
 			if (v != null)
 				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Error in getNetMask", e);
 		}
 
 		return v;
@@ -417,7 +417,7 @@ public class System extends Thread implements PlugIn {
 			if (v != null)
 				v.addValue(ip); // IP End Part
 		} catch(Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Error in getIP", e);
 		}
 
 		return v;

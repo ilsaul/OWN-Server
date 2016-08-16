@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Moreno Cattaneo
  */
 public class FTPRemote extends Thread {
-	private static final Logger logger = LoggerFactory.getLogger(FTPRemote.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FTPRemote.class);
 
 	private String server;
 	private String user;
@@ -65,7 +65,7 @@ public class FTPRemote extends Thread {
 				if (protocol.equals(FTPUtility.PROTOCOL)) {
 					FTPClient ftp = FTPUtility.connect(server, user, pw);
 					if (ftp != null) {
-						logger.info("Connesso al server {}", server);
+						LOGGER.info("connect to server {}", server);
 
 						try {
 							// Recupero il file da remoto con i comandi da attivare
@@ -74,27 +74,28 @@ public class FTPRemote extends Thread {
 							String fileName = f.getName(); // extractFileName(localFileName);
 							FileOutputStream os = new FileOutputStream(path + "/temp" + fileName);
 							FTPUtility.getFile(ftp, remoteFileName, os);
-							logger.debug("File recuperato da remoto");
+							LOGGER.debug("Retrive file from remote");
 
 							// Scrivo il file con lo stato aggiornato
 							FileInputStream is = new FileInputStream(f);
 							FTPUtility.putFile(ftp, remoteFileName, is);
-							logger.debug("File scritto in remoto");
+							LOGGER.debug("Write file to remote");
 
 						} catch (FileNotFoundException e) {
 							e.printStackTrace();
+							LOGGER.error("Retrive file from remote", e);
 						}
 
 						FTPUtility.disconnect(ftp);
-						logger.info("disconnesso dal server {}", server);
+						LOGGER.info("disconect from server {}", server);
 					} else {
-						logger.error("Dati di connessione al server {} sono errati", server);
+						LOGGER.error("Data connection to the server {} are wrong", server);
 					}
 				} else {
-					logger.warn("Protocollo {} non riconosciuto", protocol);
+					LOGGER.warn("Protocol {} unknown", protocol);
 				}
 
-				logger.debug("Dormo per {} msec", interval);
+				LOGGER.debug("Sleep for {} msec", interval);
 				sleep(interval);
 			}
 		} catch (InterruptedException e) {
