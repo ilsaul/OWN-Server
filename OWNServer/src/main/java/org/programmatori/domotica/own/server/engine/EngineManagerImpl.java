@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+	private static final long serialVersionUID = -1460745010256569626L;
+
 	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
 
 	/**

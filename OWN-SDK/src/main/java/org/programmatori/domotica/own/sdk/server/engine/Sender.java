@@ -19,6 +19,8 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
+import java.io.Serializable;
+
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
@@ -27,6 +29,6 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.0, 21/03/2010
  */
-public interface Sender {
+public interface Sender extends Serializable {
 	void reciveMsg(SCSMsg msg);
 }

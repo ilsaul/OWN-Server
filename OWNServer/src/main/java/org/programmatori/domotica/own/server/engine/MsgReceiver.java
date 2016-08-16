@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
  * @since OWNServer v0.1.0
  */
 public class MsgReceiver extends Thread implements SCSListener, QueueListener {
+	private static final long serialVersionUID = 4398470202679549451L;
+
 	private static final Logger logger = LoggerFactory.getLogger(MsgReceiver.class);
 
 	private BlockingQueue<Command> msgReceiveFromBus;
