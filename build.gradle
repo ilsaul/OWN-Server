@@ -12,6 +12,28 @@ plugins {
 	id "org.sonarqube" version "2.0.1"
 }
 
+/**
+ * Get the name of the working branch of the project
+ *
+ * @return Name of the working branch
+ */
+def getWorkingBranch() {
+	// Triple double-quotes for the breaklines
+	def workingBranch = """git --git-dir=${rootDir}/../.git
+							--work-tree=${rootDir}/..
+							rev-parse --abbrev-ref HEAD""".execute().text.trim()
+	print "Working branch: " + workingBranch
+	return workingBranch
+}
+
+sonarqube {
+	properties {
+		property "sonar.projectName", "Java :: OWN :: OWN Server"
+		property "sonar.projectKey", "org.programmatori.domotica.own:" + getWorkingBranch()
+//		property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+	}
+}
+
 apply plugin: 'com.github.ben-manes.versions'
 
 subprojects {
@@ -21,7 +43,7 @@ subprojects {
 	repositories {
 		mavenLocal()
 		jcenter()
-    	mavenCentral()
+		mavenCentral()
 	}
 
 	dependencies {
