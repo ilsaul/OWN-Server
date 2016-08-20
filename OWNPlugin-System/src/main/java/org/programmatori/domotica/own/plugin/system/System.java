@@ -27,7 +27,6 @@ import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.Value;
 import org.programmatori.domotica.own.sdk.msg.Who;
@@ -39,9 +38,11 @@ import org.slf4j.LoggerFactory;
 /**
  * System manage the base command of the GateWay
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.2 10/08/2016
+ * @version 0.2 16/08/2016
  */
 public class System extends Thread implements PlugIn {
+	private static final long serialVersionUID = -8915105861982264418L;
+
 	/** log for the class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
 

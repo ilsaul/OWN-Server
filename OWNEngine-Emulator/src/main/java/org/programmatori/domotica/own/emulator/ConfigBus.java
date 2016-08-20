@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ConfigBus extends Thread implements Bus {
 	private static final long serialVersionUID = -4352816713514552619L;
 
-	private static final Logger logger = LoggerFactory.getLogger(ConfigBus.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigBus.class);
 
 	private boolean save; //Save the configuration in the config file
 
@@ -59,11 +59,11 @@ public abstract class ConfigBus extends Thread implements Bus {
 			} else if (version.equals("2.0")) {
 				loadConfig20(config);
 			} else {
-				logger.warn("Unknown version of the configuration bus: {}", version);
+				LOGGER.warn("Unknown version of the configuration bus: {}", version);
 			}
 
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			LOGGER.error("load xml make configuration error", e);
 		}
 
 	}
