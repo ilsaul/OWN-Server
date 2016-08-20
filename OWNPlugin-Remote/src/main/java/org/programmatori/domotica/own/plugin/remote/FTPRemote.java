@@ -82,7 +82,6 @@ public class FTPRemote extends Thread {
 							LOGGER.debug("Write file to remote");
 
 						} catch (FileNotFoundException e) {
-							e.printStackTrace();
 							LOGGER.error("Retrive file from remote", e);
 						}
 
@@ -99,7 +98,8 @@ public class FTPRemote extends Thread {
 				sleep(interval);
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Error in run", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 

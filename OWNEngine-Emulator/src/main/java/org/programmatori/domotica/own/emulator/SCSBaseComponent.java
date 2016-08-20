@@ -153,6 +153,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 			logger.debug("Add to queue: " + msg.toString());
 		} catch (InterruptedException e) {
 			logger.error("Error:", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 

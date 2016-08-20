@@ -53,6 +53,8 @@ import org.xml.sax.helpers.AttributesImpl;
  * @version 1.0.2, 17/06/2013
  */
 public class Map extends Thread implements PlugIn {
+	private static final long serialVersionUID = -2732986952504238296L;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Map.class);
 
 	private EngineManager engine;
