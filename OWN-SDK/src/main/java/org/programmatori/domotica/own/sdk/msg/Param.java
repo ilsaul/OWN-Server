@@ -22,6 +22,8 @@ package org.programmatori.domotica.own.sdk.msg;
 import java.io.Serializable;
 import java.util.*;
 
+import org.programmatori.domotica.own.sdk.utils.StringIterator;
+
 /**
  * Part of SCS Message
  *
@@ -38,18 +40,22 @@ public class Param implements Serializable {
 	ArrayList<String> params = new ArrayList<String>();
 
 	public Param(String param) {
-		StringTokenizer st = new StringTokenizer(param, "#");
+		//StringTokenizer st = new StringTokenizer(param, "#");
+		StringIterator st = new StringIterator(param, SCSMsg.MSG_FIELD_SEP.charAt(0));
 
-		if (st.hasMoreTokens()) {
-			sMain = st.nextToken();
+		//if (st.hasMoreTokens()) {
+		if (st.hasNext()) {
+			//sMain = st.nextToken();
+			sMain = st.nextString();
 			if (sMain.trim().length() > 0) {
 				main = Integer.parseInt(sMain);
 			}
 		}
 
-		while (st.hasMoreTokens()) {
-			this.params.add(st.nextToken());
-
+		//while (st.hasMoreTokens()) {
+		while (st. hasNext()) {
+			//this.params.add(st.nextToken());
+			this.params.add(st.nextString());
 		}
 	}
 
