@@ -169,21 +169,21 @@ public class Map extends Thread implements PlugIn {
 			try {
 				sleep(pauseStart);
 			} catch (InterruptedException e) {
-				LOGGER.error("Error:", e);
+				LOGGER.error("error not important", e);
 				Thread.currentThread().interrupt();
 			}
 			prepareLight();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
-				LOGGER.error("Error:", e);
+				LOGGER.error("error not important", e);
 				Thread.currentThread().interrupt();
 			}
 			prepareBlind();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
-				LOGGER.error("Error:", e);
+				LOGGER.error("error not important", e);
 				Thread.currentThread().interrupt();
 			}
 
@@ -206,9 +206,10 @@ public class Map extends Thread implements PlugIn {
 			}
 
 			try {
-				this.wait(restartEvery);
-			} catch (Exception e) {
-				LOGGER.error("Error:", e);
+				sleep(restartEvery);
+			} catch (InterruptedException e) {
+				LOGGER.error("sleep non importante", e);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
