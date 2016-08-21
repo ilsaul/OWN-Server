@@ -12,6 +12,30 @@ plugins {
 	id "org.sonarqube" version "2.0.1"
 }
 
+/**
+ * Get the name of the working branch of the project
+ *
+ * @return Name of the working branch
+ */
+def getWorkingBranch() {
+	// Triple double-quotes for the breaklines
+	def workingBranch = """git --git-dir=${rootDir}/.git
+							--work-tree=${rootDir}
+							rev-parse --abbrev-ref HEAD""".execute().text.trim()
+	logger.debug("Working branch: " + workingBranch)
+	return workingBranch
+}
+
+version = '0.4.6'
+sonarqube {
+//	branch = "develop"
+	properties {
+		property "sonar.branch", getWorkingBranch()
+		property "sonar.links.issue", "http://moreno.ga/bugs"
+		property "sonar.links.homepage", "http://moreno.ga"
+	}
+}
+
 apply plugin: 'com.github.ben-manes.versions'
 
 subprojects {
@@ -21,7 +45,7 @@ subprojects {
 	repositories {
 		mavenLocal()
 		jcenter()
-    	mavenCentral()
+		mavenCentral()
 	}
 
 	dependencies {

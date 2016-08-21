@@ -26,27 +26,23 @@ apply plugin: 'java-library-distribution'
 version = '0.2.1'
 
 jar {
-    manifest {
-        attributes 'Implementation-Title': 'OWN-SDK', 'Implementation-Version': version
-    }
+	manifest {
+		attributes 'Implementation-Title': 'OWN-SDK', 'Implementation-Version': version
+	}
 }
 
 dependencies {
-    compile 'commons-configuration:commons-configuration:1.+'
+	compile 'commons-configuration:commons-configuration:1.+'
 	compile 'commons-lang:commons-lang:2.+'
-    compile 'ch.qos.logback:logback-classic:1.1.+'
-    runtime 'commons-collections:commons-collections:3.+'
+	compile 'ch.qos.logback:logback-classic:1.1.+'
+	runtime 'commons-collections:commons-collections:3.+'
 
 
 }
 
 distributions {
-    main{
-        baseName = project.name
+	main {
+		baseName = project.name
 	}
 }
 
-//task build2 << {
-//    println name
-//	println project.name
-//}

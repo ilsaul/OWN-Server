@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
  * @version 0.6, 29/04/2012
  */
 public class ClientConnection implements Runnable, Monitor, Sender {
+	private static final long serialVersionUID = 2151746155544325563L;
+
 	private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
 	private static final int STATUS_DISCONNECTED = -1;

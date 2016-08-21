@@ -153,6 +153,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 			logger.debug("Add to queue: " + msg.toString());
 		} catch (InterruptedException e) {
 			logger.error("Error:", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -182,7 +183,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 				logger.error("Error:", e);
 
 				// if was call an interrupt then the thread need to die
-				throw new RuntimeException("Interrupted", e);
+				Thread.currentThread().interrupt();
 			}
 		}
 		logger.trace("End run");

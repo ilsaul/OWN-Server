@@ -77,7 +77,7 @@ public class FTPUtility {
 				return null;
 			}
 		} catch (IOException e) {
-			LOGGER.error("Problemi in connessione", e);
+			LOGGER.error("Connession problem", e);
 		}
 
 		return ftp;
@@ -94,11 +94,11 @@ public class FTPUtility {
 			try {
 				ftp.disconnect();
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Disconnection", e);
 				return -1;
 			}
 		}
-		LOGGER.info("Disconnessione avvenuta con successo.");
+		LOGGER.info("Logout successful.");
 		return 1;
 	}
 
@@ -114,7 +114,7 @@ public class FTPUtility {
 		try {
 			ftp.storeFile(name, file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Put File", e);
 			return -1;
 		}
 		return 0;
@@ -132,7 +132,7 @@ public class FTPUtility {
 		try {
 			ftp.retrieveFile(name, output);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Get File", e);
 			return -1;
 		}
 		return 0;
@@ -158,8 +158,7 @@ public class FTPUtility {
 			putFile(ftp, remoteName, file);
 			disconnect(ftp);
 		} catch (FileNotFoundException e) {
-			LOGGER.error("Il file non esiste.");
-			e.printStackTrace();
+			LOGGER.error("File does not exist.", e);
 			return -1;
 		}
 		return 1;
@@ -184,8 +183,7 @@ public class FTPUtility {
 			file = new FileOutputStream(localName);
 			getFile(ftp, remoteName, file);
 		} catch (FileNotFoundException e) {
-			LOGGER.error("Il file non esiste.");
-			e.printStackTrace();
+			LOGGER.error("File does not exist.", e);
 			return -1;
 		}
 		return 1;
@@ -212,7 +210,7 @@ public class FTPUtility {
 	public static void main(String[] args) {
 
 		//FTPUtility remote = new FTPUtility();
-		FTPClient ftp = FTPUtility.connect("192.168.3.97", "marco", "heaven");
+		FTPClient ftp = FTPUtility.connect("192.168.3.97", "user", "test");
 
 		if (ftp != null) {
 

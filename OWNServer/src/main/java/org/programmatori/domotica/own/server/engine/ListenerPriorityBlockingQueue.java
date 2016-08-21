@@ -67,7 +67,7 @@ public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 
 	private void fireChange() {
 		for (Iterator<QueueListener> iter = listeners.iterator(); iter.hasNext();) {
-			QueueListener listener = (QueueListener) iter.next();
+			QueueListener listener = iter.next();
 
 			listener.changeNotify();
 		}

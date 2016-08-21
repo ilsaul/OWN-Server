@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class SCSBus extends ConfigBus {
 	private static final long serialVersionUID = -7685595931533082563L;
 
-	private static final Logger logger = LoggerFactory.getLogger(SCSBus.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SCSBus.class);
 
 	private List<SCSComponent> components;
 	private BlockingQueue<MsgBus> msgQueue;
@@ -87,11 +87,11 @@ public class SCSBus extends ConfigBus {
 			if (msg == null) throw new Exception("msg can't be empty");
 
 			ready = false;
-			logger.debug("Msg Rx: {}", msg);
+			LOGGER.debug("Msg Rx: {}", msg);
 			MsgBus msgBus = new MsgBus(msg, sender);
 			msgQueue.put(msgBus);
 		} catch (Exception e) {
-			logger.error("Error:", e);
+			LOGGER.error("Error:", e);
 		}
 	}
 
@@ -101,9 +101,10 @@ public class SCSBus extends ConfigBus {
 			MsgBus msgBus = null;
 			try {
 				msgBus = msgQueue.take();
-				logger.debug("MSG Send To Component: {}", msgBus.getMsg().toString());
+				LOGGER.debug("MSG Send To Component: {}", msgBus.getMsg().toString());
 			} catch (InterruptedException e) {
-				logger.error("Error:", e);
+				LOGGER.error("Error:", e);
+				Thread.currentThread().interrupt();
 			}
 
 			notifyComponents(msgBus);
@@ -117,9 +118,9 @@ public class SCSBus extends ConfigBus {
 
 			if (!c.equals(msgBus.getComponent())) {
 				c.reciveMessage(msgBus.getMsg());
-				logger.debug("Send to component: {}", c.toString());
+				LOGGER.debug("Send to component: {}", c.toString());
 			} else {
-				logger.debug("I don't send to sender");
+				LOGGER.debug("I don't send to sender");
 			}
 
 		}
@@ -144,23 +145,18 @@ public class SCSBus extends ConfigBus {
 		try {
 			msg = new SCSMsg("*#1*11##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*12##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*1*1*0##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*11##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*12##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			Config.getInstance().setExit(true);
 

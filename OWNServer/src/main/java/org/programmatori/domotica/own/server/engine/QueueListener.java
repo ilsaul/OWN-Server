@@ -19,6 +19,8 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
+import java.io.Serializable;
+
 /**
  * This interface is used to manage the object that maintains the queue.
  *
@@ -26,7 +28,7 @@ package org.programmatori.domotica.own.server.engine;
  * @version 1.0.0, 16/10/2010
  * @since OWNServer v0.1.0
  */
-public interface QueueListener {
+public interface QueueListener extends Serializable {
 
 	void changeNotify();
 
