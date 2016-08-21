@@ -26,13 +26,11 @@ def getWorkingBranch() {
 	return workingBranch
 }
 
-version = '0.4.5-Develop'
+version = '0.4.6'
 sonarqube {
 //	branch = "develop"
 	properties {
 		property "sonar.branch", getWorkingBranch()
-		//property "sonar.projectName", "OWN (Develop)"
-		//property "sonar.projectKey", "org.programmatori.domotica:own.develop"
 		property "sonar.links.issue", "http://moreno.ga/bugs"
 		property "sonar.links.homepage", "http://moreno.ga"
 	}
