@@ -31,8 +31,8 @@ public class Where extends Param implements Serializable {
 	private static final long serialVersionUID = -3912228509235975203L;
 
 	public Where(String param) {
-	    super(param);
-    }
+		super(param);
+	}
 
 	public int getArea() {
 		return (int) getMain() / 10;
