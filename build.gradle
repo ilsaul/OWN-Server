@@ -19,18 +19,22 @@ plugins {
  */
 def getWorkingBranch() {
 	// Triple double-quotes for the breaklines
-	def workingBranch = """git --git-dir=${rootDir}/../.git
-							--work-tree=${rootDir}/..
+	def workingBranch = """git --git-dir=${rootDir}/.git
+							--work-tree=${rootDir}
 							rev-parse --abbrev-ref HEAD""".execute().text.trim()
-	print "Working branch: " + workingBranch
+	logger.debug("Working branch: " + workingBranch)
 	return workingBranch
 }
 
+version = '0.4.5-Develop'
 sonarqube {
+//	branch = "develop"
 	properties {
-		property "sonar.projectName", "Java :: OWN :: OWN Server"
-		property "sonar.projectKey", "org.programmatori.domotica.own:" + getWorkingBranch()
-//		property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+		property "sonar.branch", getWorkingBranch()
+		//property "sonar.projectName", "OWN (Develop)"
+		//property "sonar.projectKey", "org.programmatori.domotica:own.develop"
+		property "sonar.links.issue", "http://moreno.ga/bugs"
+		property "sonar.links.homepage", "http://moreno.ga"
 	}
 }
 
