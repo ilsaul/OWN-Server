@@ -36,19 +36,19 @@ public class TestConfig extends TestCase {
 		String path = AbstractConfig.getHomeDirectory();
 
 		ClassLoader loader = Test.class.getClassLoader();
-        File actualPath = new File(loader.getResource("org/programmatori/domotica/own/test/TestConfig.class").getPath());
-        actualPath = actualPath.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+		File actualPath = new File(loader.getResource("org/programmatori/domotica/own/test/TestConfig.class").getPath());
+		actualPath = actualPath.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
 
-        // Remove bin for Eclipse
-        if (actualPath.getName().toString().equals("bin")) {
-        	actualPath = actualPath.getParentFile();
-        }
-        // Remove gradle path (/build/classes/test)
-        if (actualPath.getName().toString().equals("test")
-        		&& actualPath.getParentFile().getName().toString().equals("classes")
-        		&& actualPath.getParentFile().getParentFile().getName().toString().equals("build")) {
-        	actualPath = actualPath.getParentFile().getParentFile().getParentFile();
-        }
+		// Remove bin for Eclipse
+		if (actualPath.getName().toString().equals("bin")) {
+			actualPath = actualPath.getParentFile();
+		}
+		// Remove gradle path (/build/classes/test)
+		if (actualPath.getName().toString().equals("test")
+				&& actualPath.getParentFile().getName().toString().equals("classes")
+				&& actualPath.getParentFile().getParentFile().getName().toString().equals("build")) {
+			actualPath = actualPath.getParentFile().getParentFile().getParentFile();
+		}
 
 		assertEquals( "Wrong Path", actualPath.toString(), path);
 	}
