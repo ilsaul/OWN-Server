@@ -36,6 +36,9 @@ sonarqube {
 	}
 }
 
+task (branch) << {
+	println "Actual branch: " + getWorkingBranch()
+}
 apply plugin: 'com.github.ben-manes.versions'
 
 subprojects {
@@ -55,8 +58,8 @@ subprojects {
 
 	dependencies {
 		// Log of each module
-		compile 'org.slf4j:slf4j-api:1.6.+'
-		runtime 'ch.qos.logback:logback-classic:1.1.+'
+		compile 'org.slf4j:slf4j-api:1.+'
+		runtime 'ch.qos.logback:logback-classic:1.+'
 
 		// Test
 		testCompile group: 'junit', name: 'junit', version: '4.+'
