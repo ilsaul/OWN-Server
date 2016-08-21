@@ -68,8 +68,8 @@ public class Map extends Thread implements PlugIn {
 
 		@Override
 		public int compare(SCSComponent o1, SCSComponent o2) {
-			Integer i1 = new Integer(o1.getStatus().getWhere().getPL());
-			Integer i2 = new Integer(o2.getStatus().getWhere().getPL());
+			Integer i1 = o1.getStatus().getWhere().getPL();
+			Integer i2 = o2.getStatus().getWhere().getPL();
 			return i1.compareTo(i2);
 		}
 	}
@@ -170,21 +170,21 @@ public class Map extends Thread implements PlugIn {
 				sleep(pauseStart);
 			} catch (InterruptedException e) {
 				LOGGER.error("Error:", e);
-				// Not important the error
+				Thread.currentThread().interrupt();
 			}
 			prepareLight();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
 				LOGGER.error("Error:", e);
-				// Not important the error
+				Thread.currentThread().interrupt();
 			}
 			prepareBlind();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
 				LOGGER.error("Error:", e);
-				// Not important the error
+				Thread.currentThread().interrupt();
 			}
 
 			if (localBus.size() == 0) {
@@ -208,7 +208,7 @@ public class Map extends Thread implements PlugIn {
 			try {
 				this.wait(restartEvery);
 			} catch (Exception e) {
-				// Not important the error
+				LOGGER.error("Error:", e);
 			}
 		}
 	}
@@ -228,9 +228,7 @@ public class Map extends Thread implements PlugIn {
 		Transformer serializer = hd.getTransformer();
 
 		serializer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
-		//serializer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "users.dtd");
 		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-		//serializer.setOutputProperty( XalanOutputKeys.OUTPUT_PROP_INDENT_AMOUNT, "2" );
 
 		hd.setResult(streamResult);
 		try {
