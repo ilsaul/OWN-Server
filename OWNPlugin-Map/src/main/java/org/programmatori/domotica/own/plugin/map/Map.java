@@ -264,7 +264,7 @@ public class Map extends Thread implements PlugIn {
 
 					attrs.clear();
 					attrs.addAttribute("","","type","CDATA", Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
-					attrs.addAttribute("","","pl","CDATA",  "" + c.getStatus().getWhere().getPL());
+					attrs.addAttribute("","","pl","CDATA",  Integer.toString(c.getStatus().getWhere().getPL()));
 					hd.startElement("", "", "component", attrs);
 					hd.characters("0".toCharArray(), 0, 1);
 					hd.endElement("", "", "component");

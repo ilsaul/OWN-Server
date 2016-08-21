@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
+import java.io.Serializable;
 import java.lang.Thread.State;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
@@ -31,7 +32,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @version 0.0.1, 22/02/2013
  * @since OWNServer 0.5.0
  */
-public interface EngineManager {
+public interface EngineManager extends Serializable {
 
 	/**
 	 * Use for send command to the bus
