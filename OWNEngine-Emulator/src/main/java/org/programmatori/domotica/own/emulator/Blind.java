@@ -39,6 +39,7 @@ public class Blind extends SCSBaseComponent {
 	public static final int WHAT_UP = 2;
 	public static final int WHAT_DOWN = 1;
 	public static final int WHAT_STOP = 0;
+	public static final String NAME = "blind";
 
 	public Blind(SCSMsg msg, Bus bus) {
 		super(msg, bus);
@@ -46,7 +47,8 @@ public class Blind extends SCSBaseComponent {
 		if (msg.isStatus() || msg.getWho().getMain() != MUST_WHO)
 			throw new RuntimeException("Wrong Message for create " + this.getClass().getSimpleName());
 
-		if (getWhat() == null) setWhat(new What("0"));
+		if (getWhat() == null)
+			setWhat(new What("0"));
 	}
 
 	@Override
@@ -54,11 +56,9 @@ public class Blind extends SCSBaseComponent {
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {
 				sendMsgToBus(getStatus());
-				//bus.sendCommand(SCSMsg.MSG_ACK);
-			} else if (msg.getWhat() != null) { // && !getWhat().equals(msg.getWhat())) {
+			} else if (msg.getWhat() != null) {
 				setWhat(msg.getWhat());
 				sendMsgToBus(getStatus());
-				//bus.sendCommand(SCSMsg.MSG_ACK);
 			} else {
 				sendMsgToBus(SCSMsg.MSG_NACK);
 			}

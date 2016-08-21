@@ -37,6 +37,7 @@ public class Light extends SCSBaseComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Light.class);
 
 	public static final int MUST_WHO = 1;
+	public static final String NAME = "light";
 
 	public Light(SCSMsg msg, Bus bus) {
 		super(msg, bus);

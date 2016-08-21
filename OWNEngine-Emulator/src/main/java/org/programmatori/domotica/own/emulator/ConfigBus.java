@@ -36,17 +36,20 @@ public abstract class ConfigBus extends Thread implements Bus {
 	private static final long serialVersionUID = -4352816713514552619L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigBus.class);
+	private static final String COMPONENT = "component";
 
 	private boolean save; //Save the configuration in the config file
+
 
 	public ConfigBus() {
 		save = false;
 		setDaemon(true);
 	}
 
-	abstract public boolean add(SCSComponent c);
+	public abstract boolean add(SCSComponent c);
 
-	abstract public void run();
+	@Override
+	public abstract void run();
 
 	public void loadConfig(String fileName) {
 		try {
@@ -54,9 +57,9 @@ public abstract class ConfigBus extends Thread implements Bus {
 
 			String version = config.getString("version");
 
-			if (version.equals("1.0")) {
+			if ("1.0".equals(version)) {
 				loadConfig10(config);
-			} else if (version.equals("2.0")) {
+			} else if ("2.0".equals(version)) {
 				loadConfig20(config);
 			} else {
 				LOGGER.warn("Unknown version of the configuration bus: {}", version);
@@ -80,19 +83,19 @@ public abstract class ConfigBus extends Thread implements Bus {
 			String area = config.getString("area(" + pos + ")[@id]");
 
 			int posC = 0;
-			List<?> components = areaConf.getList("component");
+			List<?> components = areaConf.getList(COMPONENT);
 			for (Iterator<?> iterC = components.iterator(); iterC.hasNext();) {
 				String value = (String) iterC.next();
 
-				String type = areaConf.getString("component(" + posC + ")[@type]");
-				String lightPoint = areaConf.getString("component(" + posC + ")[@pl]");
+				String type = areaConf.getString(COMPONENT + "(" + posC + ")[@type]");
+				String lightPoint = areaConf.getString(COMPONENT + "(" + posC + ")[@pl]");
 
 				SCSComponent c = null;
-				if (type.equals("light")) {
+				if (type.equals(Light.NAME)) {
 					c = Light.create(this, area, lightPoint, value);
-				} else if (type.equals("blind")) {
+				} else if (type.equals(Blind.NAME)) {
 					c = Blind.create(this, area, lightPoint, value);
-				}  else if (type.equals("power")) {
+				}  else if (type.equals(PowerUnit.NAME)) {
 					c = PowerUnit.create(this, area, value);
 				}
 				add(c);
@@ -124,19 +127,19 @@ public abstract class ConfigBus extends Thread implements Bus {
 		}
 
 		int pos = 0;
-		List<?> components = config.configurationsAt("component");
+		List<?> components = config.configurationsAt(COMPONENT);
 		for (Iterator<?> iter = components.iterator(); iter.hasNext();) {
 			HierarchicalConfiguration component = (HierarchicalConfiguration ) iter.next();
 
-			String type = config.getString("component(" + pos + ")[@type]");
+			String type = config.getString(COMPONENT + "(" + pos + ")[@type]");
 			String area = component.getString("area");
 			String lightPoint = component.getString("lightPoint");
 			String value = component.getString("value");
 
 			SCSComponent c = null;
-			if (type.equals("light")) {
+			if (type.equals(Light.NAME)) {
 				c = Light.create(this, area, lightPoint, value);
-			} else if (type.equals("blind")) {
+			} else if (type.equals(Blind.NAME)) {
 				c = Blind.create(this, area, lightPoint, value);
 			}
 			add(c);

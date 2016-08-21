@@ -37,6 +37,7 @@ public class PowerUnit extends SCSBaseComponent {
 	private static final Logger logger = LoggerFactory.getLogger(PowerUnit.class);
 
 	public static final int MUST_WHO = 3;
+	public static final String NAME = "power";
 
 	public PowerUnit(SCSMsg msg, Bus bus) {
 		super(msg, bus);
