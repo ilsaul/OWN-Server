@@ -161,7 +161,7 @@ public class SCSBus extends ConfigBus {
 			Config.getInstance().setExit(true);
 
 		} catch (MessageFormatException e) {
-			e.printStackTrace();
+			LOGGER.error("Error:", e);
 		}
 	}
 

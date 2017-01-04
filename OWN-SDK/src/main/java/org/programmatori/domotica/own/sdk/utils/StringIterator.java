@@ -20,6 +20,7 @@
 package org.programmatori.domotica.own.sdk.utils;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A String iterator that works as expected when two succesive delimeters are
@@ -64,6 +65,10 @@ public class StringIterator implements Iterator<Object> {
 
 	@Override
 	public Object next() {
+		if(!hasNext()){
+			throw new NoSuchElementException();
+		}
+
 		return nextString();
 	}
 

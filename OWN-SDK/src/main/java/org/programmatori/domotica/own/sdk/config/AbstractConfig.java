@@ -75,7 +75,7 @@ public abstract class AbstractConfig {
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			logger.error("Error:", e);
 		}
 	}
 
@@ -251,7 +251,7 @@ public abstract class AbstractConfig {
 				}
 			}
 		} catch (Exception e) {
-			throw new Exception("File " + fileName + " must be present, please ensure it exists ");
+			throw new Exception("File " + fileName + " must be present, please ensure it exists", e);
 		}
 
 		return home;

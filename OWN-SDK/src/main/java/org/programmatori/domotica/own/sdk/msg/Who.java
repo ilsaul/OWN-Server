@@ -43,7 +43,7 @@ public class Who implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (who != 0) sb.append(Integer.toString(who));
 
 		return sb.toString();

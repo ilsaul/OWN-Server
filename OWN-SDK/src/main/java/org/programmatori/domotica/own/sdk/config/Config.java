@@ -36,7 +36,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
-	private static Logger logger = LoggerFactory.getLogger(Config.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(Config.class);
 	private static Config instance = null;
 	public static final String SERVER_VERSION = "0.5.3";
 	public static final String SERVER_NAME = "OWN Server";
@@ -78,7 +78,7 @@ public class Config extends AbstractConfig {
 		if (isConfigLoaded()) {
 			// Check File Version to update information
 			String version = getString("version");
-			logger.debug("config file version: {}", version);
+			LOGGER.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
@@ -169,7 +169,7 @@ public class Config extends AbstractConfig {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			logger.error("Errore:", e); //LogUtility.getErrorTrace(e));
+			LOGGER.error("Errore:", e); //LogUtility.getErrorTrace(e));
 			desc = "" + who;
 		}
 

@@ -33,6 +33,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility for send and retrive files.
+ * <br>
+ * Example:<br>
+ * <code>
+ * FTPClient ftp = FTPUtility.connect("192.168.3.97", "user", "test");<br>
+ * if (ftp != null) {<br>
+ *   FileInputStream file = new FileInputStream("prova.txt");<br>
+ *   ftp.saveFile(ftp, "prova.txt", file);<br>
+ *   FileOutputStream file=new FileOutputStream("/Users/Heaven/prova.uno");<br>
+ *   ftp.readFile(ftp, "prova.txt", file);<br>
+ *   FTPUtility.disconnect(ftp);<br>
+ * }
+ * </code>
+ *
  * @author Marco Cazzaniga
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.2 (14/08/2016)
@@ -188,53 +201,4 @@ public class FTPUtility {
 		}
 		return 1;
 	}
-
-//	public void run() {
-//		remoteFileName = "config.xml";
-//		Date now = new Date();
-//		String localFileName = "config.xml";
-//
-//		// Legge da remoto e scrive in locale
-//		if (this.readXML(remoteFileName, localFileName, server, user, pw) == 1)
-//			log.info("Operazione eseguita con successo: letto file " + remoteFileName + " e scritto su disco come " + localFileName + ".");
-//		else
-//			log.error("Operazione non eseguita per errori.");
-//
-//		// Legge in locale e scrive su remoto
-//		if (this.readXML(remoteFileName, localFileName, server, user, pw) == 1)
-//			log.info("Operazione eseguita con successo: scritto file " + remoteFileName + "sul server remoto.");
-//		else
-//			log.error("Operazione non eseguita per errori.");
-//	}
-
-	public static void main(String[] args) {
-
-		//FTPUtility remote = new FTPUtility();
-		FTPClient ftp = FTPUtility.connect("192.168.3.97", "user", "test");
-
-		if (ftp != null) {
-
-			// FileInputStream file;
-			//
-			// try {
-			// file = new FileInputStream("/Users/Heaven/prova.txt");
-			// remote.saveFile(ftp, "prova.txt", file);
-			// } catch (FileNotFoundException e) {
-			// System.out.println("Il file non esiste.");
-			// e.printStackTrace();
-			// }
-
-			// FileOutputStream file;
-			// try {
-			// file=new FileOutputStream("/Users/Heaven/prova.uno");
-			// remote.readFile(ftp, "prova.txt", file);
-			// } catch (FileNotFoundException e) {
-			// System.out.println("Il file non esiste.");
-			// e.printStackTrace();
-			// }
-			FTPUtility.disconnect(ftp);
-		}
-
-	}
-
 }

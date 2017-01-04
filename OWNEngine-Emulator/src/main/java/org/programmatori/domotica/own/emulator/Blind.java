@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.emulator;
 
+import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class Blind extends SCSBaseComponent {
 		super(msg, bus);
 
 		if (msg.isStatus() || msg.getWho().getMain() != MUST_WHO)
-			throw new RuntimeException("Wrong Message for create " + this.getClass().getSimpleName());
+			throw new RuntimeWrongMessageException("Wrong Message in the creation of " + this.getClass().getSimpleName());
 
 		if (getWhat() == null)
 			setWhat(new What("0"));

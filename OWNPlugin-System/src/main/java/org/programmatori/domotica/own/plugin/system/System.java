@@ -193,7 +193,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			kernel = Config.getInstance().getNode("system.kernel");
 		} catch (Exception e) {
-			// Stub !!!
+			LOGGER.warn("Configuration system.kernel read error", e);
 		}
 		if (kernel == null) {
 			kernel = "0.0.0";
@@ -220,7 +220,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			start = Config.getInstance().getStartUpTime();
 		} catch (Exception e) {
-
+			LOGGER.warn("Error in reading start up time", e);
 		}
 
 		/** The date */
@@ -256,7 +256,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			firmware = Config.getInstance().getNode("system.firmware");
 		} catch (Exception e) {
-
+			LOGGER.warn("Configuration system.firmware read error", e);
 		}
 		if (firmware == null) {
 			firmware = "0.0.0";
@@ -431,7 +431,7 @@ public class System extends Thread implements PlugIn {
 		Calendar cal = Config.getInstance().getCurentTime();
 
 		String dw = "0" + (cal.get(Calendar.DAY_OF_WEEK)-1);
-		if (dw.length() > 2) dw.substring(1);
+		if (dw.length() > 2) dw = dw.substring(1);
 
 		Value v = new Value(dw); // Day in week
 		v.addValue(String.format("%td", cal.getTimeInMillis())); // Day
