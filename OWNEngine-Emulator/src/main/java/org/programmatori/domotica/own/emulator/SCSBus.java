@@ -53,7 +53,6 @@ public class SCSBus extends ConfigBus {
 		components = new ArrayList<SCSComponent>();
 		msgQueue = new ArrayBlockingQueue<MsgBus>(1); // On the bus only 1 msg can go
 
-		//cmdQuit = false;
 		ready = true;
 	}
 
@@ -84,7 +83,7 @@ public class SCSBus extends ConfigBus {
 	@Override
 	public void sendCommand(SCSMsg msg, SCSComponent sender) {
 		try {
-			if (msg == null) throw new Exception("msg can't be empty");
+			if (msg == null) throw new MessageFormatException("msg can't be empty");
 
 			ready = false;
 			LOGGER.debug("Msg Rx: {}", msg);

@@ -31,4 +31,8 @@ public class MessageFormatException extends Exception {
 	public MessageFormatException() {
 		super("Message Format Error");
 	}
+
+	public MessageFormatException(String msg) {
+		super(msg);
+	}
 }

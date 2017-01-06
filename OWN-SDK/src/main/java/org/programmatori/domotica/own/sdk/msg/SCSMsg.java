@@ -145,99 +145,113 @@ public class SCSMsg implements Serializable {
 			throw new MessageFormatException();
 		}
 
-		//StringTokenizer stMsg = new StringTokenizer(msg.substring(0, msg.length() -2), MSG_SEPARATOR);
 		StringIterator stMsg2 = new StringIterator(msg.substring(1, msg.length() -2), MSG_SEPARATOR.charAt(0));
 
 		switch (stMsg2.countStrings()) {
 		case 2: // Comando Status *WHO*WHERE##
-			statusWho = false;
-
-			String tempWho = stMsg2.nextString();
-			if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusWho = true;
-
-				tempWho = tempWho.substring(1);
-			}
-			who = new Who(tempWho);
-			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
+			decodeWhoWhere(stMsg2);
 			break;
 
 		case 3: // If don't start with # then normal command *WHO*WHAT*WHERE## else  *#WHO*WHERE*PROPERTY##
-			statusWho = false;
-			tempWho = stMsg2.nextString();
-			if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusWho = true;
-
-				tempWho = tempWho.substring(1);
-			}
-			who = new Who(tempWho);
-
-			if (statusWho) {
-				if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-				if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
-			} else {
-				if (stMsg2.hasNext()) what = new What(stMsg2.nextString());
-				if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-			}
+			decodeWhoWhereProperty(stMsg2);
 			break;
 
 		case 4:
-//			who = new Who(getVauleWithStatus(stMsg2.nextString(), statusWho));
-			statusWho = false;
-			tempWho = stMsg2.nextString();
-			if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusWho = true;
-
-				tempWho = tempWho.substring(1);
-			}
-			who = new Who(tempWho);
-			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-			//if (stMsg2.hasNext()) what = new What(stMsg2.nextString());
-			if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
-			if (stMsg2.hasNext()) value = new Value(stMsg2.nextString());
+			decodeWhoWherePropertyValue(stMsg2);
 			break;
 
 		default:
-			statusWho = false;
-			tempWho = stMsg2.nextString();
-			if (tempWho.length() > 0 && tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusWho = true;
+			decodeDefault(stMsg2);
+		}
+	}
 
-				tempWho = tempWho.substring(1);
+	private void decodeDefault(StringIterator stMsg2) {
+		statusWho = false;
+		String tempWho = stMsg2.nextString();
+		if (tempWho.length() > 0 && tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+			statusWho = true;
+
+			tempWho = tempWho.substring(1);
+		}
+		who = new Who(tempWho);
+		if (stMsg2.hasNext()) {
+			statusWhere = false;
+			String tempWhere = stMsg2.nextString();
+
+			if (tempWhere.length() > 0 && tempWhere.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+				statusWhere = true;
+
+				tempWhere = tempWhere.substring(1);
 			}
-			who = new Who(tempWho);
-			if (stMsg2.hasNext()) {
-				statusWhere = false;
-				String tempWhere = stMsg2.nextString();
+			where = new Where(tempWhere);
+		}
 
-				if (tempWhere.length() > 0 && tempWhere.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-					statusWhere = true;
+		if (stMsg2.hasNext()) {
+			String tempProp = stMsg2.nextString();
+			if (tempProp.length() > 0 && tempProp.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+				statusProperty = true;
 
-					tempWhere = tempWhere.substring(1);
-				}
-				where = new Where(tempWhere);
-				//where = new Where(stMsg2.nextString());
+				tempProp = tempProp.substring(1);
 			}
-			//if (stMsg2.hasNext()) what = new What(stMsg2.nextString());
+			property = new Property(tempProp);
+		}
 
-			if (stMsg2.hasNext()) {
-				String tempProp = stMsg2.nextString();
-				if (tempProp.length() > 0 && tempProp.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-					statusProperty = true;
-
-					tempProp = tempProp.substring(1);
-				}
-				property = new Property(tempProp);
-			}
-
-			while (stMsg2.hasNext()) {
-				if (value == null) {
-					value = new Value(stMsg2.nextString());
-				} else {
-					value.addValue(stMsg2.nextString());
-				}
+		while (stMsg2.hasNext()) {
+			if (value == null) {
+				value = new Value(stMsg2.nextString());
+			} else {
+				value.addValue(stMsg2.nextString());
 			}
 		}
+	}
+
+	private void decodeWhoWherePropertyValue(StringIterator stMsg2) {
+		statusWho = false;
+		String tempWho = stMsg2.nextString();
+		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+			statusWho = true;
+
+			tempWho = tempWho.substring(1);
+		}
+		who = new Who(tempWho);
+		if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
+		if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
+		if (stMsg2.hasNext()) value = new Value(stMsg2.nextString());
+	}
+
+	private void decodeWhoWhereProperty(StringIterator stMsg2) {
+		statusWho = false;
+		String tempWho = stMsg2.nextString();
+		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+			statusWho = true;
+
+			tempWho = tempWho.substring(1);
+		}
+		who = new Who(tempWho);
+
+		if (statusWho) {
+			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
+			if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
+		} else {
+			if (stMsg2.hasNext()) what = new What(stMsg2.nextString());
+			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
+		}
+	}
+
+	/**
+	 * Messaggio: *WHO*WHERE##
+	 */
+	private void decodeWhoWhere(StringIterator stMsg2) {
+		statusWho = false;
+
+		String tempWho = stMsg2.nextString();
+		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
+			statusWho = true;
+
+			tempWho = tempWho.substring(1);
+		}
+		who = new Who(tempWho);
+		if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
 	}
 
 	private String encode() {

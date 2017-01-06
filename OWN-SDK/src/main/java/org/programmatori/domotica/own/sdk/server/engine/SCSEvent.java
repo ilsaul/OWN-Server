@@ -23,6 +23,8 @@ import java.util.EventObject;
 
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SCS Event
@@ -32,7 +34,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  */
 public class SCSEvent extends EventObject {
 	private static final long serialVersionUID = -7415969899219144543L;
-	//private static final Log log = LogFactory.getLog(EventObject.class);
+	private static final Logger logger = LoggerFactory.getLogger(EventObject.class);
 
 	private SCSMsg msg = null;
 
@@ -50,8 +52,7 @@ public class SCSEvent extends EventObject {
 		try {
 			this.msg = new SCSMsg(msg);
 		} catch (MessageFormatException e) {
-			//log.error(LogUtility.getErrorTrace(e));
-			e.printStackTrace();
+			logger.error("Errore in evento", e);
 		}
 	}
 
