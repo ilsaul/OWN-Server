@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public abstract class AbstractConfig {
-	//private static Log log = LogFactory.getLog(AbstractConfig.class);
 	private static Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 	public static final String DEFAULT_CONFIG_FOLDER = "conf";
@@ -86,7 +85,7 @@ public abstract class AbstractConfig {
 	public void setConfig(String configFile) {
 
 		File f = new File(configFile);
-		String fileName = null;
+		String fileName;
 
 		if (f.isDirectory()) {
 			this.configPath = configFile;
@@ -163,7 +162,6 @@ public abstract class AbstractConfig {
 
 		if (path == null) {
 			try {
-				//String home = getOldHomeDirectory(HOME_FILE); // Deprecated System
 				String home = getHomeDirectory();
 				path = home + "/" + DEFAULT_CONFIG_FOLDER;
 
@@ -204,64 +202,6 @@ public abstract class AbstractConfig {
 	 * For return the home of the project need to have a file in the home
 	 *
 	 * @return path of home directory
-	 * @deprecated
-	 */
-	public static String getOldHomeDirectory(String fileName) throws Exception {
-		String home = "";
-		String separator = File.separator;
-		boolean first = true;
-
-		try {
-			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
-
-			// for solve bug in the jar use a real file instead a "."
-			String filePath = null;
-
-			// check presence of "filename", if it isn't raise an Exception
-			filePath = ClassLoader.getSystemResource(fileName).toString();
-
-			logger.debug("Path of {}: {}",  fileName, filePath);
-			StringTokenizer st = new StringTokenizer(filePath, "/"); // URI Separator
-			st.nextToken(); // don't calculate "file:"
-			while (st.hasMoreTokens()) {
-				String folder = st.nextToken();
-				logger.debug("Foledr: " + folder);
-
-				// BUG Linux starting slash
-				if (separator.equals("/") && first) {
-					folder = separator + folder;
-					first = false;
-				}
-
-				// BUG Eclipse put in the bin
-				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
-
-				// BUG jar can not support . then use a real file for find a path
-				boolean bRealFile = !(folder.equals(fileName) && (st.countTokens() < 1));
-
-				// BUG the home directory it cannot end with .jar
-				boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));
-
-				if (bBin && bRealFile && bJar) { // If i build under bin i don't insert in
-					// home path
-					if (home.length() > 0)
-						home += "/";
-					home = home + folder;
-					logger.debug("home: {}", home);
-				}
-			}
-		} catch (Exception e) {
-			throw new Exception("File " + fileName + " must be present, please ensure it exists", e);
-		}
-
-		return home;
-	}
-
-	/**
-	 * Give the home of the project. <br>
-	 * For return the home of the project need to have a file in the home
-	 *
-	 * @return path of home directory
 	 */
 	public static String getHomeDirectory() {
 		File f = new File("");
@@ -282,7 +222,6 @@ public abstract class AbstractConfig {
 			logger.debug("Path {}", path);
 
 			StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
-			//st.nextToken(); // don't calculate "file:"
 			while (st.hasMoreTokens()) {
 				String folder = st.nextToken();
 				logger.debug("Foledr: {}", folder);
@@ -299,7 +238,6 @@ public abstract class AbstractConfig {
 				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
 
 				// BUG jar can not support . then use a real file for find a path
-				//boolean bRealFile = !(folder.equals(fileName) && (st.countTokens() < 1));
 				boolean bRealFile = true;
 
 				// BUG the home directory it cannot end with .jar

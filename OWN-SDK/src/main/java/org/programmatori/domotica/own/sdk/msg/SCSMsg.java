@@ -136,12 +136,10 @@ public class SCSMsg implements Serializable {
 	private void decode(String msg) throws MessageFormatException {
 		// Check if msg is correct
 		if (!msg.startsWith(MSG_STARTER)) {
-			//throw new RuntimeException("Message Format Error");
 			throw new MessageFormatException();
 		}
 
 		if (!msg.endsWith(MSG_ENDER)) {
-			//throw new RuntimeException("Message Format Error");
 			throw new MessageFormatException();
 		}
 
@@ -267,7 +265,6 @@ public class SCSMsg implements Serializable {
 		} else {
 			if (where != null) sb.append(MSG_SEPARATOR).append(where);
 		}
-		//if (where != null) sb.append(MSG_SEPARATOR).append(where.toString());
 		if (statusProperty) {
 			sb.append(MSG_SEPARATOR).append(MSG_CHAR_STATUS);
 			if (property != null) sb.append(property);

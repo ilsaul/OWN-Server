@@ -61,19 +61,9 @@ public class Config extends AbstractConfig {
 		context.putProperty("application-name", "OWNServer");
 		try {
 			jc.doConfigure(getConfigPath() + "/logback.xml");
-			//jc.doConfigure(getConfigPath() + "/logback.groovy");
 		} catch (Exception e) { // if is logback, error is JoranException
 			e.printStackTrace();
 		}
-
-
-
-		//DOMConfigurator.configure(getConfigPath() + "/log4j.xml");
-		//DOMConfigurator.configureAndWatch(getConfigPath() + "/log4j.xml");
-		//Log log2 = LogFactory.getLog(Config.class);
-		//Logger log3 = Logger.getLogger(Config.class);
-		//log3.error("Config Create");
-		//log2.error("Config Create");
 
 		if (isConfigLoaded()) {
 			// Check File Version to update information
@@ -147,10 +137,6 @@ public class Config extends AbstractConfig {
 		return getString("bus", "org.programmatori.domotica.bticino.bus.L4686Sdk");
 	}
 
-//	public String getL4686Sdk() {
-//		return getString("l4686sdk", "COM6");
-//	}
-
 	public String getNode(String nodeName) {
 		return getString(nodeName);
 	}
@@ -163,7 +149,6 @@ public class Config extends AbstractConfig {
 
 	public String getWhoDescription(int who) {
 		String desc = null;
-
 
 		try {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");

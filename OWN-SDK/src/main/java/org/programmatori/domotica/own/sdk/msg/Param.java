@@ -40,21 +40,16 @@ public class Param implements Serializable {
 	ArrayList<String> params = new ArrayList<String>();
 
 	public Param(String param) {
-		//StringTokenizer st = new StringTokenizer(param, "#");
 		StringIterator st = new StringIterator(param, SCSMsg.MSG_FIELD_SEP.charAt(0));
 
-		//if (st.hasMoreTokens()) {
 		if (st.hasNext()) {
-			//sMain = st.nextToken();
 			sMain = st.nextString();
 			if (sMain.trim().length() > 0) {
 				main = Integer.parseInt(sMain);
 			}
 		}
 
-		//while (st.hasMoreTokens()) {
 		while (st. hasNext()) {
-			//this.params.add(st.nextToken());
 			this.params.add(st.nextString());
 		}
 	}
