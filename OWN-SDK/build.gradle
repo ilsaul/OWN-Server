@@ -34,7 +34,7 @@ jar {
 dependencies {
 	compile 'commons-configuration:commons-configuration:1.+'
 	compile 'commons-lang:commons-lang:2.+'
-	compile 'ch.qos.logback:logback-classic:1.1.+'
+	//compile 'ch.qos.logback:logback-classic:1.1.+'
 	runtime 'commons-collections:commons-collections:3.+'
 
 

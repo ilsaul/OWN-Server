@@ -64,17 +64,22 @@ public abstract class AbstractConfig {
 	}
 
 	private void loadConfig(String configFile) {
-		logger.debug("Config File: {}", configFile);
+		//logger.debug("Config File: {}", configFile); // Qui non è ancora attivo il log
+		System.out.println("Config File: " + configFile);
 		if (configFile == null || configFile.trim().length() == 0) return;
 
 		try {
-			config = new XMLConfiguration(getConfigPath() + File.separatorChar + configFile);
+			String cfg = getConfigPath() + File.separatorChar + configFile;
+			//System.out.println("Config File: " + cfg);
+			config = new XMLConfiguration(cfg);
 			config.setAutoSave(true);
-			logger.info("Full Config: {}", config.getURL());
+			//logger.info("Full Config: {}", config.getURL());
+			System.out.println("Full Config: " + config.getURL());
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
-			logger.error("Error:", e);
+			//logger.error("Error:", e); // Non ho ancora il logger
+			e.printStackTrace();
 		}
 	}
 

@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.AbstractConfig;
+import org.programmatori.domotica.own.sdk.config.Config;
 
 public class TestConfig {
 
@@ -43,6 +44,13 @@ public class TestConfig {
 		acPath = acPath.replaceAll("%20", " ");
 
 		assertEquals( "Wrong Path", acPath, path);
+	}
+
+	@Test
+	public void testStartConfig() {
+		Config config = Config.getInstance();
+
+		assertNotNull("Deve esistere la configurazione", config);
 	}
 
 }

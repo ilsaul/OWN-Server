@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.sdk.config;
 
+import java.io.File;
 import java.util.*;
 
 import org.apache.commons.configuration.XMLConfiguration;
@@ -36,10 +37,11 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
-	private static Logger LOGGER = LoggerFactory.getLogger(Config.class);
-	private static Config instance = null;
+	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 	public static final String SERVER_VERSION = "0.5.3";
 	public static final String SERVER_NAME = "OWN Server";
+
+	private static Config instance = null;
 
 	private boolean exit = false; // Tell to the application if it need to shutdown
 	private List<Thread> listThread;
@@ -60,7 +62,9 @@ public class Config extends AbstractConfig {
 		// property of the LoggerContext
 		context.putProperty("application-name", "OWNServer");
 		try {
-			jc.doConfigure(getConfigPath() + "/logback.xml");
+			String cfg = getConfigPath() + File.separatorChar + "logback.xml";
+			System.out.println("Log path: " + cfg);
+			jc.doConfigure(cfg);
 		} catch (Exception e) { // if is logback, error is JoranException
 			e.printStackTrace();
 		}

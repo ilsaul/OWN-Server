@@ -39,7 +39,6 @@ public class OpenWebNetProtocol {
 	public static final int MODE_MONITOR = 1;
 	public static final int MODE_TEST = 2;
 
-
 	static {
 		try {
 			MSG_MODE_COMMAND = new SCSMsg("*99*0##");
@@ -48,5 +47,9 @@ public class OpenWebNetProtocol {
 	    } catch ( Exception e ) {
 	      // Stub !!
 	    }
+	}
+
+	private OpenWebNetProtocol() {
+		// per non instanziare la classe
 	}
 }
