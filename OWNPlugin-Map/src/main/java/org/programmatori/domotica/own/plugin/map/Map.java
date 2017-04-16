@@ -190,7 +190,11 @@ public class Map extends Thread implements PlugIn {
 			if (localBus.size() == 0) {
 				LOGGER.info("Bus Empty");
 			} else {
-				createStatusFile(fileName);
+				try {
+					createStatusFile(fileName);
+				} catch (TransformerConfigurationException e) {
+					LOGGER.error("Error:", e);
+				}
 
 				// Log the status
 				for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
@@ -214,17 +218,17 @@ public class Map extends Thread implements PlugIn {
 		}
 	}
 
-	private void createStatusFile(String fileName) {
+	private void createStatusFile(String fileName) throws TransformerConfigurationException {
 		StreamResult streamResult = new StreamResult(new File(fileName));
 
 		SAXTransformerFactory  tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 		TransformerHandler hd = null;
-		try {
+		//try {
 			hd = tf.newTransformerHandler();
-		} catch (TransformerConfigurationException e) {
-			LOGGER.error("Error:", e);
-			throw new RuntimeException(e);
-		}
+//		} catch (TransformerConfigurationException e) {
+//			LOGGER.error("Error:", e);
+//			throw e;
+//		}
 
 		Transformer serializer = hd.getTransformer();
 
@@ -294,11 +298,5 @@ public class Map extends Thread implements PlugIn {
 		} catch (SAXException e) {
 			LOGGER.error("La conversione è in errore", e);
 		}
-	}
-
-	public static void main(String[] args) {
-		Map map = new Map(null);
-
-		map.createStatusFile("test.xml");
 	}
 }

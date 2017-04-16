@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-	id "org.sonarqube" version "2.2.1" //"2.0.1"
+	id "org.sonarqube" version "2.3" //"2.2.1" //"2.0.1"
 }
 
 /**
@@ -47,7 +47,7 @@ subprojects {
 	apply plugin: 'jacoco'
 	test.finalizedBy jacocoTestReport
 	jacoco {
-		toolVersion = '0.7.7.201606060606'
+		toolVersion = '0.7.+'
 	}
 
 	repositories {
