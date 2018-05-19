@@ -22,6 +22,7 @@
 /*
     OWN SDK
 */
+apply plugin: 'java-library'
 apply plugin: 'java-library-distribution'
 version = '0.2.1'
 
@@ -32,12 +33,13 @@ jar {
 }
 
 dependencies {
-	compile 'commons-configuration:commons-configuration:1.+'
-	compile 'commons-lang:commons-lang:2.+'
-	//compile 'ch.qos.logback:logback-classic:1.1.+'
-	runtime 'commons-collections:commons-collections:3.+'
+	api 'commons-configuration:commons-configuration:1.+'
 
+	implementation 'commons-lang:commons-lang:2.+'
+	implementation 'org.slf4j:slf4j-api:1.+'
+	implementation 'ch.qos.logback:logback-classic:1.+'
 
+	runtimeOnly 'commons-collections:commons-collections:3.+'
 }
 
 distributions {

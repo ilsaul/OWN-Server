@@ -25,7 +25,9 @@ public class TestConfig {
 		String path = AbstractConfig.getHomeDirectory();
 
 		ClassLoader loader = Test.class.getClassLoader();
-		File actualPath = new File(loader.getResource("org/programmatori/domotica/own/test/TestConfig.class").getPath());
+		String classDot = TestConfig.class.getCanonicalName();
+		String className = classDot.replaceAll("\\.", File.separator) + ".class";
+		File actualPath = new File(loader.getResource(className).getPath()); // "org/programmatori/domotica/own/test/TestConfig.class").getPath());
 		actualPath = actualPath.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
 
 		// Remove bin for Eclipse
@@ -34,9 +36,10 @@ public class TestConfig {
 		}
 		// Remove gradle path (/build/classes/test)
 		if (actualPath.getName().toString().equals("test")
-				&& actualPath.getParentFile().getName().toString().equals("classes")
-				&& actualPath.getParentFile().getParentFile().getName().toString().equals("build")) {
-			actualPath = actualPath.getParentFile().getParentFile().getParentFile();
+				&& actualPath.getParentFile().getName().toString().equals("java")
+				&& actualPath.getParentFile().getParentFile().getName().toString().equals("classes")
+				&& actualPath.getParentFile().getParentFile().getParentFile().getName().toString().equals("build")) {
+			actualPath = actualPath.getParentFile().getParentFile().getParentFile().getParentFile();
 		}
 
 		// On linux the space is %20 and need to be replace

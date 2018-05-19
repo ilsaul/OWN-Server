@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-	id "org.sonarqube" version "2.3" //"2.2.1" //"2.0.1"
+	id "org.sonarqube" version "2.6.2" //"2.2.1" //"2.0.1"
 }
 
 /**
@@ -31,13 +31,15 @@ sonarqube {
 //	branch = "develop"
 	properties {
 		property "sonar.branch", getWorkingBranch()
-		property "sonar.links.issue", "http://moreno.ga/bugs"
-		property "sonar.links.homepage", "http://moreno.ga"
+		property "sonar.links.issue", "http://progetti.ga/bugs"
+		property "sonar.links.homepage", "http://progetti.ga"
 	}
 }
 
-task (branch) << {
-	println "Actual branch: " + getWorkingBranch()
+task (branch) {
+	doLast {
+		println "Actual branch: " + getWorkingBranch()
+	}
 }
 apply plugin: 'com.github.ben-manes.versions'
 
@@ -51,19 +53,26 @@ subprojects {
 	}
 
 	repositories {
+		// Personal Nexus
+		maven { url 'http://localhost:8082/repository/maven-public/' }
+
+		// Local Machine Repo
 		mavenLocal()
+
+		// Public Repos
 		jcenter()
 		mavenCentral()
 	}
 
 	dependencies {
-		// Log of each module
+		// Real log of each module
 		//compile 'org.slf4j:slf4j-api:1.+'
-		compile 'ch.qos.logback:logback-classic:1.+'
+		//compile 'ch.qos.logback:logback-classic:1.+'
+		runtime 'ch.qos.logback:logback-classic:1.+'
 
 		// Test
 		testCompile group: 'junit', name: 'junit', version: '4.+'
 	}
 
-	sourceCompatibility = 1.6
+	sourceCompatibility = 1.8
 }
