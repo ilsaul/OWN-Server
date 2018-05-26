@@ -222,6 +222,9 @@ public class L4686Sdk implements Engine, SerialPortEventListener {
 		}
 	}
 
+	/**
+	 * Test porpose
+	 */
 	public static void main(String[] args) {
 		try {
 			(new L4686Sdk()).connect("COM6");
