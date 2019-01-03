@@ -8,7 +8,7 @@ INSTALL
 
 You must add this line where ever you want in the server configuration file set which bus need to use.
 ```
-<bus>org.programmatori.domotica.own.server.engine.core.L4686Sdk</bus>
+<bus>org.programmatori.domotica.own.engine.row.Row</bus>
 ```
 
 You need to provide the USB or COM port where is conected the component L4686SDK.
