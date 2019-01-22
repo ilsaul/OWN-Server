@@ -1,7 +1,10 @@
 /*
 	OWN Engine L4686SDK
 */
-version = '0.1.8'
+apply plugin: 'java-library'
+//apply plugin: 'java-library-distribution'
+version = '0.1.9'
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'OWN-Engine-L4686SDK', 'Implementation-Version': version
@@ -9,9 +12,11 @@ jar {
 }
 
 dependencies {
-    compile project(':OWN-SDK')
+    api project(':OWN-SDK')
     //compile 'org.scream3r:jssc:2.8.+'
     //compile 'org.rxtx:rxtx:2.1.7'
-    compile 'org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2'
+    implementation 'org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2'
+
+
 
 }

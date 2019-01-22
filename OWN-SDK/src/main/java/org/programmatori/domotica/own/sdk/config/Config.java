@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.*;
 
 import org.apache.commons.configuration.XMLConfiguration;
+import org.programmatori.domotica.own.sdk.msg.MessageBusLog;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class Config extends AbstractConfig {
 	private Calendar startTime;
 	private long timeDiff;
 	private TimeZone timeZone;
+	private MessageBusLog messageLog;
 
 	private Config() {
 		super();
@@ -79,6 +81,8 @@ public class Config extends AbstractConfig {
 		}
 
 		listThread = new ArrayList<Thread>();
+
+		messageLog = new MessageBusLog();
 	}
 
 	public static Config getInstance() {
@@ -208,5 +212,9 @@ public class Config extends AbstractConfig {
 		ret.setTimeZone(timeZone);
 
 		return ret;
+	}
+
+	public MessageBusLog getMessageLog() {
+		return messageLog;
 	}
 }

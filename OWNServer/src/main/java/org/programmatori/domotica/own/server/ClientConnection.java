@@ -92,7 +92,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		logger.debug("Welcome msg: {}", OpenWebNetProtocol.MSG_WELCOME.toString());
 		socketOut.println(OpenWebNetProtocol.MSG_WELCOME.toString());
 		//socketOut.flush();
-		logSignal(OpenWebNetProtocol.MSG_WELCOME, true);
+		Config.getInstance().getMessageLog().log(OpenWebNetProtocol.MSG_WELCOME, true, getId());
 
 		try {
 			String inputLine = "";
@@ -116,7 +116,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 
 					SCSMsg msgSCS = new SCSMsg(inputLine);
-					logSignal(msgSCS, false);
+					Config.getInstance().getMessageLog().log(msgSCS, false, getId());
 
 					switch (status) {
 					case STATUS_START:
@@ -215,7 +215,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		socketOut.print(response.toString());
 		socketOut.flush();
 		logger.debug("{} TX MSG: {}", getId(), response.toString());
-		logSignal(response, true);
+		Config.getInstance().getMessageLog().log(response, true, getId());
 	}
 
 	private SCSMsg createPwAsk() {
@@ -272,22 +272,23 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		return id;
 	}
 
-	/**
-	 * Log only message that go on the bus
-	 */
-	public void logSignal(SCSMsg msg, boolean isSend) {
-		Logger log = LoggerFactory.getLogger("org.programmatori.domotica.own.message");
-
-		String direction = (isSend? "TX MSG:" : "RX MSG:");
-
-		log.info(getId() + "-" + direction + msg.toString());
-	}
+//	/**
+//	 * Log only message that go on the bus
+//	 */
+//	public void logSignal(SCSMsg msg, boolean isSend) {
+//		Logger log = LoggerFactory.getLogger("org.programmatori.domotica.own.message");
+//
+//		String direction = (isSend? "TX MSG:" : "RX MSG:");
+//
+//		log.info(getId() + "-" + direction + msg.toString());
+//	}
 
 	@Override
 	public void reciveMsg(SCSMsg msg) {
 		logger.debug("{} TX MSG: {}", getId(), msg.toString());
 
-		logSignal(msg, true);
+		Config.getInstance().getMessageLog().log(msg, true, getId());
+
 		socketOut.print(msg.toString());
 		socketOut.flush();
 	}
