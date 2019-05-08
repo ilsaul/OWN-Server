@@ -10,8 +10,9 @@ jar {
 
 dependencies {
     compile project(':OWN-SDK')
-    //compile 'org.scream3r:jssc:2.8.+'
-    //compile 'org.rxtx:rxtx:2.1.7'
-    compile 'org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2'
 
+    compile 'org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2'
+    compile 'com.fazecast:jSerialComm:2.4.+'
+
+	compile 'org.jooq:joou-java-6:0.9.3' // ubyte
 }
