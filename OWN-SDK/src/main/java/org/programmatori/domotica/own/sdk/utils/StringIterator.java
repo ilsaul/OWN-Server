@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A String iterator that works as expected when two succesive delimeters are
+ * A String iterator that works as expected when two successive delimiters are
  * found (as opposed to java.util.StringTokenizer, it returns null as the String
- * in that case). Only a single character delimeter is allowed.
+ * in that case). Only a single character delimiter is allowed.
  */
 public class StringIterator implements Iterator<Object> {
 
