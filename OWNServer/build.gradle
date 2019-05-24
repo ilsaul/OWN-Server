@@ -23,8 +23,8 @@ dependencies {
 	compile project(':OWN-SDK')
 	//compile group: 'commons-collections', name: 'commons-collections', version: '3.+'
 
+	//runtime project(':OWNEngine-Emulator')
 	runtime project(':OWNEngine-L4686Sdk')
-	runtime project(':OWNEngine-Emulator')
 	runtime project(':OWNPlugin-System')
 	runtime project(':OWNPlugin-Remote')
 	runtime project(':OWNPlugin-Map')
