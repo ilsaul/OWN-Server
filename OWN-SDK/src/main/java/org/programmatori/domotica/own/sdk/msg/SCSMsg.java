@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -55,7 +55,7 @@ public class SCSMsg implements Serializable {
 	/** Command not execute because impossible access to bus */
 	public static SCSMsg MSG_NOBUS;
 	/** Command not execute, because interface already busy in transmission */
-	public static SCSMsg MSG_USY;
+	public static SCSMsg MSG_BUSY;
 	/** Procedure multiframe not execute complete */
 	public static SCSMsg MSG_PROC;
 
@@ -67,7 +67,7 @@ public class SCSMsg implements Serializable {
 			MSG_RET   = new SCSMsg("*#*3##");
 			MSG_COLL  = new SCSMsg("*#*4##");
 			MSG_NOBUS = new SCSMsg("*#*5##");
-			MSG_USY   = new SCSMsg("*#*6##");
+			MSG_BUSY  = new SCSMsg("*#*6##");
 			MSG_PROC  = new SCSMsg("*#*7##");
 		} catch ( Exception e ) {
 			// Stub !! Can't heppen
