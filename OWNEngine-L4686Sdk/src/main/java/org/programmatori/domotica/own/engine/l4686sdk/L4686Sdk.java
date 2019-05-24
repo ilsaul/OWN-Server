@@ -62,10 +62,11 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		serialPort = null;
 		in = null;
 		out = null;
-		dirtyBuffer = null;
+		dirtyBuffer = "";
 
 		listListener = new ArrayList<SCSListener>();
-		//connect();
+		logger.info("L4686Sdk Initialized");
+		connect(); //TODO: Remove from constructor
 	}
 
 	public void connect() {
@@ -104,7 +105,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		serialPort.openPort();
 
 		if (serialPort.isOpen()) {
-			logger.info("L4686Sdk Connected");
+			logger.info("L4686Sdk Connected to {}", serialPort.getDescriptivePortName());
 
 			in = serialPort.getInputStream();
 			out = serialPort.getOutputStream();
@@ -151,9 +152,14 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 //		return out;
 //	}
 
+	/**
+	 * What I want to receive
+	 *
+	 * @return
+	 */
 	public int getListeningEvents() {
-		//TODO: What use for?
-		return 0;
+		logger.trace("Call getListeningEvents()");
+		return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
 	}
 
 	@Override
@@ -169,6 +175,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 
 	@Override
 	public synchronized void serialEvent(SerialPortEvent event) {
+		logger.trace("Event: {}", event);
 		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
 
 			int available = 0;
@@ -177,6 +184,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 			// Work around
 			SerialPort currentSerial = event.getSerialPort();
 			available = currentSerial.bytesAvailable();
+
 			byte[] buffer = new byte[available];
 			logger.debug("available: {} buffer.length: {}", available, buffer.length);
 			currentSerial.readBytes(buffer, buffer.length);
@@ -185,18 +193,26 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 
 			// Bug.id 8: When 2 msg is in the same line
 			if (data.length() > 0) {
-				int pos = data.indexOf(SCSMsg.MSG_ENDER);
+				dirtyBuffer += data;
+			}
+
+			// Continue until there is message
+			while (dirtyBuffer.contains(SCSMsg.MSG_ENDER)) {
+				int pos = dirtyBuffer.indexOf(SCSMsg.MSG_ENDER);
 				if (pos > 0) {
-					String cmd = data.substring(0, pos+2);
-					dirtyBuffer = data.substring(pos+2, data.length());
+					String cmd = dirtyBuffer.substring(0, pos+2);
+					dirtyBuffer = dirtyBuffer.substring(pos+2);
 
 					logger.debug("RX from BUS: {}", cmd);
 					SCSEvent scsEvent = new SCSEvent(this, cmd);
 					notifyListeners(scsEvent);
-				} else {
-					// Here it mean i don't understand what can i do with this date
-					dirtyBuffer = data;
 				}
+
+				// I leave this part because I need to test better if I can receive dirty data.
+//				else {
+//					// Here it mean i don't understand what can i do with this date
+//					dirtyBuffer = data;
+//				}
 			}
 
 		} else {
