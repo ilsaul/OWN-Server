@@ -53,7 +53,7 @@ public class Blind extends SCSBaseComponent {
 	}
 
 	@Override
-	public void reciveMessage(SCSMsg msg) {
+	public void receiveMessage(SCSMsg msg) {
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {
 				sendMsgToBus(getStatus());

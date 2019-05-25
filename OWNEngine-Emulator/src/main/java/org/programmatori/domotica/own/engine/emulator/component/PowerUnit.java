@@ -62,7 +62,7 @@ public class PowerUnit extends SCSBaseComponent {
 	 *
 	 */
 	@Override
-	public void reciveMessage(SCSMsg msg) {
+	public void receiveMessage(SCSMsg msg) {
 		logger.debug("MSG arrive to component: {}", msg.toString());
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {

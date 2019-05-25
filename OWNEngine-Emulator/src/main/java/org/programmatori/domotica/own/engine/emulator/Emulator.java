@@ -64,7 +64,7 @@ public final class Emulator implements Engine, SCSComponent {
 		bus.sendCommand(msg, this);
 
 //		if (!msg.equals(SCSMsg.MSG_ACK))
-//		  reciveMessage(bus, msgOut);
+//		  receiveMessage(bus, msgOut);
 
 		logger.trace("End sendCommand");
 	}
@@ -80,7 +80,7 @@ public final class Emulator implements Engine, SCSComponent {
 	}
 
 	@Override
-	public void reciveMessage(SCSMsg msg) {
+	public void receiveMessage(SCSMsg msg) {
 		logger.debug("Arrive from Bus Emulator: {}", msg);
 
 		SCSEvent event = new SCSEvent(this, msg);

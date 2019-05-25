@@ -116,7 +116,7 @@ public class SCSBus extends ConfigBus {
 			SCSComponent c = (SCSComponent) iter.next();
 
 			if (!c.equals(msgBus.getComponent())) {
-				c.reciveMessage(msgBus.getMsg());
+				c.receiveMessage(msgBus.getMsg());
 				LOGGER.debug("Send to component: {}", c.toString());
 			} else {
 				LOGGER.debug("I don't send to sender");

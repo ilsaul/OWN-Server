@@ -30,7 +30,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  */
 public interface SCSComponent extends Serializable {
 
-	void reciveMessage(SCSMsg msg);
+	void receiveMessage(SCSMsg msg);
 
 	SCSMsg getStatus();
 }
