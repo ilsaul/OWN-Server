@@ -81,7 +81,7 @@ public class Map extends Thread implements PlugIn {
 		// Retrive Config Parameters
 		pauseStart = Integer.parseInt(Config.getInstance().getNode("map.pause.start"));
 		pauseUnit = Integer.parseInt(Config.getInstance().getNode("map.pause.unit"));
-		fileName = Config.getInstance().getNode("file");
+		fileName = Config.getInstance().getNode("map.file");
 		restartEvery = Integer.parseInt(Config.getInstance().getNode("map.intervall"));
 
 		String unit = Config.getInstance().getNode("map.intervall[@unit]");

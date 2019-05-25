@@ -105,7 +105,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		serialPort.openPort();
 
 		if (serialPort.isOpen()) {
-			logger.info("L4686Sdk Connected to {}", serialPort.getDescriptivePortName());
+			logger.info("L4686Sdk Connected to {} ({})", serialPort.getSystemPortName(), serialPort.getPortDescription());
 
 			in = serialPort.getInputStream();
 			out = serialPort.getOutputStream();

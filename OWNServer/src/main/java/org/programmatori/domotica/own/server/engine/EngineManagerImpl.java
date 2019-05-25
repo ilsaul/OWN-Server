@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * <code>
  * &lt;bus&gt;Emulator&lt;/bus&gt;<br>
  * </code><br>
- * The {@link Emulator} is our default and no need to change if don't want other.
+ * The {@link org.programmatori.domotica.own.engine.emulator.Emulator} is our default and no need to change if don't want other.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
@@ -123,17 +123,15 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	}
 
 	private void loadPlugIn() {
-		//org.programmatori.domotica.bticino.map.Map map = new org.programmatori.domotica.bticino.map.Map(this);
-		//map.start();
-
 		List<String> plugins = Config.getInstance().getPlugIn();
 		for (Iterator<String> iter = plugins.iterator(); iter.hasNext();) {
 			String nameClass = (String) iter.next();
+			logger.debug("Try to load plugins {}", nameClass);
 
 			try {
 				Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
 				@SuppressWarnings("unchecked")
-				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManagerImpl.class);
+				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
 
 				PlugIn plugIn = constructor.newInstance(this);
 				plugIn.start();
