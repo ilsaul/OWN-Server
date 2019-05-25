@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server.engine.core;
+package org.programmatori.domotica.own.engine.core;
 
 import java.util.*;
 
