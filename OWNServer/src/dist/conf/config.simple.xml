@@ -6,7 +6,7 @@
 		<timeoutWelcome>30000</timeoutWelcome> <!-- Milliseconds -->
 		<timeoutSend>4000</timeoutSend> <!-- Milliseconds -->
 	</server>
-	<bus>Emulator</bus>
+	<bus>org.programmatori.domotica.own.engine.emulator.Emulator</bus>
 	<version>0.4.7</version>
 	<areas>
 		<area id="1">Bathroom</area>

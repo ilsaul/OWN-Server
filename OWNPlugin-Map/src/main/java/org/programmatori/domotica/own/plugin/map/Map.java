@@ -33,9 +33,9 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.programmatori.domotica.own.emulator.Blind;
-import org.programmatori.domotica.own.emulator.Light;
-import org.programmatori.domotica.own.emulator.SCSComponent;
+import org.programmatori.domotica.own.engine.emulator.component.Blind;
+import org.programmatori.domotica.own.engine.emulator.component.Light;
+import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
