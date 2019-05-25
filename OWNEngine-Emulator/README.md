@@ -14,5 +14,5 @@ INSTALL
 
 You must add this line where ever you want in the server configuration file set which bus need to use.
 ```
-<bus>org.programmatori.domotica.own.server.engine.core.Emulator</bus>
+<bus>org.programmatori.domotica.own.engine.emulator.Emulator</bus>
 ```

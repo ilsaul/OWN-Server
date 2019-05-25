@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.emulator;
+package org.programmatori.domotica.own.engine.emulator.component;
 
 import java.io.Serializable;
 

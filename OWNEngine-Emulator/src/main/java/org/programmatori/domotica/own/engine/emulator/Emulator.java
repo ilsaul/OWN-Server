@@ -17,12 +17,12 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.engine.core;
+package org.programmatori.domotica.own.engine.emulator;
 
 import java.util.*;
 
-import org.programmatori.domotica.own.emulator.SCSBus;
-import org.programmatori.domotica.own.emulator.SCSComponent;
+import org.programmatori.domotica.own.engine.emulator.component.SCSBus;
+import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;

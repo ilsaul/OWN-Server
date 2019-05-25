@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * In the configuration you need to use tag 'bus' and inside it a class
  * full qualified name of the Engine.<br>
  * <code>
- * &lt;bus&gt;org.programmatori.domotica.own.server.engine.core.Emulator&lt;/bus&gt;<br>
+ * &lt;bus&gt;Emulator&lt;/bus&gt;<br>
  * </code><br>
  * The {@link Emulator} is our default and no need to change if don't want other.
  *
@@ -79,7 +79,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	private boolean changeQueue;
 
 	public EngineManagerImpl() {
-		logger.trace("Start Create Istance");
+		logger.trace("Start Create Instance");
 		setName("SCS Engine");
 		//setDaemon(true);
 		Config.getInstance().addThread(this);
