@@ -19,17 +19,19 @@
  */
 package org.programmatori.domotica.own.sdk.config;
 
-import java.io.File;
-import java.util.*;
-
 import org.apache.commons.configuration.XMLConfiguration;
 import org.programmatori.domotica.own.sdk.msg.MessageBusLog;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 /**
  * Configuration
@@ -39,7 +41,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
  */
 public class Config extends AbstractConfig {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
-	public static final String SERVER_VERSION = "0.5.3";
+	public static final String SERVER_VERSION = "0.4.7";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private static Config instance = null;
@@ -55,21 +57,6 @@ public class Config extends AbstractConfig {
 		super();
 
 		startTime = GregorianCalendar.getInstance();
-
-		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		JoranConfigurator jc = new JoranConfigurator();
-		jc.setContext(context);
-		context.reset(); // override default configuration
-		// inject the name of the current application as "application-name"
-		// property of the LoggerContext
-		context.putProperty("application-name", "OWNServer");
-		try {
-			String cfg = getConfigPath() + File.separatorChar + "logback.xml";
-			System.out.println("Log path: " + cfg);
-			jc.doConfigure(cfg);
-		} catch (Exception e) { // if is logback, error is JoranException
-			e.printStackTrace();
-		}
 
 		if (isConfigLoaded()) {
 			// Check File Version to update information
