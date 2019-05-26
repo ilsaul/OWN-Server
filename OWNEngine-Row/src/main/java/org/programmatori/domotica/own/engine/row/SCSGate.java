@@ -28,6 +28,9 @@ public class SCSGate {
 
 	private static final int MSG_START = 0xA8;
 	private static final int MSG_END = 0xA3;
+	private static final int WHERE_GR = 0xB3;
+	private static final int WHERE_GEN = 0xB5;
+	private static final int WHERE_APL = 0xB8;
 
 	private SerialPort currentSerial;
 	private OutputStream out;
@@ -207,18 +210,108 @@ public class SCSGate {
 				// 8 Camera Matrimoniale
 				// 9 Cabina Armadio
 
-			if (values[1] == Unsigned.ubyte(0xB8)) {
-				// Status
-				if (values[1] == Unsigned.ubyte(0xB8)) {
-					who = new Who("1"); // Mittente
+			if (values[1] == Unsigned.ubyte(WHERE_APL)) {
+				// The BTicino Configurator is Hex Value
+				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
+
+				// Value
+				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
+				switch (status) {
+					case OFF: who = new Who(StatusValue.OFF.getWho());
+							what = new What(StatusValue.OFF.getWhat()); break;
+
+					case ON: who = new Who(StatusValue.ON.getWho());
+							what = new What(StatusValue.ON.getWhat()); break;
+
+					case UP: who = new Who(StatusValue.UP.getWho());
+							what = new What(StatusValue.UP.getWhat()); break;
+
+					case DOWN: who = new Who(StatusValue.DOWN.getWho());
+							what = new What(StatusValue.DOWN.getWhat()); break;
+
+					case STOP: who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat()); break;
+
+					default: logger.warn("Unknown value for message: {}", values[4]);
 				}
-				where = new Where(String.valueOf(values[2].byteValue())); // Destinazione
-				what = new What(String.valueOf(values[4].byteValue())); // Comando
+
 				msg = new SCSMsg(who, where, what);
+
+			} else if (values[1] == Unsigned.ubyte(WHERE_GR)) {
+				// The BTicino Configurator is Hex Value
+				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
+
+				if (values[3].byteValue() != 0x12) {
+					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'",  ArrayUtils.byteToHex(values[3]));
+				}
+
+				// Value
+				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
+				switch (status) {
+					case OFF: who = new Who(StatusValue.OFF.getWho());
+						what = new What(StatusValue.OFF.getWhat()); break;
+
+					case ON: who = new Who(StatusValue.ON.getWho());
+						what = new What(StatusValue.ON.getWhat()); break;
+
+					case UP: who = new Who(StatusValue.UP.getWho());
+						what = new What(StatusValue.UP.getWhat()); break;
+
+					case DOWN: who = new Who(StatusValue.DOWN.getWho());
+						what = new What(StatusValue.DOWN.getWhat()); break;
+
+					case STOP: who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat()); break;
+
+					default: logger.warn("Unknown value for message: {}", values[4]);
+				}
+
+				msg = new SCSMsg(who, where, what);
+
+			} else if (values[1] == Unsigned.ubyte(WHERE_GEN)) {
+				//a8:b5:09:12:0a:a4:a3 -> *2*0*##
+				// GENerale alle tapparelle Down
+
+				// The BTicino Configurator is Hex Value
+				if (values[2].byteValue() == 9) {
+					where = new Where("");
+				} else {
+					logger.error("In byte 2 I received a unknown value '{}' I wait '9'",  ArrayUtils.byteToHex(values[2]));
+				}
+
+				if (values[3].byteValue() != 0x12) {
+					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'",  ArrayUtils.byteToHex(values[3]));
+				}
+
+				// Value
+				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
+				switch (status) {
+					case OFF: who = new Who(StatusValue.OFF.getWho());
+						what = new What(StatusValue.OFF.getWhat()); break;
+
+					case ON: who = new Who(StatusValue.ON.getWho());
+						what = new What(StatusValue.ON.getWhat()); break;
+
+					case UP: who = new Who(StatusValue.UP.getWho());
+						what = new What(StatusValue.UP.getWhat()); break;
+
+					case DOWN: who = new Who(StatusValue.DOWN.getWho());
+						what = new What(StatusValue.DOWN.getWhat()); break;
+
+					case STOP: who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat()); break;
+
+					default: logger.warn("Unknown value for message: {}", values[4]);
+				}
+
+				msg = new SCSMsg(who, where, what);
+
+
 			} else {
+				// a8:24:20:12:00:16:a3
 				// Comando
 				who = null;
-				where = new Where(String.valueOf(values[1].byteValue())); // Destinazione
+				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
 				what = new What(String.valueOf(values[4].byteValue())); // Comando
 				if (values[2] == Unsigned.ubyte(0x30)) {
 					who = new Who("1"); // Mittente
@@ -275,7 +368,7 @@ public class SCSGate {
 		// Stato
 		// SCS[3]: A8 B8 24 12 00 8E A3
 		// 0xA8 iniziatore di comando/stato
-		// 0xB8 sempre uguale - identifica gli stream di stato
+		// 0xB8 0xB5 0xB3 APL GR GEN
 		// 0x33 provenienza - codice dispositivo (corrisponde alla targhetta inserita sull'attuatore)
 		// 0x12 Fisso? richiesta di comando
 		// 0x00 stato di acceso (0x01: stato di spento)
@@ -309,7 +402,9 @@ public class SCSGate {
 				String res = ArrayUtils.byteToHex(b);
 				logger.debug("Discard byte {}", res);
 				Config.getInstance().getMessageLog().log(res);
-				Config.getInstance().getMessageLog().log(msg, false, null);
+				if (msg != null) {
+					Config.getInstance().getMessageLog().log(msg, false, null);
+				}
 				b = receiver.take();
 			}
 
