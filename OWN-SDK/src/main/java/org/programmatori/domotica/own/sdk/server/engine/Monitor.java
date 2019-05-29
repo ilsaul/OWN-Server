@@ -27,7 +27,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public interface Monitor {
-	void reciveMsg(SCSMsg msg);
+	void receiveMsg(SCSMsg msg);
 
 	long getId();
 }

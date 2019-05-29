@@ -30,52 +30,52 @@ public class SystemTest {
 	}
 
 	@Test
-	public void testReciveMsg() {
+	public void testReceiveMsg() {
 		TestEngine engine = new TestEngine();
 		System sys = new System(engine);
 
 		try {
 			SCSMsg msg = new SCSMsg("*#13**0##"); // *#13**0*O*M*S*F##
 			Calendar now = Config.getInstance().getCurentTime();
-			sys.reciveMsg(msg);
+			sys.receiveMsg(msg);
 			String time = getTime(now);
 			assertEquals("wrong Time",new SCSMsg("*#13**0*" + time + "##"), engine.msgs.poll());
 
 			msg = new SCSMsg("*#13**1##"); //*#13**1*DW*D*M*Y##
 			//Calendar now = Config.getInstance().getCurentTime();
-			sys.reciveMsg(msg);
+			sys.receiveMsg(msg);
 			String date = getDate(now);
 			assertEquals("wrong Date",new SCSMsg("*#13**1*" + date + "##"), engine.msgs.poll());
 
 
 			//TODO: Creare tutti i test per le funzioni
 //			msg = new SCSMsg("*#13**10##"); //*#13**10*IP1*IP2*IP3*IP4##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**11##"); //*#13**10*MASK1*MASK2*MASK3*MASK4##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**12##"); //*#13**10*MAC1*MAC2*MAC3*MAC4##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**15##"); //*#13**10*Version##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**16##"); //*#13**10*Firmware##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**19##"); //*#13**10*H*M*S*TZ*D*M*Y##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**22##"); //*#13**10*H*M*S*TZ*D*M*Y##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**23##"); //*#13**10*Kernel##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**24##"); //*#13**10*Version##
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //
 //			msg = new SCSMsg("*#13**#0*12*11*01*001##"); //*#13**#0*H*M*S*F## Write Time
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**#1*12*11*01*001##"); //*#13**#1*DW*D*M*Y## Write Date
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 //			msg = new SCSMsg("*#13**#22*12*11*01*001##"); //*#13**#22*H*m*S*F*DW*M*Y## Write Time and Date
-//			sys.reciveMsg(msg);
+//			sys.receiveMsg(msg);
 
 
 

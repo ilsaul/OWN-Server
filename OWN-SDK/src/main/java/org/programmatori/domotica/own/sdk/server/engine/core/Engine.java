@@ -42,15 +42,15 @@ public interface Engine {
 	void sendCommand(SCSMsg msg);
 
 	/**
-	 * The client connection add itself to a list of listener of the bus for recive a msg from BUS
-	 * @param listener what want recive the message from the bus
+	 * The client connection add itself to a list of listener of the bus for receive a msg from BUS
+	 * @param listener what want receive the message from the bus
 	 * @throws TooManyListenersException Exception if too musch client is connetced
 	 */
 	void addEventListener(SCSListener listener) throws TooManyListenersException;
 
 	/**
 	 * Remove from list of listener
-	 * @param listener The object that Previously ask to recive msg from bus
+	 * @param listener The object that Previously ask to receive msg from bus
 	 */
 	void removeEventListener(SCSListener listener);
 }

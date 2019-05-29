@@ -153,7 +153,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		Command command = new Command(null, msg);
 		try {
 			msgReceiveFromBus.put(command);
-			logger.debug("Recived queue: {}", msgReceiveFromBus.size());
+			logger.debug("Received queue: {}", msgReceiveFromBus.size());
 		} catch (InterruptedException e1) {
 			logger.error("Error:" , e);
 		}
@@ -180,7 +180,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		for (Iterator<Monitor> iter = monitors.iterator(); iter.hasNext();) {
 			Monitor monitor = (Monitor) iter.next();
 
-			monitor.reciveMsg(msg);
+			monitor.receiveMsg(msg);
 		}
 		logger.trace("End sendToMonitor");
 	}

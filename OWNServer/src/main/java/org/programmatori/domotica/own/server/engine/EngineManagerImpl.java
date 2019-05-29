@@ -158,7 +158,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 				if (commandSended != null) {
 					if (commandSended.getStatus() != null) {
 						msgSended.remove(commandSended);
-						commandSended.getClient().reciveMsg(commandSended.getStatus());
+						commandSended.getClient().receiveMsg(commandSended.getStatus());
 						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
 
 					// searching a msg with replay added
@@ -172,13 +172,13 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext();) {
 									SCSMsg msg = (SCSMsg) iter2.next();
 									logger.debug("msg to send to client: {}", msg);
-									commandSended.getClient().reciveMsg(msg);
+									commandSended.getClient().receiveMsg(msg);
 								}
 
 							} else {
 								logger.debug("requst is command");
 							}
-							commandSended.getClient().reciveMsg(SCSMsg.MSG_ACK);
+							commandSended.getClient().receiveMsg(SCSMsg.MSG_ACK);
 							logger.debug("Reply to client by without status: ACK");
 						}
 
@@ -189,7 +189,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 							long create = commandSended.getTimeSend().getTime();
 							if ((now - create) > sendTimeout) {
 								msgSended.remove(commandSended);
-								commandSended.getClient().reciveMsg(SCSMsg.MSG_NACK);
+								commandSended.getClient().receiveMsg(SCSMsg.MSG_NACK);
 								logger.debug("Reply to client by over time: NACK");
 							}
 						}

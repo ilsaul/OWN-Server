@@ -134,7 +134,7 @@ public class Map extends Thread implements PlugIn {
 	}
 
 	@Override
-	public void reciveMsg(SCSMsg msg) {
+	public void receiveMsg(SCSMsg msg) {
 		switch (msg.getWho().getMain()) {
 		case Light.MUST_WHO:
 			int area = msg.getWhere().getArea();
