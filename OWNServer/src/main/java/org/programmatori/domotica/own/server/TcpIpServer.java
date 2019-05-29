@@ -21,6 +21,8 @@ package org.programmatori.domotica.own.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
@@ -40,9 +42,10 @@ public class TcpIpServer implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
-	private ClientList list;
+	//private ClientList list;
 	private EngineManager engine;
 	private int maxConnections;
+	private ExecutorService pool;
 
 	/**
 	 * Default Constructor.
@@ -53,7 +56,7 @@ public class TcpIpServer implements Runnable {
 
 		this.engine = engine;
 
-		this.list = new ClientList();
+		//list = new ClientList();
 
 		final int port = Config.getInstance().getServerPort();
 		try {
@@ -65,33 +68,35 @@ public class TcpIpServer implements Runnable {
 			System.exit(-1);
 		}
 
-		this.maxConnections = Config.getInstance().getMaxConnections();
-		LOGGER.debug("Max Connections: {}", this.maxConnections);
+		maxConnections = Config.getInstance().getMaxConnections();
+		LOGGER.debug("Max Connections: {}", maxConnections);
 	}
 
 	/**
 	 * Main Loop of the server.
-	 * This loop acept connection from the client.
+	 * This loop accept connection from the client.
 	 */
 	@Override
 	public void run() {
+		pool = Executors.newFixedThreadPool(maxConnections);
 		while (!Config.getInstance().isExit()) {
 			try {
-				int size = this.list.getSize();
-				if (size < this.maxConnections) {
-					LOGGER.info("Client Connecting ... (Nº{})", size);
+				//int size = this.list.getSize();
+				//if (size < this.maxConnections) {
+					//LOGGER.info("Clients Connected (Nº{})", 1);
 
 					// Connection respond
-					ClientConnection connection = new ClientConnection(this.serverSocket.accept(), this, this.engine);
-					size = this.list.add(connection);
+				pool.submit(new ClientConnection(this.serverSocket.accept(), this, this.engine));
+					//ClientConnection connection = new ClientConnection(this.serverSocket.accept(), this, this.engine);
+					//size = this.list.add(connection);
 
-					final String name = "Conn #" + connection.getId();
-					LOGGER.debug("Connection {}: '{}'", size, name);
-					Thread t = new Thread(connection, name);
-					t.start();
-				} else {
-					LOGGER.warn("Maximum number of connection reached {}", this.maxConnections);
-				}
+					//final String name = "Conn #" + connection.getId();
+					//LOGGER.debug("Connection {}: '{}'", size, name);
+					//Thread t = new Thread(connection, name);
+					//t.start();
+				//} else {
+				//	LOGGER.warn("Maximum number of connection reached {}", this.maxConnections);
+				//}
 
 			} catch (IOException e) {
 				LOGGER.error("Connection not accepted", e);
@@ -99,6 +104,7 @@ public class TcpIpServer implements Runnable {
 			}
 		}
 
+		pool.shutdownNow();
 		LOGGER.info("Server End");
 	}
 
@@ -110,11 +116,11 @@ public class TcpIpServer implements Runnable {
 		return Thread.currentThread().getState() != Thread.State.TERMINATED;
 	}
 
-	/**
-	 * Remove a client from the list.
-	 * @param client that need to be removed
-	 */
-	public void remove(ClientConnection client) {
-		this.list.remove(client);
-	}
+//	/**
+//	 * Remove a client from the list.
+//	 * @param client that need to be removed
+//	 */
+	//public void remove(ClientConnection client) {
+	//	this.list.remove(client);
+	//}
 }

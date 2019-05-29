@@ -90,14 +90,16 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 			return;
 		}
 
-		serialPort = SerialPort.getCommPort(portName);
+		//serialPort = SerialPort.getCommPort(portName);
+
+		serialPort = getSerialPort(portName);
+		if (serialPort == null) return;
 
 		//TODO: Manage connected COM
 //		if (portIdentifier.isCurrentlyOwned()) {
 //			throw new PortInUseException();
 //		} else {
 
-		//CommPort commPort = portIdentifier.open(this.getClass().getName(), TIME_OUT);
 		serialPort.setBaudRate(DATA_RATE);
 		serialPort.setNumDataBits(8);
 		serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
@@ -146,6 +148,23 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 //				logger.error("Only serial ports are manage.");
 //			}
 //		}
+	}
+
+	private SerialPort getSerialPort(String portName) {
+		SerialPort[] ports = SerialPort.getCommPorts();
+		for (int i = 0; i < ports.length; i++) {
+			SerialPort currentSerial = ports[i];
+
+			logger.debug("Port: {}->{}", currentSerial.getSystemPortName(), currentSerial.getDescriptivePortName());
+
+			// I can't find a better system than use a name
+			if (currentSerial.getDescriptivePortName().equals(portName)) {
+				logger.info("Port found {}", currentSerial.getSystemPortName());
+				return currentSerial;
+			}
+		}
+
+		return null;
 	}
 
 //	public OutputStream getOut() {
