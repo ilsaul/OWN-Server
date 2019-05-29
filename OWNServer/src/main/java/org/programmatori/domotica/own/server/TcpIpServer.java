@@ -42,7 +42,6 @@ public class TcpIpServer implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
-	//private ClientList list;
 	private EngineManager engine;
 	private int maxConnections;
 	private ExecutorService pool;
@@ -55,8 +54,6 @@ public class TcpIpServer implements Runnable {
 		Config.getInstance().addThread(Thread.currentThread());
 
 		this.engine = engine;
-
-		//list = new ClientList();
 
 		final int port = Config.getInstance().getServerPort();
 		try {
@@ -81,26 +78,11 @@ public class TcpIpServer implements Runnable {
 		pool = Executors.newFixedThreadPool(maxConnections);
 		while (!Config.getInstance().isExit()) {
 			try {
-				//int size = this.list.getSize();
-				//if (size < this.maxConnections) {
-					//LOGGER.info("Clients Connected (Nº{})", 1);
-
-					// Connection respond
+				// Connection respond
 				pool.submit(new ClientConnection(this.serverSocket.accept(), this, this.engine));
-					//ClientConnection connection = new ClientConnection(this.serverSocket.accept(), this, this.engine);
-					//size = this.list.add(connection);
-
-					//final String name = "Conn #" + connection.getId();
-					//LOGGER.debug("Connection {}: '{}'", size, name);
-					//Thread t = new Thread(connection, name);
-					//t.start();
-				//} else {
-				//	LOGGER.warn("Maximum number of connection reached {}", this.maxConnections);
-				//}
 
 			} catch (IOException e) {
 				LOGGER.error("Connection not accepted", e);
-				//e.printStackTrace();
 			}
 		}
 
@@ -115,12 +97,4 @@ public class TcpIpServer implements Runnable {
 	public boolean isRunning() {
 		return Thread.currentThread().getState() != Thread.State.TERMINATED;
 	}
-
-//	/**
-//	 * Remove a client from the list.
-//	 * @param client that need to be removed
-//	 */
-	//public void remove(ClientConnection client) {
-	//	this.list.remove(client);
-	//}
 }
