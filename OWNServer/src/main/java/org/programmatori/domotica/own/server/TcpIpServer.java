@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -23,10 +22,10 @@ package org.programmatori.domotica.own.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class wait the network connection. It's
@@ -38,7 +37,7 @@ import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
  * @since OWNServer v0.1.0
  */
 public class TcpIpServer implements Runnable {
-	private static final Log log = LogFactory.getLog(TcpIpServer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
 	private ClientList list;
@@ -46,7 +45,7 @@ public class TcpIpServer implements Runnable {
 	private int maxConnections;
 
 	/**
-	 * Default Constructor
+	 * Default Constructor.
 	 */
 	public TcpIpServer(EngineManager engine) {
 		Thread.currentThread().setName("TCP/IP Server");
@@ -54,55 +53,68 @@ public class TcpIpServer implements Runnable {
 
 		this.engine = engine;
 
-		list = new ClientList();
+		this.list = new ClientList();
 
-		int port = Config.getInstance().getServerPort();
+		final int port = Config.getInstance().getServerPort();
 		try {
-			log.info("Start listen on port: " + port);
-			serverSocket = new ServerSocket(port);
+			LOGGER.info("Start listen on port: {}", port);
+			this.serverSocket = new ServerSocket(port);
 
 		} catch (IOException e) {
-			log.error("Could not listen on port: " + port);
+			LOGGER.error("Could not listen on port: {}", port);
 			System.exit(-1);
 		}
 
-		maxConnections = Config.getInstance().getMaxConnections();
-		log.debug("Max Connections: " + maxConnections);
-
+		this.maxConnections = Config.getInstance().getMaxConnections();
+		LOGGER.debug("Max Connections: {}", this.maxConnections);
 	}
 
+	/**
+	 * Main Loop of the server.
+	 * This loop acept connection from the client.
+	 */
 	@Override
 	public void run() {
 		while (!Config.getInstance().isExit()) {
 			try {
-				if (list.getSize() < maxConnections) {
-					log.info("Client Connecting ... (Nº" + list.getSize() + ")");
+				int size = this.list.getSize();
+				if (size < this.maxConnections) {
+					LOGGER.info("Client Connecting ... (Nº{})", size);
 
 					// Connection respond
-					ClientConnection connection = new ClientConnection(serverSocket.accept(), this, engine);
-					int size = list.add(connection);
+					ClientConnection connection = new ClientConnection(this.serverSocket.accept(), this, this.engine);
+					size = this.list.add(connection);
 
-					String name = "Conn #" + connection.getId();
-					log.debug("Connection " + size + ": '" + name + "'");
+					final String name = "Conn #" + connection.getId();
+					LOGGER.debug("Connection {}: '{}'", size, name);
 					Thread t = new Thread(connection, name);
 					t.start();
 				} else {
-					log.warn("Maximum number of connection reached " + maxConnections);
+					LOGGER.warn("Maximum number of connection reached {}", this.maxConnections);
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Connection not accepted", e);
+				//e.printStackTrace();
 			}
 		}
 
-		log.info("Server End");
+		LOGGER.info("Server End");
 	}
 
+	/**
+	 * Check if the server still running.
+	 * @return true if the server is running
+	 */
 	public boolean isRunning() {
 		return Thread.currentThread().getState() != Thread.State.TERMINATED;
 	}
 
+	/**
+	 * Remove a client from the list.
+	 * @param client that need to be removed
+	 */
 	public void remove(ClientConnection client) {
-		list.remove(client);
+		this.list.remove(client);
 	}
 }

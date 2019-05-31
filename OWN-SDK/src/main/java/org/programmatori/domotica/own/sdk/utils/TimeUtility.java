@@ -1,71 +1,74 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.sdk.utils;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Utility for manage the Time.
- * 
+ *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0, 19/03/2012
+ * @version 1.1, 10/08/2016
  */
-public class TimeUtility {
+public final class TimeUtility {
+	/** One sencond in Milliseconds. */
 	private static final int SECOND = 1000;
+	/** One minute in milliseconds. */
 	private static final int MINUTE = SECOND * 60;
+	/** One hour in milliseconds. */
 	private static final int HOUR = MINUTE * 60;
+	/** One day in milliseconds. */
 	private static final int DAY = HOUR * 24;
-	
+
+	private TimeUtility() {
+		throw new IllegalAccessError("Utility class");
+	}
+
+	/**
+	 * Time difference.
+	 * @param date1 Starting time
+	 * @param date2 End time
+	 * @return the difference between date1 and date2 in milliseconds
+	 */
 	public static long timeDiff(Calendar date1, Calendar date2) {
-		long diff = date1.getTimeInMillis() - date2.getTimeInMillis();
-	    
-		return diff;
+		return date1.getTimeInMillis() - date2.getTimeInMillis();
 	}
-	
+
+	/**
+	 * Add milliseconds to the date1.
+	 * @param milliseconds to add
+	 * @param date1 starting date
+	 * @return Calendar date with time add by milliseconds
+	 */
 	public static Calendar timeAdd(long milliseconds, Calendar date1) {
-		long days = milliseconds / DAY;
-		milliseconds -= days * DAY;
-		
-		date1.add(Calendar.MILLISECOND, (int)milliseconds);
-		//System.out.println("ms: " + milliseconds);
-		date1.add(Calendar.DAY_OF_YEAR, (int)days);
-		//System.out.println("day: " + days);
-		
-		return date1;
-	}
-	
-	public static void main(String[] args) {
-		Calendar cal1 = GregorianCalendar.getInstance();
-		Calendar cal2 = GregorianCalendar.getInstance();
-		cal1.add(Calendar.SECOND, 1);
-		cal1.add(Calendar.MINUTE, 1);
-		cal1.add(Calendar.HOUR_OF_DAY, 1 +1);
-		cal1.add(Calendar.DAY_OF_YEAR, 1);
-		cal1.add(Calendar.MONTH, 1);
-		cal1.add(Calendar.YEAR, 1);
-		
-		SimpleDateFormat dateformatter = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-		long l = timeDiff(cal1, cal2);
-		System.out.println("system - " + dateformatter.format(cal2.getTime()));
-		System.out.println("current - " + dateformatter.format(timeAdd(l, cal2).getTime()));		
+		final long days = milliseconds / DAY;
+		final long newMilliseconds = milliseconds - days * DAY;
+
+		// I use res for don't change date1
+		final Calendar res = GregorianCalendar.getInstance();
+		res.setTimeInMillis(date1.getTimeInMillis());
+
+		res.add(Calendar.MILLISECOND, (int)newMilliseconds);
+		res.add(Calendar.DAY_OF_YEAR, (int)days);
+
+		return res;
 	}
 }

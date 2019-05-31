@@ -1,4 +1,8 @@
+/*
+	OWN Engine Emulator
+*/
 version = '0.2.0'
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'OWN-Engine-Emulator', 'Implementation-Version': version

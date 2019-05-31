@@ -1,11 +1,11 @@
 version = '0.2.2'
 jar {
-    manifest {
-        attributes 'Implementation-Title': 'OWN-PlugIN-Remote', 'Implementation-Version': version
-    }
+	manifest {
+		attributes 'Implementation-Title': 'OWN-PlugIN-Remote', 'Implementation-Version': version
+	}
 }
 
 dependencies {
-    compile project(':OWN-SDK')
-    compile group: 'commons-net', name: 'commons-net', version: '3.+'
+	compile project(':OWN-SDK')
+	compile group: 'commons-net', name: 'commons-net', version: '3.+'
 }

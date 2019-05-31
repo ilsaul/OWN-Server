@@ -1,21 +1,20 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.server.engine;
@@ -23,52 +22,56 @@ package org.programmatori.domotica.own.server.engine;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * EngineManager Load the class that manage the bus. This class and is 
- * parameter need to be set in the config file.<br>
- * In configuration need to use tag 'bus' with the full-name class.<br>
+ * EngineManager load the Driver Engine that manage the bus and manage the queue
+ * of receve and trasmit message to the bus.<br>
+ * <br>
+ * This class is configured using a configuration file.<br>
+ * In the configuration you need to use tag 'bus' and inside it a class
+ * full qualified name of the Engine.<br>
  * <code>
  * &lt;bus&gt;org.programmatori.domotica.own.server.engine.core.Emulator&lt;/bus&gt;<br>
  * </code><br>
- * For use with {@link Emulator} no need to change this part of 
- * configuration.
- * 
+ * The {@link Emulator} is our default and no need to change if don't want other.
+ *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
  * @since OWNServer v0.2.0
  *
  */
-public class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
-	private static final Log log = LogFactory.getLog(EngineManagerImpl.class);
+public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+	private static final long serialVersionUID = -1460745010256569626L;
+
+	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
 
 	/**
 	 * List of Msg waiting to be send
 	 */
 	private ListenerPriorityBlockingQueue<Command> msgSended;
-	
+
 	/**
 	 * Bus manager
 	 */
 	private Engine engine;
-	
+
 	/**
 	 * Thread for send msg
 	 */
 	private MsgSender sender;
-	
+
 	/**
 	 * Thread for receive msg
 	 */
 	private MsgReceiver receiver;
-	
+
 	/**
 	 * Time to wait before the bus say no replay to msg
 	 */
@@ -76,7 +79,7 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 	private boolean changeQueue;
 
 	public EngineManagerImpl() {
-		log.trace("Start Create Istance");
+		logger.trace("Start Create Istance");
 		setName("SCS Engine");
 		//setDaemon(true);
 		Config.getInstance().addThread(this);
@@ -84,20 +87,20 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 		//Load Engine
 		try {
 			String busName = Config.getInstance().getBus();
-			log.debug("Engine Class Name: " + busName);
+			logger.debug("Engine Class Name: {}", busName);
 
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
 			engine = (Engine) c.newInstance();
 			//engine.addEventListener(this);
 		} catch (NoClassDefFoundError e) {
 			if (e.getMessage().indexOf("SerialPortEventListener") > -1) {
-				log.error("You must install RXTX library (http://rxtx.qbang.org/)");
+				logger.error("You must install RXTX library (http://rxtx.qbang.org/)");
 			} else {
 				throw e;
 			}
 			System.exit(-1);
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error(LogUtility.getErrorTrace(e));
 			System.exit(-1);
 		}
 
@@ -116,7 +119,7 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 		// load Module
 		loadPlugIn();
 
-		log.trace("End Create Istance");
+		logger.trace("End Create Istance");
 	}
 
 	private void loadPlugIn() {
@@ -134,16 +137,16 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 
 				PlugIn plugIn = constructor.newInstance(this);
 				plugIn.start();
-				log.info(plugIn.getClass().getSimpleName() + " started!");
+				logger.info("{} started!", plugIn.getClass().getSimpleName());
 			} catch (Exception e) {
-				log.error(LogUtility.getErrorTrace(e));
+				logger.error("Error:",e);
 			}
 		}
 	}
 
 	@Override
 	public void run() {
-		log.trace("Start run");
+		logger.trace("Start run");
 		while (!Config.getInstance().isExit()) {
 			changeQueue  = false;
 
@@ -158,27 +161,27 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 					if (commandSended.getStatus() != null) {
 						msgSended.remove(commandSended);
 						commandSended.getClient().reciveMsg(commandSended.getStatus());
-						log.debug("Reply to client by status: " + commandSended.getStatus().toString());
+						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
 
 					// searching a msg with replay added
 					} else if (commandSended.getReceiveMsg().size() > 0) {
 						if (!isTimeWait(commandSended)) {
 							msgSended.remove(commandSended);
 							if (commandSended.getSendMsg().isStatus()) {
-								log.debug("requst is status");
-								log.debug("Command: " + commandSended);
+								logger.debug("requst is status");
+								logger.debug("Command: {}", commandSended);
 
 								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext();) {
 									SCSMsg msg = (SCSMsg) iter2.next();
-									log.debug("msg to send to client: " + msg);
+									logger.debug("msg to send to client: {}", msg);
 									commandSended.getClient().reciveMsg(msg);
 								}
 
 							} else {
-								log.debug("requst is command");
+								logger.debug("requst is command");
 							}
 							commandSended.getClient().reciveMsg(SCSMsg.MSG_ACK);
-							log.debug("Reply to client by without status: ACK");
+							logger.debug("Reply to client by without status: ACK");
 						}
 
 					// searching a timeout msg
@@ -189,7 +192,7 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 							if ((now - create) > sendTimeout) {
 								msgSended.remove(commandSended);
 								commandSended.getClient().reciveMsg(SCSMsg.MSG_NACK);
-								log.debug("Reply to client by over time: NACK");
+								logger.debug("Reply to client by over time: NACK");
 							}
 						}
 					}
@@ -199,9 +202,12 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 
 		if (sender != null && sender.isAlive()) sender.interrupt();
 		if (receiver != null && receiver.isAlive()) receiver.interrupt();
-		log.trace("End run");
+		logger.trace("End run");
 	}
 
+	/**
+	 * Indicate if can be wait for an answer. Use only for area message
+	 */
 	private boolean isTimeWait(Command command) {
 		boolean ret = false;
 
@@ -218,40 +224,40 @@ public class EngineManagerImpl extends Thread implements QueueListener, EngineMa
 	}
 
 	public void sendCommand(SCSMsg msg, Sender client) {
-		log.trace("Start sendCommand");
+		logger.trace("Start sendCommand");
 		try {
 			if (msg == null) throw new Exception("msg can't be empty");
 
-			log.debug("Msg Rx: " + msg);
+			logger.debug("Msg Rx: {}", msg);
 			Command command = new Command(client, msg);
 			sender.sendToBus(command);
 			receiver.sendToMonitor(msg);
 
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			logger.error("Error:", e);
 		}
 
-		log.trace("End sendCommand");
+		logger.trace("End sendCommand");
 	}
 
 	public void addMonitor(Monitor monitor) {
-		log.trace("Start addMonitor");
-		log.debug("Add Monitor: " + monitor.getId());
+		logger.trace("Start addMonitor");
+		logger.debug("Add Monitor: {}", monitor.getId());
 		receiver.addMonitor(monitor);
-		log.trace("End addMonitor");
+		logger.trace("End addMonitor");
 	}
 
 	public void removeMonitor(Monitor monitor) {
-		log.trace("Start removeMonitor");
-		log.debug("Remove Monitor: " + monitor.getId());
+		logger.trace("Start removeMonitor");
+		logger.debug("Remove Monitor: {}", monitor.getId());
 		receiver.removeMonitor(monitor);
-		log.trace("End removeMonitor");
+		logger.trace("End removeMonitor");
 	}
 
 	@Override
 	public void changeNotify() {
-		log.trace("Start changeNotify");
+		logger.trace("Start changeNotify");
 		changeQueue = true;
-		log.trace("End changeNotify");
+		logger.trace("End changeNotify");
 	}
 }

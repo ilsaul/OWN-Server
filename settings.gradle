@@ -1,1 +1,18 @@
-include "OWNServer", "OWN-SDK", "OWNEngine-Emulator", "OWNPlugin-System", "OWNPlugin-Remote", "OWNPlugin-Map", "OWNPlugin-Power"
+rootProject.name = 'OWN'
+
+// Main Project
+include 'OWNServer'
+
+// SDK
+include 'OWN-SDK'
+
+// Engine
+include 'OWNEngine-Emulator'
+include 'OWNEngine-L4686Sdk'
+include 'OWNEngine-Row'
+
+// Plugin
+include 'OWNPlugin-System'
+include 'OWNPlugin-Remote'
+include 'OWNPlugin-Map'
+include 'OWNPlugin-Power'

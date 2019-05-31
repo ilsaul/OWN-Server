@@ -1,19 +1,30 @@
 apply plugin:'application'
 mainClassName = "org.programmatori.domotica.own.server.Controller"
 
-version = '0.5.2'
+version = '0.4.6-SNAPSHOT'
 jar {
-    manifest {
-        attributes 'Implementation-Title': 'OWNServer', 'Implementation-Version': version
-    }
+	manifest {
+		attributes 'Implementation-Title': project.name,
+		'Implementation-Version': project.version,
+		'Built-By': System.getProperty('user.name'),
+		'Built-JDK': System.getProperty('java.version'),
+		'Built-Host': InetAddress.getLocalHost().getHostName(),
+		'Built-Date': new Date(),
+		'Source-Compatibility': project.sourceCompatibility,
+		'Target-Compatibility': project.targetCompatibility
+	}
+}
+
+repositories {
+	maven { url "http://clojars.org/repo/" }
 }
 
 dependencies {
-    compile project(':OWN-SDK')
-    compile group: 'commons-collections', name: 'commons-collections', version: '3.+'
-    
+	compile project(':OWN-SDK')
+	//compile group: 'commons-collections', name: 'commons-collections', version: '3.+'
+
 	runtime project(':OWNEngine-Emulator')
 	runtime project(':OWNPlugin-System')
 	runtime project(':OWNPlugin-Remote')
 	runtime project(':OWNPlugin-Map')
-}	
+}

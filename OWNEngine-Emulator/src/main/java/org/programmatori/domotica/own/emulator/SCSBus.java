@@ -1,21 +1,20 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.emulator;
@@ -24,22 +23,23 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represent the real wire. Receive the message and delivery to all
  * component connected to the bus.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @since TCPIPServer v0.1.0
+ * @version 0.2, 10/08/2016
  */
 public class SCSBus extends ConfigBus {
-	private static final Log log = LogFactory.getLog(SCSBus.class);
+	private static final long serialVersionUID = -7685595931533082563L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SCSBus.class);
 
 	private List<SCSComponent> components;
 	private BlockingQueue<MsgBus> msgQueue;
@@ -53,7 +53,6 @@ public class SCSBus extends ConfigBus {
 		components = new ArrayList<SCSComponent>();
 		msgQueue = new ArrayBlockingQueue<MsgBus>(1); // On the bus only 1 msg can go
 
-		//cmdQuit = false;
 		ready = true;
 	}
 
@@ -84,14 +83,14 @@ public class SCSBus extends ConfigBus {
 	@Override
 	public void sendCommand(SCSMsg msg, SCSComponent sender) {
 		try {
-			if (msg == null) throw new Exception("msg can't be empty");
+			if (msg == null) throw new MessageFormatException("msg can't be empty");
 
 			ready = false;
-			log.debug("Msg Rx: " + msg);
+			LOGGER.debug("Msg Rx: {}", msg);
 			MsgBus msgBus = new MsgBus(msg, sender);
 			msgQueue.put(msgBus);
 		} catch (Exception e) {
-			log.error(LogUtility.getErrorTrace(e));
+			LOGGER.error("Error:", e);
 		}
 	}
 
@@ -101,9 +100,10 @@ public class SCSBus extends ConfigBus {
 			MsgBus msgBus = null;
 			try {
 				msgBus = msgQueue.take();
-				log.debug("MSG Send To Component: " + msgBus.getMsg().toString());
+				LOGGER.debug("MSG Send To Component: {}", msgBus.getMsg().toString());
 			} catch (InterruptedException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				LOGGER.error("Error:", e);
+				Thread.currentThread().interrupt();
 			}
 
 			notifyComponents(msgBus);
@@ -117,9 +117,9 @@ public class SCSBus extends ConfigBus {
 
 			if (!c.equals(msgBus.getComponent())) {
 				c.reciveMessage(msgBus.getMsg());
-				log.debug("Send to component: " + c.toString());
+				LOGGER.debug("Send to component: {}", c.toString());
 			} else {
-				log.debug("I don't send to sender");
+				LOGGER.debug("I don't send to sender");
 			}
 
 		}
@@ -144,28 +144,23 @@ public class SCSBus extends ConfigBus {
 		try {
 			msg = new SCSMsg("*#1*11##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*12##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*1*1*0##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*11##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			msg = new SCSMsg("*#1*12##");
 			emu.sendCommand(msg, null);
-			//System.out.println("Status:" + msg);
 
 			Config.getInstance().setExit(true);
 
 		} catch (MessageFormatException e) {
-			e.printStackTrace();
+			LOGGER.error("Error:", e);
 		}
 	}
 

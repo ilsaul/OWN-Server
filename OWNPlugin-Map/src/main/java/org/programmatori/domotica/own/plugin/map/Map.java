@@ -1,6 +1,5 @@
 /*
- * OWN Server is
- * Copyright (C) 2010-2013 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -34,8 +33,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.emulator.Blind;
 import org.programmatori.domotica.own.emulator.Light;
 import org.programmatori.domotica.own.emulator.SCSComponent;
@@ -44,7 +41,8 @@ import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -55,7 +53,9 @@ import org.xml.sax.helpers.AttributesImpl;
  * @version 1.0.2, 17/06/2013
  */
 public class Map extends Thread implements PlugIn {
-	private static final Log log = LogFactory.getLog(Map.class);
+	private static final long serialVersionUID = -2732986952504238296L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Map.class);
 
 	private EngineManager engine;
 	private java.util.Map<Integer, Set<SCSComponent>> localBus;
@@ -64,12 +64,12 @@ public class Map extends Thread implements PlugIn {
 	private int restartEvery;
 	private String fileName;
 
-	private class comparatorPL implements Comparator<SCSComponent> {
+	private class ComparatorPL implements Comparator<SCSComponent> {
 
 		@Override
 		public int compare(SCSComponent o1, SCSComponent o2) {
-			Integer i1 = new Integer(o1.getStatus().getWhere().getPL());
-			Integer i2 = new Integer(o2.getStatus().getWhere().getPL());
+			Integer i1 = o1.getStatus().getWhere().getPL();
+			Integer i2 = o2.getStatus().getWhere().getPL();
 			return i1.compareTo(i2);
 		}
 	}
@@ -98,7 +98,7 @@ public class Map extends Thread implements PlugIn {
 
 		localBus = new TreeMap<Integer, Set<SCSComponent>>();
 		this.engine = engine;
-
+		
 //		try {
 //			engine.addMonitor(this);
 //		} catch (Exception e) {
@@ -112,7 +112,7 @@ public class Map extends Thread implements PlugIn {
 
 			engine.sendCommand(msg, this);
 		} catch (MessageFormatException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			LOGGER.error("Error:", e);
 		}
 	}
 
@@ -122,16 +122,16 @@ public class Map extends Thread implements PlugIn {
 
 			engine.sendCommand(msg, this);
 		} catch (MessageFormatException e) {
-			log.error(LogUtility.getErrorTrace(e));
+			LOGGER.error("Error:", e);
 		}
 	}
 
 	private void addBus(Integer area, SCSComponent c) {
-		Set<SCSComponent> room = null;
+		Set<SCSComponent> room;
 		if (localBus.containsKey(area)) {
 			room = localBus.get(area);
 		} else {
-			room = new TreeSet<SCSComponent>(new comparatorPL());
+			room = new TreeSet<SCSComponent>(new ComparatorPL());
 		}
 
 		room.add(c);
@@ -146,7 +146,7 @@ public class Map extends Thread implements PlugIn {
 			int area = msg.getWhere().getArea();
 			int lightPoint = msg.getWhere().getPL();
 			int value = msg.getWhat().getMain();
-			SCSComponent c = Light.create(null, "" + area, "" + lightPoint, "" + value);
+			SCSComponent c = Light.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
 			break;
 
@@ -154,7 +154,7 @@ public class Map extends Thread implements PlugIn {
 			area = msg.getWhere().getArea();
 			lightPoint = msg.getWhere().getPL();
 			value = msg.getWhat().getMain();
-			c = Blind.create(null, "" + area, "" + lightPoint, "" + value);
+			c = Blind.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
 			break;
 
@@ -175,64 +175,69 @@ public class Map extends Thread implements PlugIn {
 			try {
 				sleep(pauseStart);
 			} catch (InterruptedException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				LOGGER.error("error not important", e);
+				Thread.currentThread().interrupt();
 			}
 			prepareLight();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				LOGGER.error("error not important", e);
+				Thread.currentThread().interrupt();
 			}
 			prepareBlind();
 			try {
 				sleep(pauseUnit);
 			} catch (InterruptedException e) {
-				log.error(LogUtility.getErrorTrace(e));
+				LOGGER.error("error not important", e);
+				Thread.currentThread().interrupt();
 			}
 
 			if (localBus.size() == 0) {
-				log.info("Bus Empty");
+				LOGGER.info("Bus Empty");
 			} else {
 				createStatusFile(fileName);
-
+				
 				// Log the status
 				for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-					Integer area = (Integer) iterAree.next();
+					Integer area = iterAree.next();
 
-					log.info("Room: " + area + " - " + Config.getInstance().getRoomName(area));
+					LOGGER.info("Room: {} - {}", area, Config.getInstance().getRoomName(area));
 					Set<SCSComponent> rooms = localBus.get(area);
 					for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-						SCSComponent c = (SCSComponent) iterRoom.next();
-						log.info("PL: " + c.getStatus().getWhere().getPL() + "(" + Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()) + ")");
+						SCSComponent c = iterRoom.next();
+						LOGGER.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 					}
 				}
 			}
 
 			try {
-				wait(restartEvery);
-			} catch (Exception e) {
-				// stub!
+				sleep(restartEvery);
+			} catch (InterruptedException e) {
+				LOGGER.error("sleep non importante", e);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
 
 	private void createStatusFile(String fileName) {
-		StreamResult streamResult = new StreamResult(new File(fileName));
-
+		StreamResult streamResult = new StreamResult(new File(fileName)); 
+		
 		SAXTransformerFactory  tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 		TransformerHandler hd = null;
-		try {
+		//try {
 			hd = tf.newTransformerHandler();
-		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
-		}
+//		} catch (TransformerConfigurationException e) {
+//			LOGGER.error("Error:", e);
+//			throw e;
+//		}
+
 		Transformer serializer = hd.getTransformer();
 
 		serializer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
-		//serializer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "users.dtd");
 		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 		//serializer.setOutputProperty( XalanOutputKeys.OUTPUT_PROP_INDENT_AMOUNT, "2" );
-
+		
 		hd.setResult(streamResult);
 		try {
 			hd.startDocument();
@@ -253,7 +258,7 @@ public class Map extends Thread implements PlugIn {
 			// ----------------------------------------- Area
 			for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
 				Integer area = (Integer) iterAree.next();
-
+				
 				attrs.clear();
 				attrs.addAttribute("","","id","CDATA", area.toString());
 				attrs.addAttribute("","","name","CDATA", Config.getInstance().getRoomName(area));
@@ -262,12 +267,12 @@ public class Map extends Thread implements PlugIn {
 				// ----------------------------------------- Component
 				Set<SCSComponent> rooms = localBus.get(area);
 				for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-					SCSComponent c = (SCSComponent) iterRoom.next();
-					log.info("PL: " + c.getStatus().getWhere().getPL() + "(" + Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()) + ")");
+					SCSComponent c = iterRoom.next();
+					LOGGER.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 
 					attrs.clear();
 					attrs.addAttribute("","","type","CDATA", Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
-					attrs.addAttribute("","","pl","CDATA",  "" + c.getStatus().getWhere().getPL());
+					attrs.addAttribute("","","pl","CDATA",  Integer.toString(c.getStatus().getWhere().getPL()));
 					hd.startElement("", "", "component", attrs);
 					hd.characters("0".toCharArray(), 0, 1);
 					hd.endElement("", "", "component");
@@ -294,13 +299,13 @@ public class Map extends Thread implements PlugIn {
 			hd.endElement("", "", "home");
 			hd.endDocument();
 		} catch (SAXException e) {
-			e.printStackTrace();
+			LOGGER.error("La conversione è in errore", e);
 		}
-
-
-
-
-
+		
+		
+		
+		
+		
 //		for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
 //			Integer area = (Integer) iterAree.next();
 //
@@ -312,10 +317,10 @@ public class Map extends Thread implements PlugIn {
 //			}
 //		}
 	}
-
+	
 	public static void main(String[] args) {
 		Map map = new Map(null);
-
+		
 		map.createStatusFile("test.xml");
 	}
 }

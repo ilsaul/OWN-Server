@@ -1,21 +1,20 @@
 /*
- * OWN Server is 
- * Copyright (C) 2010-2012 Moreno Cattaneo <moreno.cattaneo@gmail.com>
- * 
+ * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
  * This file is part of OWN Server.
- * 
+ *
  * OWN Server is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  *  License, or (at your option) any later version.
- * 
+ *
  * OWN Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
- * License along with OWN Server.  If not, see 
+ * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
 package org.programmatori.domotica.own.sdk.config;
@@ -25,20 +24,22 @@ import java.util.*;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract configuration
- * 
+ *
  * @version 2.1, 16/10/2010
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public abstract class AbstractConfig {
-	private static Log log = LogFactory.getLog(AbstractConfig.class);
+	private static Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
+
 	public static final String DEFAULT_CONFIG_FOLDER = "conf";
 	public static final String DEFAULT_CONFIG_PATH = "./" + DEFAULT_CONFIG_FOLDER;
+	public static final String DEFAULT_CONFIG_FILE = "config.xml";
 	public static String HOME_FILE = "home.config";
 
 
@@ -47,22 +48,30 @@ public abstract class AbstractConfig {
 
 	private XMLConfiguration config = null;
 
-	protected AbstractConfig(String configPath) {
-		this.configPath = configPath;
-		configLoaded = false;
-
-		loadConfig();
-	}
-
 	protected AbstractConfig() {
 		this(null);
 	}
 
-	private void loadConfig() {
+	protected AbstractConfig(String configPath) {
+		this(configPath, DEFAULT_CONFIG_FILE);
+	}
+
+	protected AbstractConfig(String configPath, String configFile) {
+		this.configPath = configPath;
+		configLoaded = false;
+
+		loadConfig(configFile);
+	}
+
+	private void loadConfig(String configFile) {
+		System.out.println("Config File: " + configFile);
+		if (configFile == null || configFile.trim().length() == 0) return;
+
 		try {
-			config = new XMLConfiguration(getConfigPath() + "/config.xml");
+			String cfg = getConfigPath() + File.separatorChar + configFile;
+			config = new XMLConfiguration(cfg);
 			config.setAutoSave(true);
-			log.info("Config File: " + config.getURL());
+			System.out.println("Full Config: " + config.getURL());
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
@@ -74,10 +83,20 @@ public abstract class AbstractConfig {
 		return configLoaded;
 	}
 
-	public void setConfig(String configPath) {
-		this.configPath = configPath;
+	public void setConfig(String configFile) {
 
-		loadConfig();
+		File f = new File(configFile);
+		String fileName;
+
+		if (f.isDirectory()) {
+			this.configPath = configFile;
+			fileName = DEFAULT_CONFIG_FILE;
+		} else {
+			this.configPath = f.getParent();
+			fileName = f.getName();
+		}
+
+		loadConfig(fileName);
 	}
 
 	protected String getString(String key) {
@@ -109,7 +128,7 @@ public abstract class AbstractConfig {
 
 		if (pos > -1) {
 			config.setProperty(nodeToSearch + "(" + pos + ")." + param, value);
-			log.debug("Param: " + nodeToSearch + "(" + pos + ")." + param + " = " + value);
+			logger.debug("Param: {} ({}).{}={}", nodeToSearch, pos, param, value);
 		}
 	}
 
@@ -119,7 +138,7 @@ public abstract class AbstractConfig {
 
 		if (pos > -1) {
 			value = (String) config.getProperty(nodeToSearch + "(" + pos + ")." + param);
-			log.debug("Param: " + nodeToSearch + "(" + pos + ")." + param + " = " + value);
+			logger.debug("Param: {} ({}).{}={}", nodeToSearch, pos, param, value);
 		}
 
 		return value;
@@ -141,15 +160,14 @@ public abstract class AbstractConfig {
 
 	public String getConfigPath() {
 		String path = configPath;
-		
+
 		if (path == null) {
 			try {
-				//String home = getOldHomeDirectory(HOME_FILE); // Deprecated System
 				String home = getHomeDirectory();
 				path = home + "/" + DEFAULT_CONFIG_FOLDER;
 
 			} catch (Exception e) {
-				log.error(LogUtility.getErrorTrace(e));
+				logger.error("Error", LogUtility.getErrorTrace(e));
 				path = DEFAULT_CONFIG_PATH;
 			}
 		}
@@ -185,90 +203,31 @@ public abstract class AbstractConfig {
 	 * For return the home of the project need to have a file in the home
 	 *
 	 * @return path of home directory
-	 * @deprecated
-	 */
-	public static String getOldHomeDirectory(String fileName) throws Exception {
-		String home = "";
-		String separator = File.separator;
-		boolean first = true;
-
-		try {
-			Log log = LogFactory.getLog(AbstractConfig.class);
-
-			// for solve bug in the jar use a real file instead a "."
-			String filePath = null;
-
-			// check presence of "filename", if it isn't raise an Exception
-			filePath = ClassLoader.getSystemResource(fileName).toString();
-
-			log.debug("Path of " + fileName + ": " + filePath);
-			StringTokenizer st = new StringTokenizer(filePath, "/"); // URI Separator
-			st.nextToken(); // don't calculate "file:"
-			while (st.hasMoreTokens()) {
-				String folder = st.nextToken();
-				log.debug("Foledr: " + folder);
-
-				// BUG Linux starting slash
-				if (separator.equals("/") && first) {
-					folder = separator + folder;
-					first = false;
-				}
-
-				// BUG Eclipse put in the bin
-				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
-
-				// BUG jar can not support . then use a real file for find a path
-				boolean bRealFile = !(folder.equals(fileName) && (st.countTokens() < 1));
-
-				// BUG the home directory it cannot end with .jar
-				boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));
-
-				if (bBin && bRealFile && bJar) { // If i build under bin i don't insert in
-					// home path
-					if (home.length() > 0)
-						home += "/";
-					home = home + folder;
-					log.debug("home: " + home);
-				}
-			}
-		} catch (Exception e) {
-			throw new Exception("File " + fileName + " must be present, please ensure it exists ");
-		}
-
-		return home;
-	}
-	
-	/**
-	 * Give the home of the project. <br>
-	 * For return the home of the project need to have a file in the home
-	 *
-	 * @return path of home directory
 	 */
 	public static String getHomeDirectory() {
 		File f = new File("");
-		
+
 		String filePath =  f.getAbsolutePath();
-		
-		
+
+
 		return getPathFromString(filePath);
 	}
-		
+
 		private static String getPathFromString(String path) {
-			Log log = LogFactory.getLog(AbstractConfig.class);
-			
+			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
+
 			String separator = File.separator;
 			boolean first = true;
 			String home = "";
-			
-			log.debug("Path " + path);
-			
+
+			logger.debug("Path {}", path);
+
 			StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
-			//st.nextToken(); // don't calculate "file:"
 			while (st.hasMoreTokens()) {
 				String folder = st.nextToken();
-				log.debug("Foledr: " + folder);
-				
-				boolean bFile = !(folder.equals("file:")); 
+				logger.debug("Foledr: {}", folder);
+
+				boolean bFile = !(folder.equals("file:"));
 
 				// BUG Linux starting slash
 				if (separator.equals("/") && first) {
@@ -280,7 +239,6 @@ public abstract class AbstractConfig {
 				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
 
 				// BUG jar can not support . then use a real file for find a path
-				//boolean bRealFile = !(folder.equals(fileName) && (st.countTokens() < 1));
 				boolean bRealFile = true;
 
 				// BUG the home directory it cannot end with .jar
@@ -291,10 +249,10 @@ public abstract class AbstractConfig {
 					if (home.length() > 0)
 						home += "/";
 					home = home + folder;
-					log.debug("home: " + home);
+					logger.debug("home: {}", home);
 				}
 			}
-			
+
 			return home;
 		}
 
