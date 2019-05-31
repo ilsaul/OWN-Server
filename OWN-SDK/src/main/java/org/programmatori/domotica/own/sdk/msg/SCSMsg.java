@@ -70,7 +70,7 @@ public class SCSMsg implements Serializable {
 			MSG_BUSY  = new SCSMsg("*#*6##");
 			MSG_PROC  = new SCSMsg("*#*7##");
 		} catch ( Exception e ) {
-			// Stub !! Can't heppen
+			// Stub !! Can't happen
 		}
 	}
 

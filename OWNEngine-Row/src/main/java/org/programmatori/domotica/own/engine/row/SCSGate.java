@@ -352,11 +352,19 @@ public class SCSGate {
 		// A8 B7 07 13 04 A7 A3
 		// A8 B7 08 13 04 A8 A3
 
-		// Comando
-		// SCS[1]: A8 24 20 12 00 16 A3
+		// Richiesta Status
+		//a8:24:ca:15:00:fb:a3 -> *#1*24##
+		//a8:48:ca:15:00:97:a3 -> *#1*48##
+		//01:a5: -> ACK (*#*1##)
+		//07
+		//a8:b8:48:12:01:e3:a3 -> Comando e Status
+		//a8:00:ca:1c:80:56:a3 -> NACK (*#*0##)
+		//a8:05:ca:1c:80:53:a3 -> MSG_NOBUS (*#*5##)
+
+
 		// 0xA8 iniziatore di comando
 		// 0x33 destinazione: codice dispositivo (corrisponde alla targhetta inserita sull'attuatore)
-		// 0x00 fisso (provenienza?)
+		// 0x00
 		// 0x15 Fisso? richiesta di stato
 		// 0x00 nuovo valore di stato
 		// 0x26 check byte (è sempre il risultato dell'operazione Xor dei 4 bytes precedenti)
@@ -365,7 +373,7 @@ public class SCSGate {
 		// Ack
 		// SCS[2]: A5
 
-		// Stato
+		// Comando
 		// SCS[3]: A8 B8 24 12 00 8E A3
 		// 0xA8 iniziatore di comando/stato
 		// 0xB8 0xB5 0xB3 APL GR GEN
