@@ -106,21 +106,27 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		int length;
 
 		//TODO: Make Better
-		while (commandBuffer.indexOf(SCSMsg.MSG_ENDER) > -1) {
+		do {
 			length = socketIn.read(buffer);
-			if (length != -1){
+			if (length != -1) {
 				result.write(buffer, 0, length);
 				commandBuffer.append(result.toString(StandardCharsets.UTF_8.name()));
 			}
-		}
+		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDER) == -1);
 
 		int pos = commandBuffer.indexOf(SCSMsg.MSG_ENDER);
-		String newCommand = commandBuffer.substring(0, pos+2);
-		String tmp = commandBuffer.substring(pos+2);
-		commandBuffer = new StringBuilder();
-		commandBuffer.append(tmp);
 
-		return newCommand;
+		if (pos > -1) {
+			String newCommand = commandBuffer.substring(0, pos + 2);
+			String tmp = commandBuffer.substring(pos + 2);
+			commandBuffer = new StringBuilder();
+			commandBuffer.append(tmp);
+
+			return newCommand;
+		} else {
+			logger.error("The message is not complete: {}", commandBuffer);
+			return null;
+		}
 	}
 
 	private void setup() throws IOException {
@@ -143,12 +149,17 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 				case MODE:
 					try {
-						SCSMsg msgSCS = new SCSMsg(readMessage());
-						response = processStart(msgSCS);
-						if (response.equals(SCSMsg.MSG_ACK)) {
-							status = CHECK_IP;
+						String sMsg = readMessage();
+						if (sMsg != null) {
+							SCSMsg msgSCS = new SCSMsg(sMsg);
+							response = processStart(msgSCS);
+							if (response.equals(SCSMsg.MSG_ACK)) {
+								status = CHECK_IP;
+							} else {
+								status = ConnectionStatus.DISCONNECTED;
+							}
 						} else {
-							status = ConnectionStatus.DISCONNECTED;
+							logger.debug("I wait because I don't receive message");
 						}
 
 					} catch (MessageFormatException | IOException e) {

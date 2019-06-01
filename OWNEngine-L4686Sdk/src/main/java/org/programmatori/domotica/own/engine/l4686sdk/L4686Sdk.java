@@ -58,7 +58,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 	private List<SCSListener> listListener;
 	private String dirtyBuffer;
 
-	public L4686Sdk() {
+	public L4686Sdk() throws IOException {
 		serialPort = null;
 		in = null;
 		out = null;
@@ -69,7 +69,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		connect(); //TODO: Remove from constructor
 	}
 
-	public void connect() {
+	public void connect() throws IOException {
 		connect(Config.getInstance().getNode("l4686sdk"));
 	}
 
@@ -83,7 +83,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		}
 	}
 
-	private void connect(String portName) {
+	private void connect(String portName) throws IOException {
 
 		if (portName == null || portName.trim().length() == 0) {
 			logger.error("Port Name missing.");
@@ -93,7 +93,9 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 		//serialPort = SerialPort.getCommPort(portName);
 
 		serialPort = getSerialPort(portName);
-		if (serialPort == null) return;
+		if (serialPort == null) {
+			throw new IOException("Serial Port not found");
+		}
 
 		//TODO: Manage connected COM
 //		if (portIdentifier.isCurrentlyOwned()) {
