@@ -16,7 +16,8 @@ import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
 /**
- * Receive Inpot From SGSGate and from BUS
+ * Receive Input From SGSGate that receive input from BUS
+ *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 4/01/2019
  */
@@ -46,6 +47,9 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 
 			// Work around
 			SerialPort currentSerial = event.getSerialPort();
+			if (currentSerial.bytesAvailable() < 0) {
+				logger.error("Negative bytes length");
+			}
 			byte[] newData2 = new byte[currentSerial.bytesAvailable()];
 			//int numRead =
 			currentSerial.readBytes(newData2, newData2.length);
@@ -79,6 +83,10 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 		return value;
 	}
 
+	/**
+	 * Remove the value
+	 * @return
+	 */
 	public UByte take() {
 		try {
 			return charsQueue.take();
@@ -86,6 +94,14 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 			logger.error("Interruption of the waiting of the value", e);
 			return null;
 		}
+	}
+
+	/**
+	 * Watch the value but don't remove.
+	 * @return
+	 */
+	public UByte peek() {
+		return charsQueue.peek();
 	}
 
 	public UByte[] take(int length) {
@@ -121,5 +137,9 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 			}
 		}
 
+	}
+
+	public int count() {
+		return charsQueue.size();
 	}
 }

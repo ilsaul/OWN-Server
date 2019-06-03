@@ -14,8 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SCSGate {
 	private static final Logger logger = LoggerFactory.getLogger(SCSGate.class);
@@ -26,11 +30,16 @@ public class SCSGate {
 	private static final String WELCOME = "Started!\r\n";
 	private static final String SERIAL = "IOUSBHostDevice"; //"cu.usbmodem1421 - IOUSBHostDevice"
 
+	private static final int MSG_SEPARATOR = 0x07;
 	private static final int MSG_START = 0xA8;
 	private static final int MSG_END = 0xA3;
 	private static final int WHERE_GR = 0xB3;
 	private static final int WHERE_GEN = 0xB5;
 	private static final int WHERE_APL = 0xB8;
+
+	private static final String MAP_WHO = "WHO";
+	private static final String MAP_WHAT = "WHAT";
+
 
 	private SerialPort currentSerial;
 	private OutputStream out;
@@ -170,100 +179,164 @@ public class SCSGate {
 	}
 
 	private SCSMsg convertToSCS(UByte[] values) {
-		System.out.println("Test");
+		logger.trace("start conversion to SCS");
+
 		SCSMsg msg = null;
 
-		if (values.length == 1) {
-			//TODO: Convertire
+		// Particular values
+		if (values[0].intValue() == 0x01 && values[1].intValue() == 0xA5) {
+			return SCSMsg.MSG_ACK;
+		}
 
-			//MSG_NACK  = new SCSMsg("*#*0##");
-			if (values[0].intValue() ==  0xA5) {
-				return SCSMsg.MSG_ACK;
-			}
-			//MSG_NOP   = new SCSMsg("*#*2##");
-			//MSG_RET   = new SCSMsg("*#*3##");
-			//MSG_COLL  = new SCSMsg("*#*4##");
-			//MSG_NOBUS = new SCSMsg("*#*5##");
-			//MSG_USY   = new SCSMsg("*#*6##");
-			//MSG_PROC  = new SCSMsg("*#*7##");
-
-
+		// Normal Message
 		// 0xA8 iniziatore messaggio
 		// 0xA3 terminatore di messaggio
-		} else if (values[0].shortValue() == MSG_START && values[values.length-1].intValue() == MSG_END) {
+		// 0x07 terminatore di messaggio 2
+		if (values[0].shortValue() == MSG_START && values[values.length-1].intValue() == MSG_END) {
 			Who who = null;
 			Where where = null;
 			What what = null;
+
+			int bus = 0;
+			int wherePosition = 2;
+			int statusPositon = 4;
+
+			if (values[1].intValue() == 0xe4) {
+				// Command for SCS Bus connected trow XXXXX
+				//es.: e4:01:00:00:24:ca
+				bus = values[2].intValue();
+
+				wherePosition += 3;
+				statusPositon += 4;
+			}
+
+
+			// Status Message
+			if (values[2].intValue() == 0xCA) {
+				switch (values[1].intValue()) {
+					case 0x00:
+						return SCSMsg.MSG_NACK; //a8:00:ca:1c:80:56:a3
+					case 0x02:
+						return SCSMsg.MSG_NOP;
+					case 0x03:
+						return SCSMsg.MSG_RET;
+					case 0x04:
+						return SCSMsg.MSG_COLL;
+					case 0x05:
+						return SCSMsg.MSG_NOBUS; //a8:05:ca:1c:80:53:a3
+					case 0x06:
+						return SCSMsg.MSG_BUSY;
+					case 0x07:
+						return SCSMsg.MSG_PROC;
+
+					default:
+						logger.warn("I can't understand this message: {}", ArrayUtils.bytesToHex(Arrays.asList(values)));
+				}
+
+				where = new Where(ArrayUtils.byteToHex(values[1])); // Destinazione
+				Map<String, Serializable> comp = getStatus(values[statusPositon]);
+				who = (Who) comp.get(MAP_WHO);
+				what = (What) comp.get(MAP_WHAT);
+
+				msg = new SCSMsg(who, ØON, what);
+			}
+
 			// Controllo il check
 			//if (check(ArrayUtils.subArray(values, 1, values.length-2), values[values.length-2])) {
 
-				// Where, What, property. Value, statusWho, statusWhere, statusProperty
+			// Where, What, property. Value, statusWho, statusWhere, statusProperty
 
-				// Aree
-				// 1 Bagno di Servizio
-				// 2 Bagno Idromassaggio
-				// 3 Balconi
-				// 4 Disimpegni
-				// 5 Cameretta
-				// 6 Studio
-				// 7 Sala e Cucina
-				// 8 Camera Matrimoniale
-				// 9 Cabina Armadio
+			// Aree
+			// 1 Bagno di Servizio
+			// 2 Bagno Idromassaggio
+			// 3 Balconi
+			// 4 Disimpegni
+			// 5 Cameretta
+			// 6 Studio
+			// 7 Sala e Cucina
+			// 8 Camera Matrimoniale
+			// 9 Cabina Armadio
 
-			if (values[1] == Unsigned.ubyte(WHERE_APL)) {
+			if (values[1] == Unsigned.ubyte(WHERE_APL) || bus > 0) {
 				// The BTicino Configurator is Hex Value
-				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition])); // Destinazione
+				if (bus > 0) {
+					where.addParam("4");
+					where.addParam(Integer.toString(bus));
+				}
 
 				// Value
-				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
+				StatusValue status = StatusValue.getStatusByValue(values[statusPositon].byteValue());
 				switch (status) {
-					case OFF: who = new Who(StatusValue.OFF.getWho());
-							what = new What(StatusValue.OFF.getWhat()); break;
+					case OFF:
+						who = new Who(StatusValue.OFF.getWho());
+						what = new What(StatusValue.OFF.getWhat());
+						break;
 
-					case ON: who = new Who(StatusValue.ON.getWho());
-							what = new What(StatusValue.ON.getWhat()); break;
+					case ON:
+						who = new Who(StatusValue.ON.getWho());
+						what = new What(StatusValue.ON.getWhat());
+						break;
 
-					case UP: who = new Who(StatusValue.UP.getWho());
-							what = new What(StatusValue.UP.getWhat()); break;
+					case UP:
+						who = new Who(StatusValue.UP.getWho());
+						what = new What(StatusValue.UP.getWhat());
+						break;
 
-					case DOWN: who = new Who(StatusValue.DOWN.getWho());
-							what = new What(StatusValue.DOWN.getWhat()); break;
+					case DOWN:
+						who = new Who(StatusValue.DOWN.getWho());
+						what = new What(StatusValue.DOWN.getWhat());
+						break;
 
-					case STOP: who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat()); break;
+					case STOP:
+						who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat());
+						break;
 
-					default: logger.warn("Unknown value for message: {}", values[4]);
+					default:
+						logger.warn("Unknown value for message: {}", values[4]);
 				}
 
 				msg = new SCSMsg(who, where, what);
 
 			} else if (values[1] == Unsigned.ubyte(WHERE_GR)) {
 				// The BTicino Configurator is Hex Value
-				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
+				where = new Where(ArrayUtils.byteToHex(values[2])); // Destination
 
 				if (values[3].byteValue() != 0x12) {
-					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'",  ArrayUtils.byteToHex(values[3]));
+					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'", ArrayUtils.byteToHex(values[3]));
 				}
 
 				// Value
 				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
 				switch (status) {
-					case OFF: who = new Who(StatusValue.OFF.getWho());
-						what = new What(StatusValue.OFF.getWhat()); break;
+					case OFF:
+						who = new Who(StatusValue.OFF.getWho());
+						what = new What(StatusValue.OFF.getWhat());
+						break;
 
-					case ON: who = new Who(StatusValue.ON.getWho());
-						what = new What(StatusValue.ON.getWhat()); break;
+					case ON:
+						who = new Who(StatusValue.ON.getWho());
+						what = new What(StatusValue.ON.getWhat());
+						break;
 
-					case UP: who = new Who(StatusValue.UP.getWho());
-						what = new What(StatusValue.UP.getWhat()); break;
+					case UP:
+						who = new Who(StatusValue.UP.getWho());
+						what = new What(StatusValue.UP.getWhat());
+						break;
 
-					case DOWN: who = new Who(StatusValue.DOWN.getWho());
-						what = new What(StatusValue.DOWN.getWhat()); break;
+					case DOWN:
+						who = new Who(StatusValue.DOWN.getWho());
+						what = new What(StatusValue.DOWN.getWhat());
+						break;
 
-					case STOP: who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat()); break;
+					case STOP:
+						who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat());
+						break;
 
-					default: logger.warn("Unknown value for message: {}", values[4]);
+					default:
+						logger.warn("Unknown value for message: {}", values[4]);
 				}
 
 				msg = new SCSMsg(who, where, what);
@@ -276,48 +349,65 @@ public class SCSGate {
 				if (values[2].byteValue() == 9) {
 					where = new Where("");
 				} else {
-					logger.error("In byte 2 I received a unknown value '{}' I wait '9'",  ArrayUtils.byteToHex(values[2]));
+					logger.error("In byte 2 I received a unknown value '{}' I wait '9'", ArrayUtils.byteToHex(values[2]));
 				}
 
 				if (values[3].byteValue() != 0x12) {
-					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'",  ArrayUtils.byteToHex(values[3]));
+					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'", ArrayUtils.byteToHex(values[3]));
 				}
 
 				// Value
 				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
 				switch (status) {
-					case OFF: who = new Who(StatusValue.OFF.getWho());
-						what = new What(StatusValue.OFF.getWhat()); break;
+					case OFF:
+						who = new Who(StatusValue.OFF.getWho());
+						what = new What(StatusValue.OFF.getWhat());
+						break;
 
-					case ON: who = new Who(StatusValue.ON.getWho());
-						what = new What(StatusValue.ON.getWhat()); break;
+					case ON:
+						who = new Who(StatusValue.ON.getWho());
+						what = new What(StatusValue.ON.getWhat());
+						break;
 
-					case UP: who = new Who(StatusValue.UP.getWho());
-						what = new What(StatusValue.UP.getWhat()); break;
+					case UP:
+						who = new Who(StatusValue.UP.getWho());
+						what = new What(StatusValue.UP.getWhat());
+						break;
 
-					case DOWN: who = new Who(StatusValue.DOWN.getWho());
-						what = new What(StatusValue.DOWN.getWhat()); break;
+					case DOWN:
+						who = new Who(StatusValue.DOWN.getWho());
+						what = new What(StatusValue.DOWN.getWhat());
+						break;
 
-					case STOP: who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat()); break;
+					case STOP:
+						who = new Who(StatusValue.STOP.getWho());
+						what = new What(StatusValue.STOP.getWhat());
+						break;
 
-					default: logger.warn("Unknown value for message: {}", values[4]);
+					default:
+						logger.warn("Unknown value for message: {}", values[4]);
 				}
 
 				msg = new SCSMsg(who, where, what);
 
 
-			} else {
+			} else if (values[1] == Unsigned.ubyte(0x24)) {
+				// Status
+
+
+
+		} else {
 				// a8:24:20:12:00:16:a3
+				// a8:24:ca:12:01:fd:a3
 				// Comando
-				who = null;
-				where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
-				what = new What(String.valueOf(values[4].byteValue())); // Comando
-				if (values[2] == Unsigned.ubyte(0x30)) {
-					who = new Who("1"); // Mittente
-				}
+				//who = null;
+				//where = new Where(ArrayUtils.byteToHex(values[2])); // Destinazione
+				//what = new What(String.valueOf(values[4].byteValue())); // Comando
+				//if (values[2] == Unsigned.ubyte(0x30)) {
+				//	who = new Who("1"); // Mittente
+				//}
 
-				msg = new SCSMsg(who, where, what);
+				//msg = new SCSMsg(who, where, what);
 			}
 		}
 
@@ -386,6 +476,44 @@ public class SCSGate {
 		return msg;
 	}
 
+	private Map<String, Serializable> getStatus(UByte bStatus) {
+		Map<String, Serializable> ret = new HashMap<>();
+
+		StatusValue status = StatusValue.getStatusByValue(bStatus.byteValue());
+
+		switch (status) {
+			case OFF:
+				ret.put(MAP_WHO, new Who(StatusValue.OFF.getWho()));
+				ret.put(MAP_WHAT, new What(StatusValue.OFF.getWhat()));
+				break;
+
+			case ON:
+				ret.put(MAP_WHO, new Who(StatusValue.ON.getWho()));
+				ret.put(MAP_WHAT, new What(StatusValue.ON.getWhat()));
+				break;
+
+			case UP:
+				ret.put(MAP_WHO, new Who(StatusValue.UP.getWho()));
+				ret.put(MAP_WHAT, new What(StatusValue.UP.getWhat()));
+				break;
+
+			case DOWN:
+				ret.put(MAP_WHO, new Who(StatusValue.DOWN.getWho()));
+				ret.put(MAP_WHAT, new What(StatusValue.DOWN.getWhat()));
+				break;
+
+			case STOP:
+				ret.put(MAP_WHO, new Who(StatusValue.STOP.getWho()));
+				ret.put(MAP_WHAT, new What(StatusValue.STOP.getWhat()));
+				break;
+
+			default:
+				logger.warn("Unknown value for message: {}", bStatus);
+		}
+
+		return ret;
+	}
+
 	private boolean check(UByte[] values, UByte check) {
 		UByte ret = values[0];
 
@@ -399,44 +527,53 @@ public class SCSGate {
 	private SCSMsg retrieveMessage() {
 		SCSMsg msg = null;
 		do {
-			UByte b = receiver.take();
 			List<UByte> rowMsg = new ArrayList<>();
 
-			while (b.intValue() != 0xA8) {
+			// Take first character for understand the message
+			UByte b = receiver.take();
+
+			// I search a normal message
+			if (b.intValue() == MSG_START) {
 				rowMsg.add(b);
-				UByte list[] = new UByte[rowMsg.size()];
-				msg = convertToSCS(rowMsg.toArray(list));
 
-				String res = ArrayUtils.byteToHex(b);
-				logger.debug("Discard byte {}", res);
-				Config.getInstance().getMessageLog().log(res);
-				if (msg != null) {
-					Config.getInstance().getMessageLog().log(msg, false, null);
-				}
-				b = receiver.take();
-			}
-
-			rowMsg = new ArrayList<>();
-			if (b.intValue() == 0xA8) {
-
-				while (b.intValue() != 0xA3) {
-					rowMsg.add(b);
+				// I add all byte until I find the close byte
+				do {
 					b = receiver.take();
-				}
+					rowMsg.add(b);
+				} while (b.intValue() != MSG_END);
+
+			} else if (b.intValue() == 0x01) {
+				// ACK Message
 				rowMsg.add(b);
+				rowMsg.add(receiver.take());
 
-				logger.debug("row msg: {}", ArrayUtils.bytesToHex(rowMsg));
-				Config.getInstance().getMessageLog().log(ArrayUtils.bytesToHex(rowMsg));
+			} else {
+				if (b.intValue() == MSG_SEPARATOR) {
+					// No Need this char
+					logger.debug("Discard Byte 0x07 -> Separator");
 
-				UByte list[] = new UByte[rowMsg.size()];
-				msg = convertToSCS(rowMsg.toArray(list));
-				logger.debug("Msg: {}", msg);
+				} else {
+					// Discard unknown byte
+					String res = ArrayUtils.byteToHex(b);
+					logger.debug("Discard byte {}", res);
+				}
+
 			}
 
-			//TODO: Ciclare per gli altri
-		} while (msg != null);
+			if (!rowMsg.isEmpty()) {
+				UByte[] list = new UByte[rowMsg.size()];
+				msg = convertToSCS(rowMsg.toArray(list));
 
-		return msg;
+				// Log
+				String row = ArrayUtils.bytesToHex(rowMsg);
+				logger.debug("Row: {} -> SCS: {}", row, msg);
+
+				if (msg != null) Config.getInstance().getMessageLog().log(msg.toString());
+			}
+
+		} while (true); //(receiver.count() != 0);
+
+		//return msg;
 	}
 
 	public void close() {

@@ -146,7 +146,7 @@ public class SCSMsg implements Serializable {
 		StringIterator stMsg2 = new StringIterator(msg.substring(1, msg.length() -2), MSG_SEPARATOR.charAt(0));
 
 		switch (stMsg2.countStrings()) {
-		case 2: // Comando Status *WHO*WHERE##
+		case 2: // Command Status *WHO*WHERE##
 			decodeWhoWhere(stMsg2);
 			break;
 

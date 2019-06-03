@@ -94,7 +94,7 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 
 		serialPort = getSerialPort(portName);
 		if (serialPort == null) {
-			throw new IOException("Serial Port not found");
+			throw new IOException("Serial Port not found '" + portName + "'");
 		}
 
 		//TODO: Manage connected COM
