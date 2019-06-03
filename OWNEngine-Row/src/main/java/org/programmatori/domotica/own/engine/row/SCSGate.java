@@ -5,6 +5,7 @@ import org.joou.UByte;
 import org.joou.Unsigned;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
 import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.msg.Param;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.programmatori.domotica.own.sdk.msg.Where;
@@ -238,7 +239,7 @@ public class SCSGate {
 				who = (Who) comp.get(MAP_WHO);
 				what = (What) comp.get(MAP_WHAT);
 
-				msg = new SCSMsg(who, ØON, what);
+				msg = new SCSMsg(who, where, what);
 			}
 
 			// Controllo il check
