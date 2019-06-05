@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 05/06/2018
  */
+@Deprecated
 public class Row implements Engine, SerialPortEventListener {
 	private static final Logger logger = LoggerFactory.getLogger(Row.class);
 

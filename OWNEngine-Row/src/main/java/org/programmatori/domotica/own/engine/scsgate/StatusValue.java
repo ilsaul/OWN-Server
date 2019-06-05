@@ -1,4 +1,4 @@
-package org.programmatori.domotica.own.engine.row;
+package org.programmatori.domotica.own.engine.scsgate;
 
 /**
  * Decoding Byte to What

@@ -49,7 +49,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 	private boolean changeQueue;
 
 	public MsgReceiver(Engine engine, BlockingQueue<Command> queueSended) {
-		logger.trace("Start Create Istance");
+		logger.trace("Start Create Instance");
 		setName("MsgReceiver");
 		setDaemon(true);
 		Config.getInstance().addThread(this);
@@ -64,7 +64,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		} catch (TooManyListenersException e) {
 			logger.error("Error:" , e);
 		}
-		logger.trace("End Create Istance");
+		logger.trace("End Create Instance");
 	}
 
 	@Override

@@ -1,12 +1,8 @@
-package org.programmatori.domotica.own.engine.row;
+package org.programmatori.domotica.own.engine.scsgate;
 
-import com.fazecast.jSerialComm.SerialPort;
 import org.joou.UByte;
 import org.joou.Unsigned;
-import org.programmatori.domotica.own.engine.scsgate.SCSGateState;
-import org.programmatori.domotica.own.engine.scsgate.StatusValue;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
-import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.programmatori.domotica.own.sdk.msg.Where;
@@ -14,28 +10,18 @@ import org.programmatori.domotica.own.sdk.msg.Who;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-@Deprecated
-public class SCSGate {
-	private static final Logger logger = LoggerFactory.getLogger(SCSGate.class);
+public class SCSConverter {
+	private static final Logger logger = LoggerFactory.getLogger(SCSConverter.class);
 
-	/** Default bits per second for COM port. */
-	private static final int DATA_RATE = 115200;
+	public static final int MSG_SEPARATOR = 0x07;
+	public static final int MSG_START = 0xA8;
+	public static final int MSG_END = 0xA3;
 
-	private static final String WELCOME = "Started!\r\n";
-	private static final String SERIAL = "IOUSBHostDevice"; //"cu.usbmodem1421 - IOUSBHostDevice"
-
-	private static final int MSG_SEPARATOR = 0x07;
-	private static final int MSG_START = 0xA8;
-	private static final int MSG_END = 0xA3;
 	private static final int WHERE_GR = 0xB3;
 	private static final int WHERE_GEN = 0xB5;
 	private static final int WHERE_APL = 0xB8;
@@ -43,145 +29,7 @@ public class SCSGate {
 	private static final String MAP_WHO = "WHO";
 	private static final String MAP_WHAT = "WHAT";
 
-
-	private SerialPort currentSerial;
-	private OutputStream out;
-	private SCSGateState state;
-	private InputReceiver receiver = new InputReceiver();
-
-	/**
-	 * Find Serial
-	 */
-	public SCSGate() {
-		logger.trace("Trace: ENBLED");
-		logger.debug("Debug: ENBLED");
-
-		SerialPort[] ports = SerialPort.getCommPorts();
-		state = SCSGateState.STATE_INITIAL;
-
-		currentSerial = null;
-		for (int i = 0; i < ports.length; i++) {
-			SerialPort serialPort = ports[i];
-
-			logger.debug("Porta: {}->{}", serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
-
-			// I can't find a better system than use a name
-			if (serialPort.getDescriptivePortName().equals(SERIAL)) {
-				logger.info("Port found {}", serialPort.getSystemPortName());
-				currentSerial = serialPort;
-				currentSerial.setBaudRate(DATA_RATE);
-			}
-		}
-	}
-
-	public boolean isConnected() {
-		return state == SCSGateState.STATE_SCS_GATE_READY;
-	}
-
-	/**
-	 * Connect to serial
-	 */
-	public void connect() {
-		// SCSGate driver = new SCSGate(currentSerial, this, )
-		boolean connected = currentSerial.openPort();
-		logger.info("Connection: {}", connected);
-
-		if (connected) {
-			currentSerial.addDataListener(receiver);
-			out = currentSerial.getOutputStream();
-			// try { Thread.sleep(5000); } catch (Exception e) { e.printStackTrace(); }
-
-			busInitialize();
-		}
-	}
-
-	private void busInitialize() {
-		String errorMsg = "Error to {}";
-		String setMsg = "Settled {}";
-
-		// Check state
-		if (state == SCSGateState.STATE_INITIAL) {
-			StringBuilder value = new StringBuilder();
-			while (!WELCOME.equals(value.toString())) {
-				value.append(receiver.takeChar());
-				if (!WELCOME.startsWith(value.toString())) {
-					while (!WELCOME.startsWith(value.toString()) && value.length() > 0) {
-						value.delete(1,1); //TODO: Test if work
-					}
-				}
-			}
-
-			if (WELCOME.equals(value.toString())) {
-				state = state.next(); //RowEngineState.STATE_ARDUINO_READY;
-				logger.info(state.getDescription());
-			} else {
-				logger.error(errorMsg, state.next().getDescription());
-			}
-		}
-
-		if (state == SCSGateState.STATE_ARDUINO_READY) {
-			char ch =  receiver.takeChar();
-
-			if (ch == 'k') {
-				state = state.next();
-				logger.info(setMsg, state.getDescription());
-			} else {
-				logger.error(errorMsg, state.next().getDescription());
-			}
-		}
-
-		if (state == SCSGateState.STATE_SCS_GATE_SET_SLOW_SPEED) {
-			char ch = receiver.takeChar();
-
-			if (ch == 'k') {
-				state = state.next();
-				logger.info(setMsg, state.getDescription());
-			} else {
-				logger.error(errorMsg, state.next().getDescription());
-			}
-		}
-
-		if (state == SCSGateState.STATE_SCS_GATE_SET_VOLT) {
-			char ch = receiver.takeChar();
-
-			if (ch == 'k') {
-				state = state.next();
-				logger.info(setMsg, state.getDescription());
-			} else {
-				logger.error(errorMsg, state.next().getDescription());
-			}
-		}
-
-		if (state == SCSGateState.STATE_SCS_GATE_SET_ASCII) {
-			char ch = (char) receiver.take().byteValue();
-
-			if (ch == 'k') {
-				state = state.next(); // I must change always state
-				logger.info(setMsg, state.getDescription());
-			} else {
-				logger.error(errorMsg, state.next().getDescription());
-			}
-		}
-
-		if (state == SCSGateState.STATE_SCS_GATE_SET_LOG) {
-			String version = receiver.takeString(9);
-
-			logger.info("SCS Gate: Version {}", version);
-			state = state.next(); //STATE_SCS_GATE_READY;
-		}
-	}
-
-	public void send(UByte[] msg) throws IOException {
-		logger.debug("Send {}", msg);
-
-		for (int i = 0; i < msg.length; i++) {
-			out.write(msg[i].byteValue());
-		}
-
-		out.flush();
-	}
-
-	private SCSMsg convertToSCS(UByte[] values) {
+	public SCSMsg convertToSCS(UByte[] values) {
 		logger.trace("start conversion to SCS");
 
 		SCSMsg msg = null;
@@ -194,7 +42,6 @@ public class SCSGate {
 		// Normal Message
 		// 0xA8 iniziatore messaggio
 		// 0xA3 terminatore di messaggio
-		// 0x07 terminatore di messaggio 2
 		if (values[0].shortValue() == MSG_START && values[values.length-1].intValue() == MSG_END) {
 			Who who = null;
 			Where where = null;
@@ -399,7 +246,7 @@ public class SCSGate {
 
 
 
-		} else {
+			} else {
 				// a8:24:20:12:00:16:a3
 				// a8:24:ca:12:01:fd:a3
 				// Comando
@@ -527,102 +374,9 @@ public class SCSGate {
 		return ret == check;
 	}
 
-	private SCSMsg retrieveMessage() {
-		SCSMsg msg = null;
-		do {
-			List<UByte> rowMsg = new ArrayList<>();
+	public UByte[] convertFromSCS(SCSMsg msg) {
+		logger.warn("Not Implemented");
 
-			// Take first character for understand the message
-			UByte b = receiver.take();
-
-			// I search a normal message
-			if (b.intValue() == MSG_START) {
-				rowMsg.add(b);
-
-				// I add all byte until I find the close byte
-				do {
-					b = receiver.take();
-					rowMsg.add(b);
-				} while (b.intValue() != MSG_END);
-
-			} else if (b.intValue() == 0x01) {
-				// ACK Message
-				rowMsg.add(b);
-				rowMsg.add(receiver.take());
-
-			} else {
-				if (b.intValue() == MSG_SEPARATOR) {
-					// No Need this char
-					logger.debug("Discard Byte 0x07 -> Separator");
-
-				} else {
-					// Discard unknown byte
-					String res = ArrayUtils.byteToHex(b);
-					logger.debug("Discard byte {}", res);
-				}
-
-			}
-
-			if (!rowMsg.isEmpty()) {
-				UByte[] list = new UByte[rowMsg.size()];
-				msg = convertToSCS(rowMsg.toArray(list));
-
-				// Log
-				String row = ArrayUtils.bytesToHex(rowMsg);
-				logger.debug("Row: {} -> SCS: {}", row, msg);
-
-				if (msg != null) Config.getInstance().getMessageLog().log(msg.toString());
-			}
-
-		} while (true); //(receiver.count() != 0);
-
-		//return msg;
-	}
-
-	public void close() {
-		currentSerial.removeDataListener();
-		boolean connected = !currentSerial.closePort();
-
-		if (!connected) state = SCSGateState.STATE_INITIAL;
-
-		logger.info("Connection close: {}", !connected);
-	}
-
-	public static void main(String[] args) throws IOException {
-		SCSGate row = new SCSGate();
-		row.connect();
-
-		if (row.isConnected()) {
-			SCSMsg msg  = row.retrieveMessage();
-			System.out.println(msg);
-			UByte[] sendRow = {Unsigned.ubyte(0xA8),
-					//a8:b8:62:12:08:c0:a3
-
-					Unsigned.ubyte(0xB8),
-					Unsigned.ubyte(0x62),
-					Unsigned.ubyte(0x12),
-					Unsigned.ubyte(0x08),
-					Unsigned.ubyte(0xC0),
-					Unsigned.ubyte(0xA3)};
-
-
-			row.send(sendRow);
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			//row.send("@q");
-			try {
-				Thread.sleep(10000);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			System.out.println("Port not open");
-			logger.warn("Port not open");
-		}
-
-		row.close();
+		return null;
 	}
 }

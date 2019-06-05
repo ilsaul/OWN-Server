@@ -21,6 +21,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 4/01/2019
  */
+@Deprecated
 public class InputReceiver implements SerialPortDataListener, Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 

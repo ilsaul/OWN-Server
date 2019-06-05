@@ -40,6 +40,8 @@ dependencies {
 	implementation 'ch.qos.logback:logback-classic:1.+'
 
 	runtimeOnly 'commons-collections:commons-collections:3.+'
+
+	implementation 'com.fazecast:jSerialComm:2.4.+'
 }
 
 distributions {
