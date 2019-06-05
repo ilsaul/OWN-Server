@@ -9,7 +9,7 @@ include 'OWN-SDK'
 // Engine
 include 'OWNEngine-Emulator'
 include 'OWNEngine-L4686Sdk'
-include 'OWNEngine-Row'
+include 'OWNEngine-SCSGate'
 
 // Plugin
 include 'OWNPlugin-System'

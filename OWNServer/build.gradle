@@ -25,7 +25,7 @@ dependencies {
 
 	runtime project(':OWNEngine-Emulator')
 	runtime project(':OWNEngine-L4686Sdk')
-	runtime project(':OWNEngine-Row')
+	runtime project(':OWNEngine-SCSGate')
 	runtime project(':OWNPlugin-Map')
 	runtime project(':OWNPlugin-Power')
 	runtime project(':OWNPlugin-Remote')
