@@ -25,6 +25,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.What;
+import org.programmatori.domotica.own.sdk.msg.Where;
+import org.programmatori.domotica.own.sdk.msg.Who;
 
 public class SCSMsgTest {
 
@@ -195,9 +198,23 @@ public class SCSMsgTest {
 		try {
 			scsMsg = new SCSMsg(msg);
 
-			assertEquals("Wrong Address", -1, scsMsg.getWhere().getAddress());
+			assertEquals("Wrong Group", -1, scsMsg.getWhere().getAddress());
 		} catch (MessageFormatException e) {
 			fail("message " + msg + "not accepted");
 		}
+	}
+
+	@Test
+	public void testGENReturn() {
+		testGeneric("*2*0*##");
+	}
+
+
+
+	@Test
+	public void testCreateGEN() {
+		SCSMsg msg = new SCSMsg(new Who("2"), new Where(""), new What("0"));
+
+		assertEquals("Wrong Create GEN", "*2*0*##", msg.toString());
 	}
 }

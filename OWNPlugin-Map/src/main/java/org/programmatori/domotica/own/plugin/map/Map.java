@@ -33,9 +33,9 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.programmatori.domotica.own.emulator.Blind;
-import org.programmatori.domotica.own.emulator.Light;
-import org.programmatori.domotica.own.emulator.SCSComponent;
+import org.programmatori.domotica.own.engine.emulator.component.Blind;
+import org.programmatori.domotica.own.engine.emulator.component.Light;
+import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
@@ -81,7 +81,7 @@ public class Map extends Thread implements PlugIn {
 		// Retrive Config Parameters
 		pauseStart = Integer.parseInt(Config.getInstance().getNode("map.pause.start"));
 		pauseUnit = Integer.parseInt(Config.getInstance().getNode("map.pause.unit"));
-		fileName = Config.getInstance().getNode("file");
+		fileName = Config.getInstance().getNode("map.file");
 		restartEvery = Integer.parseInt(Config.getInstance().getNode("map.intervall"));
 
 		String unit = Config.getInstance().getNode("map.intervall[@unit]");
@@ -134,7 +134,7 @@ public class Map extends Thread implements PlugIn {
 	}
 
 	@Override
-	public void reciveMsg(SCSMsg msg) {
+	public void receiveMsg(SCSMsg msg) {
 		switch (msg.getWho().getMain()) {
 		case Light.MUST_WHO:
 			int area = msg.getWhere().getArea();

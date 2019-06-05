@@ -29,6 +29,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.0, 21/03/2010
  */
-public interface Sender extends Serializable {
-	void reciveMsg(SCSMsg msg);
+public interface Sender {
+	void receiveMsg(SCSMsg msg);
 }
+

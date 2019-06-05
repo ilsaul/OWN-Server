@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine.core;
 
+import java.io.IOException;
 import java.util.TooManyListenersException;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
@@ -33,24 +34,30 @@ import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
  */
 public interface Engine {
 
+	/**
+	 * If the engine can start to use.
+	 * @return
+	 */
 	boolean isReady();
 
 	/**
 	 * Use from server to send a command to the bus
 	 * @param msg message that it want to send
 	 */
-	void sendCommand(SCSMsg msg);
+	void sendCommand(SCSMsg msg); //TODO: Enable: throws IOException;
 
 	/**
-	 * The client connection add itself to a list of listener of the bus for recive a msg from BUS
-	 * @param listener what want recive the message from the bus
+	 * The client connection add itself to a list of listener of the bus for receive a msg from BUS
+	 * @param listener what want receive the message from the bus
 	 * @throws TooManyListenersException Exception if too musch client is connetced
 	 */
 	void addEventListener(SCSListener listener) throws TooManyListenersException;
 
 	/**
 	 * Remove from list of listener
-	 * @param listener The object that Previously ask to recive msg from bus
+	 * @param listener The object that Previously ask to receive msg from bus
 	 */
 	void removeEventListener(SCSListener listener);
+
+	//void connect(String portName) throws IOException;
 }

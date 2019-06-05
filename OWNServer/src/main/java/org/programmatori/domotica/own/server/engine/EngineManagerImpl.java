@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * In the configuration you need to use tag 'bus' and inside it a class
  * full qualified name of the Engine.<br>
  * <code>
- * &lt;bus&gt;org.programmatori.domotica.own.server.engine.core.Emulator&lt;/bus&gt;<br>
+ * &lt;bus&gt;Emulator&lt;/bus&gt;<br>
  * </code><br>
- * The {@link Emulator} is our default and no need to change if don't want other.
+ * The {@link org.programmatori.domotica.own.engine.emulator.Emulator} is our default and no need to change if don't want other.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
@@ -79,7 +79,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	private boolean changeQueue;
 
 	public EngineManagerImpl() {
-		logger.trace("Start Create Istance");
+		logger.trace("Start Create Instance");
 		setName("SCS Engine");
 		//setDaemon(true);
 		Config.getInstance().addThread(this);
@@ -123,17 +123,15 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	}
 
 	private void loadPlugIn() {
-		//org.programmatori.domotica.bticino.map.Map map = new org.programmatori.domotica.bticino.map.Map(this);
-		//map.start();
-
 		List<String> plugins = Config.getInstance().getPlugIn();
 		for (Iterator<String> iter = plugins.iterator(); iter.hasNext();) {
 			String nameClass = (String) iter.next();
+			logger.debug("Try to load plugins {}", nameClass);
 
 			try {
 				Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
 				@SuppressWarnings("unchecked")
-				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManagerImpl.class);
+				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
 
 				PlugIn plugIn = constructor.newInstance(this);
 				plugIn.start();
@@ -160,7 +158,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 				if (commandSended != null) {
 					if (commandSended.getStatus() != null) {
 						msgSended.remove(commandSended);
-						commandSended.getClient().reciveMsg(commandSended.getStatus());
+						commandSended.getClient().receiveMsg(commandSended.getStatus());
 						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
 
 					// searching a msg with replay added
@@ -174,13 +172,13 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext();) {
 									SCSMsg msg = (SCSMsg) iter2.next();
 									logger.debug("msg to send to client: {}", msg);
-									commandSended.getClient().reciveMsg(msg);
+									commandSended.getClient().receiveMsg(msg);
 								}
 
 							} else {
 								logger.debug("requst is command");
 							}
-							commandSended.getClient().reciveMsg(SCSMsg.MSG_ACK);
+							commandSended.getClient().receiveMsg(SCSMsg.MSG_ACK);
 							logger.debug("Reply to client by without status: ACK");
 						}
 
@@ -191,7 +189,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 							long create = commandSended.getTimeSend().getTime();
 							if ((now - create) > sendTimeout) {
 								msgSended.remove(commandSended);
-								commandSended.getClient().reciveMsg(SCSMsg.MSG_NACK);
+								commandSended.getClient().receiveMsg(SCSMsg.MSG_NACK);
 								logger.debug("Reply to client by over time: NACK");
 							}
 						}

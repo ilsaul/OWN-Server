@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
  * @version 0.2 16/08/2016
  */
 public class System extends Thread implements PlugIn {
-	private static final long serialVersionUID = -8915105861982264418L;
 
 	/** log for the class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
@@ -80,8 +79,8 @@ public class System extends Thread implements PlugIn {
 	}
 
 	@Override
-	public void reciveMsg(SCSMsg msg) {
-		LOGGER.debug("System recived msg: {}", msg);
+	public void receiveMsg(SCSMsg msg) {
+		LOGGER.debug("System received msg: {}", msg);
 		Value value = null;
 		SCSMsg msgResonse = null;
 

@@ -49,7 +49,7 @@ public class Param implements Serializable {
 			}
 		}
 
-		while (st. hasNext()) {
+		while (st.hasNext()) {
 			this.params.add(st.nextString());
 		}
 	}
@@ -117,5 +117,14 @@ public class Param implements Serializable {
 
 	public String getParams(int i) {
 		return params.get(i);
+	}
+
+	/**
+	 * If I start from byte I can only add in this why
+	 *
+	 * @param param
+	 */
+	public void addParam(String param) {
+		params.add(param);
 	}
 }
