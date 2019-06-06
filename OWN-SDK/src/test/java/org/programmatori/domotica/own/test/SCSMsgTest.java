@@ -192,7 +192,7 @@ public class SCSMsgTest {
 
 	@Test
 	public void testGroup() {
-		String msg = "*2*1*7##";
+		String msg = "*2*1*07##";
 
 		SCSMsg scsMsg = null;
 		try {

@@ -115,8 +115,8 @@ public class Param implements Serializable {
 		return params.size();
 	}
 
-	public String getParams(int i) {
-		return params.get(i);
+	public String getParams(int index) {
+		return params.get(index);
 	}
 
 	/**

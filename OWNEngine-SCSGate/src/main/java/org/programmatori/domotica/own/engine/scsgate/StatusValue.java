@@ -1,5 +1,7 @@
 package org.programmatori.domotica.own.engine.scsgate;
 
+import org.joou.UByte;
+
 /**
  * Decoding Byte to What
  *
@@ -7,30 +9,30 @@ package org.programmatori.domotica.own.engine.scsgate;
  * @since 26/05/2019
  */
 public enum StatusValue {
-	ON((byte)0, "1", "1"),
-	OFF((byte)1, "0", "1"),
+	ON(UByte.valueOf(0),1,1),
+	OFF(UByte.valueOf(1),0,1),
 
-	UP((byte)8, "1", "2"),
-	DOWN((byte)9, "2", "2"),
-	STOP((byte)10,"0", "2");
+	UP(UByte.valueOf(8),1,2),
+	DOWN(UByte.valueOf(9),2,2),
+	STOP(UByte.valueOf(10),0,2);
 
 	//STOP_ADVANCED((byte)10,"0", "2");
 	//UP_ADVANCED((byte)10,"0", "2");
 	//DOWN_ADVANCED((byte)10,"0", "2");
 
-	private byte value;
-	private String who;
-	private String what;
+	private UByte byteValue;
+	private int who;
+	private int what;
 
-	StatusValue(byte value, String what, String who) {
-		this.value = value;
+	StatusValue(UByte byteValue, int what, int who) {
+		this.byteValue = byteValue;
 		this.who = who;
 		this.what = what;
 	}
 
-	public static StatusValue getStatusByValue(byte byteValue) {
+	public static StatusValue findByByte(UByte byteValue) {
 		for (StatusValue val: StatusValue.values()) {
-			if (val.getValue() == byteValue) {
+			if (val.getByteValue() == byteValue) {
 				return val;
 			}
 		}
@@ -38,15 +40,33 @@ public enum StatusValue {
 		return null;
 	}
 
-	public byte getValue() {
-		return value;
+	public static StatusValue findBySCS(int who, int what) {
+		for (StatusValue val: StatusValue.values()) {
+			if (val.getWho() == who && val.getWhat() == what) {
+				return val;
+			}
+		}
+
+		return null;
 	}
 
-	public String getWho() {
+	public UByte getByteValue() {
+		return byteValue;
+	}
+
+	public int getWho() {
 		return who;
 	}
 
-	public String getWhat() {
+	public String  getWhoString() {
+		return Integer.toString(who);
+	}
+
+	public int getWhat() {
 		return what;
+	}
+
+	public String getWhatString() {
+		return Integer.toString(what);
 	}
 }

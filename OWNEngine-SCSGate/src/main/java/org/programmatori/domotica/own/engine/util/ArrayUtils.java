@@ -47,4 +47,10 @@ public class ArrayUtils {
 	     return s;
 	}
 
+	public static UByte hexToByte(String sValue) {
+		byte data = (byte) ((Character.digit(sValue.charAt(0), 16) << 4)
+				+ Character.digit(sValue.charAt(1), 16));
+
+		return UByte.valueOf(data);
+	}
 }

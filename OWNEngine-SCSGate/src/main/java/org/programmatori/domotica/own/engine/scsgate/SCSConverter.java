@@ -10,24 +10,22 @@ import org.programmatori.domotica.own.sdk.msg.Who;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class SCSConverter {
 	private static final Logger logger = LoggerFactory.getLogger(SCSConverter.class);
 
-	public static final int MSG_SEPARATOR = 0x07;
-	public static final int MSG_START = 0xA8;
-	public static final int MSG_END = 0xA3;
+	static final int MSG_SEPARATOR = 0x07;
+	static final int MSG_START = 0xA8;
+	static final int MSG_END = 0xA3;
+
+	private static final int OTHER_BUS_START = 0xE4;
+	private static final int OTHER_BUS_END = 0xCA;
 
 	private static final int WHERE_GR = 0xB3;
 	private static final int WHERE_GEN = 0xB5;
 	private static final int WHERE_APL = 0xB8;
-
-	private static final String MAP_WHO = "WHO";
-	private static final String MAP_WHAT = "WHAT";
 
 	public SCSMsg convertToSCS(UByte[] values) {
 		logger.trace("start conversion to SCS");
@@ -47,6 +45,11 @@ public class SCSConverter {
 			Where where = null;
 			What what = null;
 
+			// Controllo il check
+			if (!check(ArrayUtils.subArray(values, 1, values.length-2), values[values.length-2])) {
+				logger.warn("Check Hash Orig:{} Calc:{}", values[values.length-2], calcHash(ArrayUtils.subArray(values, 1, values.length-2)));
+			}
+
 			int bus = 0;
 			int wherePosition = 2;
 			int statusPositon = 4;
@@ -61,38 +64,13 @@ public class SCSConverter {
 			}
 
 
-			// Status Message
+			// Request Status Message
 			if (values[2].intValue() == 0xCA) {
-				switch (values[1].intValue()) {
-					case 0x00:
-						return SCSMsg.MSG_NACK; //a8:00:ca:1c:80:56:a3
-					case 0x02:
-						return SCSMsg.MSG_NOP;
-					case 0x03:
-						return SCSMsg.MSG_RET;
-					case 0x04:
-						return SCSMsg.MSG_COLL;
-					case 0x05:
-						return SCSMsg.MSG_NOBUS; //a8:05:ca:1c:80:53:a3
-					case 0x06:
-						return SCSMsg.MSG_BUSY;
-					case 0x07:
-						return SCSMsg.MSG_PROC;
-
-					default:
-						logger.warn("I can't understand this message: {}", ArrayUtils.bytesToHex(Arrays.asList(values)));
-				}
-
 				where = new Where(ArrayUtils.byteToHex(values[1])); // Destinazione
-				Map<String, Serializable> comp = getStatus(values[statusPositon]);
-				who = (Who) comp.get(MAP_WHO);
-				what = (What) comp.get(MAP_WHAT);
+				who = new Who("1"); // TODO: Come faccio a capire che tipo è?
 
-				msg = new SCSMsg(who, where, what);
+				msg = new SCSMsg(who, true, where, null, null, null);
 			}
-
-			// Controllo il check
-			//if (check(ArrayUtils.subArray(values, 1, values.length-2), values[values.length-2])) {
 
 			// Where, What, property. Value, statusWho, statusWhere, statusProperty
 
@@ -116,35 +94,12 @@ public class SCSConverter {
 				}
 
 				// Value
-				StatusValue status = StatusValue.getStatusByValue(values[statusPositon].byteValue());
-				switch (status) {
-					case OFF:
-						who = new Who(StatusValue.OFF.getWho());
-						what = new What(StatusValue.OFF.getWhat());
-						break;
-
-					case ON:
-						who = new Who(StatusValue.ON.getWho());
-						what = new What(StatusValue.ON.getWhat());
-						break;
-
-					case UP:
-						who = new Who(StatusValue.UP.getWho());
-						what = new What(StatusValue.UP.getWhat());
-						break;
-
-					case DOWN:
-						who = new Who(StatusValue.DOWN.getWho());
-						what = new What(StatusValue.DOWN.getWhat());
-						break;
-
-					case STOP:
-						who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat());
-						break;
-
-					default:
-						logger.warn("Unknown value for message: {}", values[4]);
+				StatusValue status = StatusValue.findByByte(values[statusPositon]);
+				if (status == null) {
+					logger.warn("Unknown value for message: {}", values[statusPositon]);
+				} else {
+					who = new Who(status.getWhoString());
+					what = new What(status.getWhatString());
 				}
 
 				msg = new SCSMsg(who, where, what);
@@ -158,36 +113,9 @@ public class SCSConverter {
 				}
 
 				// Value
-				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
-				switch (status) {
-					case OFF:
-						who = new Who(StatusValue.OFF.getWho());
-						what = new What(StatusValue.OFF.getWhat());
-						break;
-
-					case ON:
-						who = new Who(StatusValue.ON.getWho());
-						what = new What(StatusValue.ON.getWhat());
-						break;
-
-					case UP:
-						who = new Who(StatusValue.UP.getWho());
-						what = new What(StatusValue.UP.getWhat());
-						break;
-
-					case DOWN:
-						who = new Who(StatusValue.DOWN.getWho());
-						what = new What(StatusValue.DOWN.getWhat());
-						break;
-
-					case STOP:
-						who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat());
-						break;
-
-					default:
-						logger.warn("Unknown value for message: {}", values[4]);
-				}
+				StatusValue status = StatusValue.findByByte(values[4]);
+				who = new Who(status.getWhoString());
+				what = new What(status.getWhatString());
 
 				msg = new SCSMsg(who, where, what);
 
@@ -207,35 +135,12 @@ public class SCSConverter {
 				}
 
 				// Value
-				StatusValue status = StatusValue.getStatusByValue(values[4].byteValue());
-				switch (status) {
-					case OFF:
-						who = new Who(StatusValue.OFF.getWho());
-						what = new What(StatusValue.OFF.getWhat());
-						break;
-
-					case ON:
-						who = new Who(StatusValue.ON.getWho());
-						what = new What(StatusValue.ON.getWhat());
-						break;
-
-					case UP:
-						who = new Who(StatusValue.UP.getWho());
-						what = new What(StatusValue.UP.getWhat());
-						break;
-
-					case DOWN:
-						who = new Who(StatusValue.DOWN.getWho());
-						what = new What(StatusValue.DOWN.getWhat());
-						break;
-
-					case STOP:
-						who = new Who(StatusValue.STOP.getWho());
-						what = new What(StatusValue.STOP.getWhat());
-						break;
-
-					default:
-						logger.warn("Unknown value for message: {}", values[4]);
+				StatusValue status = StatusValue.findByByte(values[4]);
+				if (status == null) {
+					logger.warn("Unknown value for message: {}", values[4]);
+				} else {
+					who = new Who(status.getWhoString());
+					what = new What(status.getWhatString());
 				}
 
 				msg = new SCSMsg(who, where, what);
@@ -243,10 +148,11 @@ public class SCSConverter {
 
 			} else if (values[1] == Unsigned.ubyte(0x24)) {
 				// Status
-
+				logger.warn("Not Implemented 0x24");
 
 
 			} else {
+				logger.warn("Not Implemented");
 				// a8:24:20:12:00:16:a3
 				// a8:24:ca:12:01:fd:a3
 				// Comando
@@ -326,57 +232,81 @@ public class SCSConverter {
 		return msg;
 	}
 
-	private Map<String, Serializable> getStatus(UByte bStatus) {
-		Map<String, Serializable> ret = new HashMap<>();
-
-		StatusValue status = StatusValue.getStatusByValue(bStatus.byteValue());
-
-		switch (status) {
-			case OFF:
-				ret.put(MAP_WHO, new Who(StatusValue.OFF.getWho()));
-				ret.put(MAP_WHAT, new What(StatusValue.OFF.getWhat()));
-				break;
-
-			case ON:
-				ret.put(MAP_WHO, new Who(StatusValue.ON.getWho()));
-				ret.put(MAP_WHAT, new What(StatusValue.ON.getWhat()));
-				break;
-
-			case UP:
-				ret.put(MAP_WHO, new Who(StatusValue.UP.getWho()));
-				ret.put(MAP_WHAT, new What(StatusValue.UP.getWhat()));
-				break;
-
-			case DOWN:
-				ret.put(MAP_WHO, new Who(StatusValue.DOWN.getWho()));
-				ret.put(MAP_WHAT, new What(StatusValue.DOWN.getWhat()));
-				break;
-
-			case STOP:
-				ret.put(MAP_WHO, new Who(StatusValue.STOP.getWho()));
-				ret.put(MAP_WHAT, new What(StatusValue.STOP.getWhat()));
-				break;
-
-			default:
-				logger.warn("Unknown value for message: {}", bStatus);
-		}
-
-		return ret;
+	private boolean check(UByte[] values, UByte check) {
+		return check == calcHash(values);
 	}
 
-	private boolean check(UByte[] values, UByte check) {
+	private UByte calcHash(UByte[] values) {
 		UByte ret = values[0];
 
 		for (int i = 1; i < values.length; i++) {
 			ret = ArrayUtils.logicalXOR(ret, values[i]);
 		}
 
-		return ret == check;
+		return ret;
 	}
 
-	public UByte[] convertFromSCS(SCSMsg msg) {
-		logger.warn("Not Implemented");
+	public UByte[] convertFromSCS(SCSMsg scsMsg) {
+		Deque<UByte> msg = new ArrayDeque<>();
 
-		return null;
+		Where where = scsMsg.getWhere();
+		UByte destination = null;
+		if (where.getMain() > -1) {
+			String sWhere = where.getSMain(); // Area + PL
+			destination = ArrayUtils.hexToByte(sWhere);
+		}
+
+		if (destination == null) {
+			// GENeral Command
+			msg.add(UByte.valueOf(WHERE_GEN));
+			msg.add(UByte.valueOf(9)); // Fix Value 9
+
+		} else if (where.getPL() == 0) { // TODO: scsMsg.isAreaMsg() -> isGroupMsg()
+			// GRoup Command
+			msg.add(UByte.valueOf(WHERE_GR));
+			msg.add(UByte.valueOf(7)); // Fix Value 7
+
+		} else if (where.countParams() == 2 && where.getParams(0).equals("4")) {
+			// Other Bus
+			msg.add(UByte.valueOf(OTHER_BUS_START));
+			msg.add(UByte.valueOf(where.getParams(1))); // Bus Number
+			msg.add(UByte.valueOf(0)); // Fix Value 0
+			msg.add(UByte.valueOf(0)); // Fix Value 0
+			msg.add(destination);
+			msg.add(UByte.valueOf(OTHER_BUS_END));
+
+		} else if (scsMsg.isStatus()) {
+			msg.add(destination);
+			msg.add(UByte.valueOf(0xCA));
+
+		} else {
+			// Current Bus
+			msg.add(UByte.valueOf(WHERE_APL));
+			msg.add(destination);
+		}
+
+		if (scsMsg.isStatus()) {
+			msg.add(UByte.valueOf(0x15)); // Fix Value
+			msg.add(UByte.valueOf(0)); // Fix Value
+
+		} else {
+			msg.add(UByte.valueOf(0x12)); // Fix Value
+
+			// What
+			Who who = scsMsg.getWho();
+			What what = scsMsg.getWhat();
+			StatusValue status = StatusValue.findBySCS(who.getMain(), what.getMain());
+			msg.add(status.getByteValue());
+		}
+
+		UByte[] ret = new UByte[msg.size()];
+		msg.add(calcHash(msg.toArray(ret)));
+
+		msg.add(UByte.valueOf(MSG_END));
+		msg.push(UByte.valueOf(MSG_START));
+
+		ret = new UByte[msg.size()];
+
+		return msg.toArray(ret);
 	}
 }

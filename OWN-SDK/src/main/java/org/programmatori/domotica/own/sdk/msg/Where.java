@@ -35,11 +35,19 @@ public class Where extends Param implements Serializable {
 	}
 
 	public int getArea() {
-		return (int) getMain() / 10;
+		if (getMain() > 9) {
+			return (int) getMain() / 10;
+		} else {
+			return getMain();
+		}
 	}
 
 	public int getPL() {
-		return (getMain() - (getArea() * 10));
+		if (getMain() > 9) {
+			return (getMain() - (getArea() * 10));
+		} else {
+			return 0;
+		}
 	}
 
 	public int getLevel() {
