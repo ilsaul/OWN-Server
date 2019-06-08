@@ -35,6 +35,10 @@ public abstract class Serial {
 			}
 		}
 
+		if (currentSerial == null) {
+			logger.error("Port not Found {}", portName);
+		}
+
 		return currentSerial;
 	}
 
@@ -68,5 +72,10 @@ public abstract class Serial {
 
 	private int getParity() {
 		return SerialPort.NO_PARITY;
+	}
+
+	protected void close() {
+		currentSerial.closePort();
+		currentSerial = null;
 	}
 }

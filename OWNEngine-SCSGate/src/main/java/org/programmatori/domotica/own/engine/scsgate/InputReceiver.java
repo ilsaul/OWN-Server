@@ -1,19 +1,19 @@
-package org.programmatori.domotica.own.engine.row;
+package org.programmatori.domotica.own.engine.scsgate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 import org.joou.UByte;
 import org.joou.Unsigned;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Observable;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Receive Input From SGSGate that receive input from BUS
@@ -21,8 +21,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 4/01/2019
  */
-@Deprecated
-public class InputReceiver implements SerialPortDataListener, Runnable {
+public class InputReceiver extends Observable implements SerialPortDataListener, Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
 	private BlockingQueue<UByte> charsQueue = new LinkedBlockingQueue<>();
@@ -41,28 +40,31 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 
 	@Override
 	public void serialEvent(SerialPortEvent event) {
-		logger.debug("EventType: {}", event.getEventType());
+		logger.trace("EventType: {}", event.getEventType());
+
 		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
-
 			byte[] newData = event.getReceivedData(); // I's always null.
+			if (newData != null) logger.warn("event.getReceivedData() have data");
 
-			// Work around
+			// Work around for getReceivedData()
 			SerialPort currentSerial = event.getSerialPort();
-			if (currentSerial.bytesAvailable() < 0) {
-				logger.error("Negative bytes length");
+			if (currentSerial.bytesAvailable() <= 0) {
+				logger.error("Event call without data");
 			}
-			byte[] newData2 = new byte[currentSerial.bytesAvailable()];
-			//int numRead =
-			currentSerial.readBytes(newData2, newData2.length);
-			newData = newData2;
 
-			if (newData != null) {
-				// load queue
-				for (int i = 0; i < newData.length; ++i) {
-					UByte b = Unsigned.ubyte(newData[i]);
-					charsQueue.add(b);
-				}
+			// Retrieve bytes from bus
+			newData = new byte[currentSerial.bytesAvailable()];
+			currentSerial.readBytes(newData, newData.length);
+
+			// load queue (It's for security that I transfer the bytes to a queue)
+			for (byte newDatum : newData) {
+				UByte b = Unsigned.ubyte(newDatum);
+				charsQueue.add(b);
 			}
+			UByte[] logQueue = new UByte[charsQueue.size()];
+			logQueue = charsQueue.toArray(logQueue);
+			List<UByte> logList = Arrays.asList(logQueue);
+			logger.debug("I red: {}", ArrayUtils.bytesToHex(logList));
 
 		} else if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_WRITTEN) {
 			logger.warn("Event Data Written");
@@ -121,9 +123,9 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 	@Override
 	public void run() {
 
-		while (true) {
+		while (1 == 1) {
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// Stub !!!
 			}
@@ -132,9 +134,15 @@ public class InputReceiver implements SerialPortDataListener, Runnable {
 			logQueue = charsQueue.toArray(logQueue);
 			List<UByte> logList = Arrays.asList(logQueue);
 			if (logList.size() > 0) {
-				logger.debug("Queue: ({}) {}", charsQueue.size(), ArrayUtils.bytesToHex(logList));
+				logger.debug("Queue: ({}) [{}] - Observer: {}", charsQueue.size(), ArrayUtils.bytesToHex(logList), countObservers());
 			} else {
-				logger.debug("Queue: (0) []");
+				logger.debug("Queue: (0) [] - Observer: {}", countObservers());
+			}
+
+			if (!charsQueue.isEmpty()) {
+				setChanged();
+				notifyObservers();
+				logger.debug("Event send");
 			}
 		}
 

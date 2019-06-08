@@ -17,7 +17,7 @@ public class SCSConverterTest {
 
 	private void bytesToSCS(String bytesMsg, String scsMsg, String assertMsg)  {
 		try {
-			UByte[] bytes = createArray(bytesMsg);
+			UByte[] bytes = ArrayUtils.stringToArray(bytesMsg);
 			SCSMsg expected = new SCSMsg(scsMsg);
 			SCSMsg actual = converter.convertToSCS(bytes);
 			Assert.assertEquals(assertMsg, expected, actual);
@@ -25,23 +25,6 @@ public class SCSConverterTest {
 			Assert.fail("Can't throw exception");
 		}
 	}
-
-	private UByte[] createArray(String bytesMsg) {
-		StringIterator iter = new StringIterator(bytesMsg, ':');
-
-		List<UByte> list = new ArrayList<>();
-
-		while (iter.hasNext()) {
-			String sByte = iter.nextString();
-			UByte uByte = ArrayUtils.hexToByte(sByte);
-			list.add(uByte);
-		}
-
-		UByte[] uBytes = new UByte[list.size()];
-
-		return list.toArray(uBytes);
-	}
-
 
 	@Test
 	public void convertToSCS() {
@@ -65,9 +48,14 @@ public class SCSConverterTest {
 		// GRoup Command
 		bytesToSCS("a8:b3:07:12:01:a7:a3", "*1*0*07##","Area Light on message");
 
+		// Status General
+		bytesToSCS("a8:b1:00:15:00:a4:a3","*#1*0##","General Status");
+		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
+
 		// Request Status
 		bytesToSCS("a8:24:ca:15:00:fb:a3", "*#1*24##","Command Light XXX message");
 		bytesToSCS("a8:62:ca:15:00:bd:a3", "*#2*62##","Command Blind XXX message");
+
 
 
 		bytesToSCS("01:a5", "*#*1###","ACK message");
@@ -75,14 +63,14 @@ public class SCSConverterTest {
 
 	@Test
 	public void convertFromSCS() {
-		// Normal Light
-		SCSToBytes("*1*1*24##","a8:b8:24:12:00:8e:a3","Normal light off message");
-		SCSToBytes("*1*0*24##","a8:b8:24:12:01:8f:a3","Normal light on message");
+		// Status Light
+		SCSToBytes("*1*1*24##","a8:b8:24:12:00:8e:a3","Status light off");
+		SCSToBytes("*1*0*24##","a8:b8:24:12:01:8f:a3","Status light on");
 
-		// Normal Blind
-		SCSToBytes("*2*1*62##","a8:b8:62:12:08:c0:a3","Normal Blind Up message");
-		SCSToBytes("*2*2*62##","a8:b8:62:12:09:c1:a3","Normal Blind Down message");
-		SCSToBytes("*2*0*62##","a8:b8:62:12:0a:c2:a3","Normal Blind Stop message");
+		// Status Blind
+		SCSToBytes("*2*1*62##","a8:b8:62:12:08:c0:a3","Status Blind Up");
+		SCSToBytes("*2*2*62##","a8:b8:62:12:09:c1:a3","Status Blind Down");
+		SCSToBytes("*2*0*62##","a8:b8:62:12:0a:c2:a3","Status Blind Stop");
 
 		// Other Bus
 		SCSToBytes("*1*0*24#4#1##","a8:e4:01:00:00:24:ca:12:01:18:a3","Other Bus light on message");
@@ -94,13 +82,23 @@ public class SCSConverterTest {
 		SCSToBytes("*1*0*07##","a8:b3:07:12:01:a7:a3","Area Light on message");
 
 		// Request Status
-		SCSToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Light XXX message");
+		//SCSToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Light XXX message");
+
+		// Command
+		//SCSToBytes("*1*1*24##","a8:24:ca:15:00:fb:a3","Command Light on");
+		//SCSToBytes("*1*0*24##","a8:24:ca:12:01:fd:a3","Command Light off");
+
+
+		// Status General
+		SCSToBytes("*#1*0##","a8:b1:00:15:00:a4:a3","General Status");
+		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
+
 	}
 
 	private void SCSToBytes(String scsMsg, String bytesMsg, String assertMsg) {
 		try {
 			SCSMsg msg = new SCSMsg(scsMsg);
-			UByte[] expected = createArray(bytesMsg);
+			UByte[] expected = ArrayUtils.stringToArray(bytesMsg);
 			UByte[] actual = converter.convertFromSCS(msg);
 			Assert.assertArrayEquals(assertMsg, expected, actual);
 

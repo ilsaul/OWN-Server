@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -70,10 +71,14 @@ public class MsgSender extends Thread {
 				}
 
 				if (engine.isReady()) {
-					engine.sendCommand(command.getSendMsg());
-					command.setTimeSend(Calendar.getInstance().getTime());
-					msgSended.put(command);
-					logger.debug("TX To Bus {}", command.toString());
+					try {
+						engine.sendCommand(command.getSendMsg());
+						command.setTimeSend(Calendar.getInstance().getTime());
+						msgSended.put(command);
+						logger.debug("TX To Bus {}", command.toString());
+					} catch (IOException e) {
+						logger.error("Error in send command", e);
+					}
 
 					command = null;
 				} else {

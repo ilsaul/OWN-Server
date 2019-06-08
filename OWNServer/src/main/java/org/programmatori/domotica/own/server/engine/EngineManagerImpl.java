@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -91,9 +92,8 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
 			engine = (Engine) c.newInstance();
-			//engine.addEventListener(this);
 		} catch (NoClassDefFoundError e) {
-			if (e.getMessage().indexOf("SerialPortEventListener") > -1) {
+			if (e.getMessage().contains("SerialPortEventListener")) {
 				logger.error("You must install RXTX library (http://rxtx.qbang.org/)");
 			} else {
 				throw e;
@@ -104,11 +104,17 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			System.exit(-1);
 		}
 
-		msgSended = new ListenerPriorityBlockingQueue<Command>();
+		try {
+			engine.start();
+		} catch (IOException e) {
+			logger.error("Error to start engine", e);
+			System.exit(-1);
+		}
+
+		msgSended = new ListenerPriorityBlockingQueue<>();
 		msgSended.addListener(this);
 		changeQueue = false;
 
-		//monitors = new ArrayList<Monitor>();
 		sender = new MsgSender(engine, msgSended);
 		sender.start();
 		receiver = new MsgReceiver(engine, msgSended);

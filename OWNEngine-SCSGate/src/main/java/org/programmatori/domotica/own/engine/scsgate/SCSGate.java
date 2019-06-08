@@ -1,8 +1,5 @@
 package org.programmatori.domotica.own.engine.scsgate;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
 import org.joou.UByte;
 import org.joou.Unsigned;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
@@ -18,7 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.TooManyListenersException;
 
 /**
@@ -28,7 +28,7 @@ import java.util.TooManyListenersException;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 05/06/2018
  */
-public class SCSGate extends Serial implements Engine, SerialPortDataListener {
+public class SCSGate extends Serial implements Engine, Observer {
 	private static final Logger logger = LoggerFactory.getLogger(SCSGate.class);
 
 	private static final String WELCOME = "Started!\r\n";
@@ -37,13 +37,24 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	private OutputStream out;
 	private List<SCSListener> listListener;
 
-	private InputManager input = new InputManager();
+	private InputReceiver input = new InputReceiver();
 
-	public void SCSGate() {
+	public SCSGate() {
 		findSerial(Config.getInstance().getNode("scsgate"));
 		// I leave default setting
 
+		listListener = new ArrayList<>();
 		state = SCSGateState.STATE_INITIAL;
+	}
+
+	@Override
+	public void start() throws IOException {
+		connect();
+	}
+
+	@Override
+	public void close() {
+		super.close();
 	}
 
 	@Override
@@ -54,16 +65,20 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	@Override
 	protected boolean connect() throws IOException {
 		if (super.connect()) {
-			getSerial().addDataListener(this);
+			getSerial().addDataListener(input);
 			out = getSerial().getOutputStream();
 
 			return busInitialize();
+		} else {
+			logger.info("Not Connected");
 		}
 
 		return false;
 	}
 
 	private boolean busInitialize() {
+		logger.trace("Starting busInitialize");
+
 		String errorMsg = "Error to {}";
 		String setMsg = "Settled {}";
 
@@ -92,24 +107,32 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 			busInitializeLog();
 		}
 
+		logger.debug("Add Serial Observer");
+		input.addObserver(this);
 		return state == SCSGateState.STATE_SCS_GATE_READY;
 	}
 
 	private void busInitializeInitial(String errorMsg) {
+		logger.trace("Start busInitializeInitial");
 		StringBuilder value = new StringBuilder();
 
 		while (!WELCOME.equals(value.toString())) {
 			value.append(input.takeChar());
+			logger.debug("value: {} - queue: {}", value, input.count());
 
 			if (!WELCOME.startsWith(value.toString())) {
+				logger.trace("Wrong Message I delete");
 				while (!WELCOME.startsWith(value.toString()) && value.length() > 0) {
-					value.delete(1,1); //TODO: Test if work
+					String delete = value.substring(0,1);
+					logger.debug("Delete byte '{}' - value size: {}", delete, value.length());
+					value.delete(1, 1);
 				}
+				logger.trace("Wrong Message after delete");
 			}
 		}
 
 		if (WELCOME.equals(value.toString())) {
-			state = state.next(); //RowEngineState.STATE_ARDUINO_READY;ø
+			state = state.next();
 			logger.info(state.getDescription());
 		} else {
 			logger.error(errorMsg, state.next().getDescription());
@@ -117,6 +140,7 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	}
 
 	private void busInitializeReady(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeReady");
 		char ch = input.takeChar();
 
 		if (ch == 'k') {
@@ -128,6 +152,7 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	}
 
 	private void busInitializeSpeed(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeSpeed");
 		char ch = input.takeChar();
 
 		if (ch == 'k') {
@@ -139,6 +164,7 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	}
 
 	private void busInitializeVolt(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeVolt");
 		char ch = input.takeChar();
 
 		if (ch == 'k') {
@@ -150,6 +176,7 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	}
 
 	private void busInitializeAscii(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeAscii");
 		char ch = input.takeChar();
 
 		if (ch == 'k') {
@@ -161,17 +188,17 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	}
 
 	private void busInitializeLog() {
+		logger.trace("start busInitializeLog");
 		String version = input.takeString(9);
 
 		logger.info("SCS Gate: Version {}", version);
 		state = state.next();
 	}
 
-	@Override
-	public void sendCommand(SCSMsg msg) {
-		SCSConverter scsConverter = new SCSConverter();
-		UByte[] sendRow = scsConverter.convertFromSCS(msg);
-		logger.debug("Send {} -> {}", msg, sendRow);
+	public void sendRow(UByte[] sendRow) {
+		List<UByte> list = Arrays.asList(sendRow);
+		String values = ArrayUtils.bytesToHex(list);
+		logger.debug("SendRow {}", values);
 
 		try {
 			for (int i = 0; i < sendRow.length; i++) {
@@ -183,6 +210,15 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 		} catch (IOException e) {
 			logger.error("Error:", e);
 		}
+	}
+
+	@Override
+	public void sendCommand(SCSMsg msg) {
+		SCSConverter scsConverter = new SCSConverter();
+		UByte[] sendRow = scsConverter.convertFromSCS(msg);
+		logger.debug("Send {} -> {}", msg, sendRow);
+
+		sendRow(sendRow);
 	}
 
 	@Override
@@ -198,45 +234,6 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 	private void notifyListeners(SCSEvent event) {
 		for (SCSListener listener: listListener)
 			listener.SCSValueChanged(event);
-	}
-
-	@Override
-	public int getListeningEvents() {
-		logger.trace("Call getListeningEvents()");
-		return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
-	}
-
-	@Override
-	public void serialEvent(SerialPortEvent event) {
-		logger.debug("EventType: {}", event.getEventType());
-
-		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
-			byte[] newData = event.getReceivedData(); // I's always null.
-			if (newData != null) logger.warn("event.getReceivedData() have data");
-
-			// Work around for getReceivedData()
-			SerialPort currentSerial = event.getSerialPort();
-			if (currentSerial.bytesAvailable() <= 0) {
-				logger.error("Event call without data");
-			}
-
-			// Retrieve bytes from bus
-			newData = new byte[currentSerial.bytesAvailable()];
-			currentSerial.readBytes(newData, newData.length);
-
-			// load queue (It's for security that I transfer the bytes to a queue)
-			for (byte newDatum : newData) {
-				UByte b = Unsigned.ubyte(newDatum);
-				input.add(b);
-			}
-
-			// Search message
-			retrieveMessage();
-
-
-		} else if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_WRITTEN) {
-			logger.warn("Event Data Written");
-		}
 	}
 
 	/**
@@ -282,7 +279,12 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 
 			if (!rowMsg.isEmpty()) {
 				UByte[] list = new UByte[rowMsg.size()];
-				msg = scsConverter.convertToSCS(rowMsg.toArray(list));
+
+				try {
+					msg = scsConverter.convertToSCS(rowMsg.toArray(list));
+				} catch (Exception e) {
+					logger.error("Error in conversion", e);
+				}
 
 				// Log
 				String row = ArrayUtils.bytesToHex(rowMsg);
@@ -295,5 +297,54 @@ public class SCSGate extends Serial implements Engine, SerialPortDataListener {
 			}
 
 		} while (input.count() != 0);
+	}
+
+	/**
+	 * Observable Object is only One that no need to check if it is the true object.
+	 *
+	 * @param o Object that I observe
+	 * @param arg Value Observed
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		retrieveMessage();
+	}
+
+	public static void main(String[] args) throws IOException {
+		SCSGate engine = new SCSGate();
+		engine.start();
+
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+//		UByte[] sendRow = ArrayUtils.stringToArray("07:a8:24:ca:12:01:fd:a3");
+		UByte[] sendRow = ArrayUtils.stringToArray("07:a8:24:20:12:00:16:a3:01:a5"); //ON
+		//07:a8:24:20:12:01:17:a3 OFF
+		engine.sendRow(sendRow);
+
+		try {
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+//		sendRow = ArrayUtils.stringToArray("07:a8:24:ca:15:00:fb:a3");
+		sendRow = ArrayUtils.stringToArray("07:a8:b8:24:12:00:8e:a3");
+		//07:a8:b8:24:12:01:8f:a3
+		engine.sendRow(sendRow);
+
+		logger.debug("Bytes wait to write: {}", engine.getSerial().bytesAwaitingWrite());
+
+//		//row.send("@q");
+		try {
+			Thread.sleep(10000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		engine.close();
 	}
 }

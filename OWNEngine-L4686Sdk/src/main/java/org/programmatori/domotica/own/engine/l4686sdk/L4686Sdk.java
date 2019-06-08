@@ -66,10 +66,9 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 
 		listListener = new ArrayList<SCSListener>();
 		logger.info("L4686Sdk Initialized");
-		connect(); //TODO: Remove from constructor
 	}
 
-	public void connect() throws IOException {
+	public void start() throws IOException {
 		connect(Config.getInstance().getNode("l4686sdk"));
 	}
 

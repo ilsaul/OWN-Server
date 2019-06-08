@@ -1,9 +1,12 @@
 package org.programmatori.domotica.own.engine.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.joou.UByte;
 import org.joou.Unsigned;
+import org.programmatori.domotica.own.sdk.utils.StringIterator;
 
 public class ArrayUtils {
 
@@ -52,5 +55,25 @@ public class ArrayUtils {
 				+ Character.digit(sValue.charAt(1), 16));
 
 		return UByte.valueOf(data);
+	}
+
+	public static List<UByte> asList(UByte[] array) {
+		return Arrays.asList(array);
+	}
+
+	public static UByte[] stringToArray(String bytesMsg) {
+		StringIterator iter = new StringIterator(bytesMsg, ':');
+
+		List<UByte> list = new ArrayList<>();
+
+		while (iter.hasNext()) {
+			String sByte = iter.nextString();
+			UByte uByte = ArrayUtils.hexToByte(sByte);
+			list.add(uByte);
+		}
+
+		UByte[] uBytes = new UByte[list.size()];
+
+		return list.toArray(uBytes);
 	}
 }

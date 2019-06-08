@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.engine.emulator;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.programmatori.domotica.own.engine.emulator.component.SCSBus;
@@ -55,6 +56,16 @@ public final class Emulator implements Engine, SCSComponent {
 
 		bus.loadConfig(Config.getInstance().getConfigPath() + "/emuNew.xml");
 		bus.add(this);
+	}
+
+	@Override
+	public void start() throws IOException {
+		// No need is virtual BUS
+	}
+
+	@Override
+	public void close() {
+		// No Need is virtual
 	}
 
 	@Override

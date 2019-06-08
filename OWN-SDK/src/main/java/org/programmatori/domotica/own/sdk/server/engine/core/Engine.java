@@ -44,7 +44,7 @@ public interface Engine {
 	 * Use from server to send a command to the bus
 	 * @param msg message that it want to send
 	 */
-	void sendCommand(SCSMsg msg); //TODO: Enable: throws IOException;
+	void sendCommand(SCSMsg msg) throws IOException;
 
 	/**
 	 * The client connection add itself to a list of listener of the bus for receive a msg from BUS
@@ -59,5 +59,13 @@ public interface Engine {
 	 */
 	void removeEventListener(SCSListener listener);
 
-	//void connect(String portName) throws IOException;
+	/**
+	 * Start to work, normally mean connect to the device.
+	 */
+	void start() throws IOException;
+
+	/**
+	 * It is use for close connection with the bus
+	 */
+	void close();
 }
