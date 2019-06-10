@@ -35,26 +35,30 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	@Override
 	public int getListeningEvents() {
 		logger.trace("Call getListeningEvents()");
-		return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+		//return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+		return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
 	}
 
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		logger.trace("EventType: {}", event.getEventType());
 
-		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
-			byte[] newData = event.getReceivedData(); // I's always null.
-			if (newData != null) logger.warn("event.getReceivedData() have data");
-
-			// Work around for getReceivedData()
-			SerialPort currentSerial = event.getSerialPort();
-			if (currentSerial.bytesAvailable() <= 0) {
-				logger.error("Event call without data");
-			}
+		//if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
+		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
 
 			// Retrieve bytes from bus
-			newData = new byte[currentSerial.bytesAvailable()];
-			currentSerial.readBytes(newData, newData.length);
+			byte[] newData = event.getReceivedData(); // I's always null.
+			if (newData == null) {
+
+				// Work around for getReceivedData()
+				SerialPort currentSerial = event.getSerialPort();
+				if (currentSerial.bytesAvailable() <= 0) {
+					logger.error("Event call without data");
+				}
+
+				newData = new byte[currentSerial.bytesAvailable()];
+				currentSerial.readBytes(newData, newData.length);
+			}
 
 			// load queue (It's for security that I transfer the bytes to a queue)
 			for (byte newDatum : newData) {
