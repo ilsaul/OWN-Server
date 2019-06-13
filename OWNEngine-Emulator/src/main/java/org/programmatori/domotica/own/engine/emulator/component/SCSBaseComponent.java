@@ -58,7 +58,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 		setName(Config.getInstance().getWhoDescription(getWho().getMain()) + " Where: " + getWhere());
 		Config.getInstance().addThread(this);
 
-		msgOut = new ArrayBlockingQueue<SCSMsg>(1);
+		msgOut = new ArrayBlockingQueue<>(1);
 		this.bus = bus;
 		group = -1;
 	}
@@ -121,10 +121,14 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 	@Override
 	public SCSMsg getStatus() {
 		SCSMsg msg = null;
-		if (property == null) {
-			msg = new SCSMsg(who, where, what);
-		} else {
-			msg = new SCSMsg(who, where, what, property, value);
+		try {
+			if (property == null) {
+				msg = new SCSMsg(who, where, what);
+			} else {
+				msg = new SCSMsg(who, where, what, property, value);
+			}
+		} catch (MessageFormatException e) {
+			logger.error("Error in getStatus()", e);
 		}
 
 		return msg;
@@ -139,18 +143,18 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 				msg = new SCSMsg("*" + who + "*" + value + "*" + area + lightPoint + "##"); // All Other
 			}
 		} catch (MessageFormatException e) {
-			logger.error("Error:", e);
+			logger.error("Error in createStatusMsg", e);
 		}
 		return msg;
 	}
 
 	public void sendMsgToBus(SCSMsg msg) {
 		try {
-			if (msgOut.size() > 0)
+			if (!msgOut.isEmpty())
 				msgOut.take();
 
 			msgOut.put(msg);
-			logger.debug("Add to queue: " + msg.toString());
+			logger.debug("Add to queue: {}", msg);
 		} catch (InterruptedException e) {
 			logger.error("Error:", e);
 			Thread.currentThread().interrupt();
@@ -167,7 +171,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 					msg = msgOut.take();
 					logger.debug("Prepared msg to send.");
 				} else {
-					if (msgOut.size() > 0) {
+					if (!msgOut.isEmpty()) {
 						msg = msgOut.take();
 						logger.debug("take a new msg to send.");
 					}
@@ -175,7 +179,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 				}
 
 				if (bus.isReady()) {
-					logger.debug("msg send ... {}", msg.toString());
+					logger.debug("msg send ... {}", msg);
 					bus.sendCommand(msg, this);
 					msg = null;
 				}

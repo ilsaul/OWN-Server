@@ -84,22 +84,12 @@ public class SCSMsg implements Serializable {
 	private boolean statusProperty = false;
 
 	/**
-	 * Base Constructor prepare an empty message.
-	 */
-	private SCSMsg() {
-		// Stub
-	}
-
-
-	/**
 	 * This Constructor create the message from a real message
 	 *
 	 * @param msg a string that represent the message
 	 * @throws MessageFormatException if the message is badly formatted
 	 */
 	public SCSMsg(String msg) throws MessageFormatException {
-		this();
-
 		this.decode(msg);
 	}
 
@@ -110,27 +100,25 @@ public class SCSMsg implements Serializable {
 	 * @param where
 	 * @param what
 	 */
-	public SCSMsg(Who who, Where where, What what) {
-		this();
+	public SCSMsg(Who who, Where where, What what) throws MessageFormatException {
+		this(who, false, where, what, null, null);
+	}
 
+	public SCSMsg(Who who, Where where, What what, Property property, Value value) throws MessageFormatException {
+		this(who, false, where, what, property, value);
+	}
+
+	public SCSMsg(Who who, boolean statusWho, Where where, What what, Property property, Value value) throws MessageFormatException {
 		this.who = who;
 		this.where = where;
 		this.what = what;
-	}
-
-	public SCSMsg(Who who, Where where, What what, Property property, Value value) {
-		this(who, where, what);
-
-		this.property = property;
-		this.value = value;
-	}
-
-	public SCSMsg(Who who, boolean statusWho, Where where, What what, Property property, Value value) {
-		this(who, where, what);
-
 		this.statusWho = statusWho;
 		this.property = property;
 		this.value = value;
+
+		if (statusWho && what != null && what.getMain() != 0) {
+			throw new MessageFormatException();
+		}
 	}
 
 	private void decode(String msg) throws MessageFormatException {
@@ -337,8 +325,10 @@ public class SCSMsg implements Serializable {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
+
 		if (obj == null)
 			return false;
+
 		if (getClass() != obj.getClass())
 			return false;
 
@@ -346,28 +336,38 @@ public class SCSMsg implements Serializable {
 		if (what == null) {
 			if (other.what != null)
 				return false;
-		} else if (!what.equals(other.what))
+		} else if (!what.equals(other.what)) {
 			return false;
+		}
+
 		if (property == null) {
 			if (other.property != null)
 				return false;
-		} else if (!property.equals(other.property))
+		} else if (!property.equals(other.property)) {
 			return false;
+		}
+
 		if (value == null) {
 			if (other.value != null)
 				return false;
-		} else if (!value.equals(other.value))
+		} else if (!value.equals(other.value)) {
 			return false;
+		}
+
 		if (where == null) {
 			if (other.where != null)
 				return false;
-		} else if (!where.equals(other.where))
+		} else if (!where.equals(other.where)) {
 			return false;
+		}
+
 		if (who == null) {
 			if (other.who != null)
 				return false;
-		} else if (!who.equals(other.who))
+		} else if (!who.equals(other.who)) {
 			return false;
+		}
+
 		return true;
 	}
 }

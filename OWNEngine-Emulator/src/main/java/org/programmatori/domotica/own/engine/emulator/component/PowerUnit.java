@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.engine.emulator.component;
 
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.Value;
@@ -63,7 +64,7 @@ public class PowerUnit extends SCSBaseComponent {
 	 */
 	@Override
 	public void receiveMessage(SCSMsg msg) {
-		logger.debug("MSG arrive to component: {}", msg.toString());
+		logger.debug("MSG arrive to component: {}", msg);
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {
 
@@ -81,7 +82,13 @@ public class PowerUnit extends SCSBaseComponent {
 
 					// Replay: *#3*10*3*P##
 					Value msgValue = new Value(value);
-					SCSMsg replayMsg = new SCSMsg(msg.getWho(), msg.getWhere(), msg.getWhat(), msg.getProperty(), msgValue);
+
+					SCSMsg replayMsg = null;
+					try {
+						replayMsg = new SCSMsg(msg.getWho(), msg.getWhere(), msg.getWhat(), msg.getProperty(), msgValue);
+					} catch (MessageFormatException e) {
+						logger.error("Error in receiveMessage", e);
+					}
 
 					sendMsgToBus(replayMsg);
 				}
