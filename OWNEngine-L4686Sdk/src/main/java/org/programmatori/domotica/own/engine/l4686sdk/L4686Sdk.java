@@ -217,8 +217,8 @@ public class L4686Sdk implements Engine, SerialPortDataListener {
 			}
 
 			// Continue until there is message
-			while (dirtyBuffer.contains(SCSMsg.MSG_ENDER)) {
-				int pos = dirtyBuffer.indexOf(SCSMsg.MSG_ENDER);
+			while (dirtyBuffer.contains(SCSMsg.MSG_ENDED)) {
+				int pos = dirtyBuffer.indexOf(SCSMsg.MSG_ENDED);
 				if (pos > 0) {
 					String cmd = dirtyBuffer.substring(0, pos+2);
 					dirtyBuffer = dirtyBuffer.substring(pos+2);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,59 +19,30 @@
  */
 package org.programmatori.domotica.own.sdk.msg;
 
-import java.io.Serializable;
-
 /**
- * Part of SCS Message
+ * Part of SCS Message.
+ * Type of Element it referring
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 14/08/2016
+ * @since 14/08/2016
  */
-public class Who implements Serializable {
+public class Who extends Unit {
 	private static final long serialVersionUID = 1571092377962443998L;
 
-	private int who;
-
 	public Who(String who) {
-		String tempWho = who;
-		if (tempWho.trim().length() > 0) {
-			this.who = Integer.parseInt(tempWho);
-		} else {
-			this.who = 0;
-		}
+		super(who);
+
+		if (getSMain().isEmpty()) setMain(0); //ToDo: check it
+
+//		String tempWho = who;
+//		if (tempWho.trim().length() > 0) {
+//			this.who = Integer.parseInt(tempWho);
+//		} else {
+//			this.who = 0;
+//		}
     }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		if (who != 0) sb.append(Integer.toString(who));
-
-		return sb.toString();
-	}
-
-	public int getMain() {
-		return who;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + who;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Who other = (Who) obj;
-		if (who != other.who)
-			return false;
-		return true;
-	}
+    public Who(boolean status, String who) {
+		super(status, who);
+    }
 }

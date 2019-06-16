@@ -1,9 +1,11 @@
 package org.programmatori.domotica.own.engine.scsgate;
 
 import org.joou.UByte;
-import org.joou.Unsigned;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.Property;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.Value;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.programmatori.domotica.own.sdk.msg.Where;
 import org.programmatori.domotica.own.sdk.msg.Who;
@@ -28,137 +30,135 @@ public class SCSConverter {
 	private static final int WHERE_GEN = 0xB5;
 	private static final int WHERE_APL = 0xB8;
 
+	private static final int WHERE_OTHER_BUS_START = 0xE4;
+
+	private static final int REQUEST_COMMNAD = 0x12;
+	private static final int REQUEST_STATUS = 0x15;
+
 	public SCSMsg convertToSCS(UByte[] values) {
 		logger.trace("start conversion to SCS");
 
-		SCSMsg msg = null;
+		Who who = null;
+		Where where = null; // The BTicino Configurator is in Hex Value
+		What what = null;
+		boolean statusWho = false;
+		Property property = null;
+		Value value = null;
 
 		if (values[0].intValue() == 0x01) {
-			// Particular values
+			// Particular message
 
-			if (values[1].intValue() == 0xA5) {
-				return SCSMsg.MSG_ACK;
+			if (values[1].intValue() == 0xA5) { // *#*1##
+				what = new What("1");
+				who = new Who(true, "");
 
 			} else {
-				List<UByte> list = ArrayUtils.asList(values);
-				String sList = ArrayUtils.bytesToHex(list);
-				logger.warn("Unknown Value: {}", sList);
+				logUnknown(values, 1);
 			}
 
-		} else if (values[0].shortValue() == MSG_START && values[values.length-1].intValue() == MSG_END) {
-			// Normal Message
-			Who who = null;
-			Where where = null;
-			What what = null;
+		} else if (values[0].shortValue() == MSG_START && values[values.length - 1].intValue() == MSG_END) {
+			// Normal message
+			//who = new Who("1"); // Arbitrary value
 
 			int bus = 0;
 			int wherePosition = 2;
+			int request = 3;
 			int statusPosition = 4;
 
 			// check Hash
-			if (!check(ArrayUtils.subArray(values, 1, values.length-2), values[values.length-2])) {
-				logger.warn("Hash from bus:{} calc:{}", values[values.length-2], calcHash(ArrayUtils.subArray(values, 1, values.length-2)));
+			if (!check(ArrayUtils.subArray(values, 1, values.length - 2), values[values.length - 2])) {
+				logger.warn("Hash from bus:{} calc:{}", values[values.length - 2], calcHash(ArrayUtils.subArray(values, 1, values.length - 2)));
 			}
 
-			if (values[1].intValue() == 0xe4) {
+			if (values[1].intValue() == WHERE_OTHER_BUS_START) { //es.: e4:01:00:00:24:ca
 				// Command for SCS Bus connected trow device 422
-				//es.: e4:01:00:00:24:ca
 				bus = values[2].intValue();
 
+				request += 4;
 				wherePosition += 3;
 				statusPosition += 4;
-			}
 
-			// Request Status Message
-			if (values[2].intValue() == 0xCA) {
-				where = new Where(ArrayUtils.byteToHex(values[1])); // Destinazione
-				who = new Who("1"); // TODO: How to know if is a Who=1 or Who=2
-				msg = new SCSMsg(who, true, where, null, null, null);
-
-			} else if (values[1] == Unsigned.ubyte(WHERE_APL) || bus > 0) {
-				// The BTicino Configurator is in Hex Value
-				where = new Where(ArrayUtils.byteToHex(values[wherePosition])); // Destination
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
 				if (bus > 0) {
 					where.addParam("4");
 					where.addParam(Integer.toString(bus));
 				}
 
-				// Value
-				StatusValue status = StatusValue.findByByte(values[statusPosition]);
-				if (status == null) {
-					logger.warn("Unknown value for message: {}", values[statusPosition]);
-				} else {
-					who = new Who(status.getWhoString());
-					what = new What(status.getWhatString());
+			} else if (values[1].intValue() == 0xB1) {
+				// General Request Status
+				//where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
+
+			} else if (values[1].intValue() == WHERE_GR) {
+				// Group
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
+
+			} else if (values[1].intValue() == WHERE_GEN) { // Ex.:
+				// General Request Command
+
+				// Source?
+				//if (values[2].intValue() != 0) logUnknown(values, 2);
+				//where = new Where(values[wherePosition].toString());
+
+			} else if (values[1].intValue() == WHERE_APL) {
+				// Direct Point
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
+				if (bus > 0) {
+					where.addParam("4");
+					where.addParam(Integer.toString(bus));
 				}
-
-				msg = new SCSMsg(who, where, what);
-
-			} else if (values[1] == Unsigned.ubyte(WHERE_GR)) {
-				// The BTicino Configurator is Hex Value
-				where = new Where(ArrayUtils.byteToHex(values[2])); // Destination
-
-				if (values[3].byteValue() != 0x12) {
-					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'", ArrayUtils.byteToHex(values[3]));
-				}
-
-				// Value
-				StatusValue status = StatusValue.findByByte(values[4]);
-				who = new Who(status.getWhoString());
-				what = new What(status.getWhatString());
-
-				msg = new SCSMsg(who, where, what);
-
-			} else if (values[1] == Unsigned.ubyte(WHERE_GEN)) {
-				//a8:b5:09:12:0a:a4:a3 -> *2*0*##
-				// GENerale alle tapparelle Down
-
-				// The BTicino Configurator is Hex Value
-				if (values[2].byteValue() == 9) {
-					where = new Where("");
-				} else {
-					logger.error("In byte 2 I received a unknown value '{}' I wait '9'", ArrayUtils.byteToHex(values[2]));
-				}
-
-				if (values[3].byteValue() != 0x12) {
-					logger.error("In byte 3 I received a unknown value '{}' I wait '0x12'", ArrayUtils.byteToHex(values[3]));
-				}
-
-				// Value
-				StatusValue status = StatusValue.findByByte(values[4]);
-				if (status == null) {
-					logger.warn("Unknown value for message: {}", values[4]);
-				} else {
-					who = new Who(status.getWhoString());
-					what = new What(status.getWhatString());
-				}
-
-				msg = new SCSMsg(who, where, what);
-
-			} else if (values[1] == Unsigned.ubyte(0xB1)) {
-				// I know only one *#1*0##
-				who = new Who("1");
-				where = new Where("0");
-				msg = new SCSMsg(who, true, where, null, null, null);
-
-			} else if (values[1] == Unsigned.ubyte(0x24)) {
-				// Status
-				logger.warn("Not Implemented 0x24");
-				// a8:24:20:12:00:16:a3
-				// a8:24:ca:12:01:fd:a3
 
 			} else {
-				List<UByte> list = ArrayUtils.asList(values);
-				String sList = ArrayUtils.bytesToHex(list);
-				logger.warn("Unknown Value: {}", sList);
+				wherePosition = 1;
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
+
+				if (where.getArea() * 10 != Integer.parseInt(ArrayUtils.byteToHex(values[2]))) {
+					logUnknown(values, 2);
+					return null;
+				}
 			}
-		} else {
-			List<UByte> list = ArrayUtils.asList(values);
-			String sList = ArrayUtils.bytesToHex(list);
-			logger.warn("Unknown Value: {}", sList);
+
+			if (values[request].intValue() == REQUEST_COMMNAD) {
+				// Stub
+			} else if (values[request].intValue() == REQUEST_STATUS) {
+				statusWho = true;
+			} else {
+				logUnknown(values, request);
+			}
+
+			StatusValue status = StatusValue.findByByte(values[statusPosition]);
+			what = new What(status.getWhatString());
+			who = new Who(statusWho, String.valueOf(status.getWho()));
+
+			if (statusWho) {
+				// If is a status what must be 0
+				if (values[statusPosition].intValue() == 0) {
+					what = new What("0");
+				}
+			}
+		}
+
+		SCSMsg msg = null;
+		try {
+			msg = new SCSMsg(who, where, what, property, value);
+		} catch (MessageFormatException e) {
+
+			logger.error("Conversion to SCS Error {}", bytesToString(values), e);
 		}
 
 		return msg;
+	}
+
+	private String bytesToString(UByte[] msg) {
+		List<UByte> list = ArrayUtils.asList(msg);
+
+		return ArrayUtils.bytesToHex(list);
+	}
+
+	private void logUnknown(UByte[] msg, int index) {
+		String sList = bytesToString(msg);
+		String sValue = ArrayUtils.byteToHex(msg[index]);
+
+		logger.warn("Unknown value {} in position {} of message {}", sValue, index, sList);
 	}
 
 	public UByte[] convertFromSCS(SCSMsg scsMsg) {
@@ -188,10 +188,10 @@ public class SCSConverter {
 			msg.add(UByte.valueOf(WHERE_GR));
 			msg.add(UByte.valueOf(7)); // Fix Value 7
 
-		} else if (where.countParams() == 2 && where.getParams(0).equals("4")) {
+		} else if (where.countParams() == 2 && where.getLevel() == 4) {
 			// Other Bus
 			msg.add(UByte.valueOf(OTHER_BUS_START));
-			msg.add(UByte.valueOf(where.getParams(1))); // Bus Number
+			msg.add(UByte.valueOf(where.getAddress())); // Bus Number
 			msg.add(UByte.valueOf(0)); // Fix Value 0
 			msg.add(UByte.valueOf(0)); // Fix Value 0
 			msg.add(destination);

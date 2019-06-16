@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -22,16 +22,21 @@ package org.programmatori.domotica.own.sdk.msg;
 import java.io.Serializable;
 
 /**
- * Part of SCS Message
+ * Part of SCS Message.
+ * Destination of the message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 10/08/2016
+ * @since 10/08/2016
  */
-public class Where extends Param implements Serializable {
+public class Where extends Unit implements Serializable {
 	private static final long serialVersionUID = -3912228509235975203L;
 
-	public Where(String param) {
-		super(param);
+	public Where(String where) {
+		super(where);
+	}
+
+	public Where(boolean status, String main, String...params) {
+		super(status, main, params);
 	}
 
 	public int getArea() {

@@ -28,11 +28,15 @@ import java.util.Iterator;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 10/08/2016
  */
-public class Value extends Param implements Serializable {
+public class Value extends Unit implements Serializable {
 	private static final long serialVersionUID = -251741168444549427L;
 
 	public Value(String param) {
 		super(param);
+	}
+
+	public Value(String main, String...params) {
+		super(false, main, params);
 	}
 
 	public void addValue(String value) {
@@ -55,5 +59,10 @@ public class Value extends Param implements Serializable {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	protected boolean statusExist() {
+		return false;
 	}
 }

@@ -27,10 +27,14 @@ import java.io.Serializable;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 10/08/2016
  */
-public class Property extends Param implements Serializable {
+public class Property extends Unit implements Serializable {
 	private static final long serialVersionUID = 5285197476276310818L;
 
-	public Property(String param) {
-		super(param);
+	public Property(String property) {
+		super(property);
+	}
+
+	public Property(boolean status, String main, String...params) {
+		super(status, main, params);
 	}
 }

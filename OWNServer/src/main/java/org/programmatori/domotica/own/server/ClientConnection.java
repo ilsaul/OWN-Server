@@ -112,9 +112,9 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 				result.write(buffer, 0, length);
 				commandBuffer.append(result.toString(StandardCharsets.UTF_8.name()));
 			}
-		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDER) == -1);
+		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDED) == -1);
 
-		int pos = commandBuffer.indexOf(SCSMsg.MSG_ENDER);
+		int pos = commandBuffer.indexOf(SCSMsg.MSG_ENDED);
 
 		if (pos > -1) {
 			String newCommand = commandBuffer.substring(0, pos + 2);

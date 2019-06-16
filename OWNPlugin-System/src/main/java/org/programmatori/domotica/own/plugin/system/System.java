@@ -143,9 +143,9 @@ public class System extends Thread implements PlugIn {
 			}
 
 			if (value != null) {
-				final Who who = new Who(Integer.toString(MUST_WHO));
+				final Who who = new Who(true, Integer.toString(MUST_WHO));
 				try {
-					msgResponse = new SCSMsg(who, true, msg.getWhere(), null, msg.getProperty(), value);
+					msgResponse = new SCSMsg(who, msg.getWhere(), null, msg.getProperty(), value);
 				} catch (MessageFormatException e) {
 					logger.error("Create Res to SCS Error", e);
 				}
@@ -170,9 +170,9 @@ public class System extends Thread implements PlugIn {
 		Calendar newTime = GregorianCalendar.getInstance();
 
 		newTime.set(Calendar.HOUR_OF_DAY, msg.getProperty().getMain());
-		newTime.set(Calendar.MINUTE, Integer.parseInt(msg.getProperty().getParams(0)));
-		newTime.set(Calendar.SECOND, Integer.parseInt(msg.getProperty().getParams(1)));
-		newTime.set(Calendar.ZONE_OFFSET, Integer.parseInt(msg.getProperty().getParams(2)));
+		newTime.set(Calendar.MINUTE, Integer.parseInt(msg.getProperty().getParam(0)));
+		newTime.set(Calendar.SECOND, Integer.parseInt(msg.getProperty().getParam(1)));
+		newTime.set(Calendar.ZONE_OFFSET, Integer.parseInt(msg.getProperty().getParam(2)));
 
 		Config.getInstance().setUserTime(newTime);
 

@@ -14,11 +14,11 @@ public enum StatusValue {
 
 	UP(UByte.valueOf(8),1,2),
 	DOWN(UByte.valueOf(9),2,2),
-	STOP(UByte.valueOf(10),0,2);
+	//STOP(UByte.valueOf(10),0,2),
 
-	//STOP_ADVANCED((byte)10,"0", "2");
-	//UP_ADVANCED((byte)10,"0", "2");
-	//DOWN_ADVANCED((byte)10,"0", "2");
+	STOP_ADVANCED(UByte.valueOf(10), 0, 2),
+	UP_ADVANCED(UByte.valueOf(11),3, 2), //FixMe: 3 IS NOT CONFIRM
+	DOWN_ADVANCED(UByte.valueOf(12),4, 2); //FixMe: 4 IS NOT CONFIRM
 
 	private UByte byteValue;
 	private int who;

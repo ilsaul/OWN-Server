@@ -28,9 +28,11 @@ public class SCSConverterTest {
 
 	@Test
 	public void convertToSCS() {
+
 		// Normal Light
-		bytesToSCS("a8:b8:24:12:00:8e:a3", "*1*1*24##","Normal light off message");
-		bytesToSCS("a8:b8:24:12:01:8f:a3", "*1*0*24##","Normal light on message");
+		bytesToSCS("A8:24:20:12:00:16:A3", "*1*1*24##","Normal light off Command");
+		bytesToSCS("a8:b8:24:12:00:8e:a3", "*1*1*24##","Normal light off Status");
+		bytesToSCS("a8:b8:24:12:01:8f:a3", "*1*0*24##","Normal light on Status");
 
 		// Other Bus
 		bytesToSCS("a8:e4:01:00:00:24:ca:12:01:18:a3", "*1*0*24#4#1##","Other Bus light on message");
@@ -41,16 +43,15 @@ public class SCSConverterTest {
 		bytesToSCS("a8:b8:62:12:0a:c2:a3", "*2*0*62##","Normal Blind Stop message");
 
 		// GENeral Command
-		bytesToSCS("a8:b5:09:12:08:a6:a3", "*2*1*##","General Blind Up message");
-		bytesToSCS("a8:b5:09:12:09:a7:a3", "*2*2*##","General Blind Down message");
-		bytesToSCS("a8:b5:09:12:0a:a4:a3", "*2*0*##","General Blind Stop message");
+		//bytesToSCS("a8:b5:09:12:08:a6:a3", "*2*1*##","General Blind Up message");
+		//bytesToSCS("a8:b5:09:12:09:a7:a3", "*2*2*##","General Blind Down message");
+		//bytesToSCS("a8:b5:09:12:0a:a4:a3", "*2*0*##","General Blind Stop message");
 
 		// GRoup Command
 		bytesToSCS("a8:b3:07:12:01:a7:a3", "*1*0*07##","Area Light on message");
 
-		// Status General
+		// GENeral Status
 		bytesToSCS("a8:b1:00:15:00:a4:a3","*#1*0##","General Status");
-		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
 
 		// Request Status
 		bytesToSCS("a8:24:ca:15:00:fb:a3", "*#1*24##","Command Light XXX message");
@@ -58,7 +59,7 @@ public class SCSConverterTest {
 
 
 
-		bytesToSCS("01:a5", "*#*1###","ACK message");
+		bytesToSCS("01:a5", "*#*1##","ACK message");
 	}
 
 	@Test

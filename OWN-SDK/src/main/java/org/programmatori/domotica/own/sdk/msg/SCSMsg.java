@@ -20,14 +20,15 @@
 package org.programmatori.domotica.own.sdk.msg;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.programmatori.domotica.own.sdk.utils.StringIterator;
 
 /**
- * This class represent the single message of a SCS Bus
+ * This class represent single message of a SCS Bus
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.3.1, 10/08/2016
+ * @since 10/08/2016
  */
 public class SCSMsg implements Serializable {
 	private static final long serialVersionUID = -8822728143247109985L;
@@ -37,11 +38,7 @@ public class SCSMsg implements Serializable {
 	/** Message char separator. */
 	public static final String MSG_SEPARATOR = "*";
 	/** Message end chars. */
-	public static final String MSG_ENDER = "##";
-	/** Message char separator in a field. */
-	public static final String MSG_FIELD_SEP = "#";
-	/** Message for ask status. */
-	public static final char MSG_CHAR_STATUS = '#';
+	public static final String MSG_ENDED = "##";
 
 	public static SCSMsg MSG_NACK;
 	public static SCSMsg MSG_ACK;
@@ -79,9 +76,6 @@ public class SCSMsg implements Serializable {
 	private What what = null;
 	private Property property = null;
 	private Value value = null;
-	private boolean statusWho = false;
-	private boolean statusWhere = false;
-	private boolean statusProperty = false;
 
 	/**
 	 * This Constructor create the message from a real message
@@ -96,27 +90,22 @@ public class SCSMsg implements Serializable {
 	/**
 	 * This constructor start from the base component to construct che msg
 	 *
-	 * @param who
-	 * @param where
-	 * @param what
+	 * @param who Who
+	 * @param where Where
+	 * @param what What
 	 */
 	public SCSMsg(Who who, Where where, What what) throws MessageFormatException {
-		this(who, false, where, what, null, null);
+		this(who, where, what,null,null);
 	}
 
 	public SCSMsg(Who who, Where where, What what, Property property, Value value) throws MessageFormatException {
-		this(who, false, where, what, property, value);
-	}
-
-	public SCSMsg(Who who, boolean statusWho, Where where, What what, Property property, Value value) throws MessageFormatException {
 		this.who = who;
 		this.where = where;
 		this.what = what;
-		this.statusWho = statusWho;
 		this.property = property;
 		this.value = value;
 
-		if (statusWho && what != null && what.getMain() != 0) {
+		if (who.isStatus() && what != null && what.getMain() != 0) {
 			throw new MessageFormatException();
 		}
 	}
@@ -127,140 +116,36 @@ public class SCSMsg implements Serializable {
 			throw new MessageFormatException();
 		}
 
-		if (!msg.endsWith(MSG_ENDER)) {
+		if (!msg.endsWith(MSG_ENDED)) {
 			throw new MessageFormatException();
 		}
 
-		StringIterator stMsg2 = new StringIterator(msg.substring(1, msg.length() -2), MSG_SEPARATOR.charAt(0));
+		StringIterator siMsg = new StringIterator(msg.substring(1, msg.length() -2), MSG_SEPARATOR.charAt(0));
+		int count = siMsg.countStrings();
 
-		switch (stMsg2.countStrings()) {
-		case 2: // Command Status *WHO*WHERE##
-			decodeWhoWhere(stMsg2);
-			break;
+		who = new Who(siMsg.nextString());
+		if (count == 3 && !who.isStatus() && siMsg.hasNext()) what = new What(siMsg.nextString());
+		if (siMsg.hasNext()) where = new Where(siMsg.nextString());
+		if (who.isStatus() && siMsg.hasNext()) property = new Property(siMsg.nextString());
 
-		case 3: // If don't start with # then normal command *WHO*WHAT*WHERE## else  *#WHO*WHERE*PROPERTY##
-			decodeWhoWhereProperty(stMsg2);
-			break;
-
-		case 4:
-			decodeWhoWherePropertyValue(stMsg2);
-			break;
-
-		default:
-			decodeDefault(stMsg2);
-		}
-	}
-
-	private void decodeDefault(StringIterator stMsg2) {
-		statusWho = false;
-		String tempWho = stMsg2.nextString();
-		if (tempWho.length() > 0 && tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-			statusWho = true;
-
-			tempWho = tempWho.substring(1);
-		}
-		who = new Who(tempWho);
-		if (stMsg2.hasNext()) {
-			statusWhere = false;
-			String tempWhere = stMsg2.nextString();
-
-			if (tempWhere.length() > 0 && tempWhere.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusWhere = true;
-
-				tempWhere = tempWhere.substring(1);
-			}
-			where = new Where(tempWhere);
-		}
-
-		if (stMsg2.hasNext()) {
-			String tempProp = stMsg2.nextString();
-			if (tempProp.length() > 0 && tempProp.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-				statusProperty = true;
-
-				tempProp = tempProp.substring(1);
-			}
-			property = new Property(tempProp);
-		}
-
-		while (stMsg2.hasNext()) {
+		while (siMsg.hasNext()) {
 			if (value == null) {
-				value = new Value(stMsg2.nextString());
+				value = new Value(siMsg.nextString());
 			} else {
-				value.addValue(stMsg2.nextString());
+				value.addValue(siMsg.nextString());
 			}
 		}
-	}
-
-	private void decodeWhoWherePropertyValue(StringIterator stMsg2) {
-		statusWho = false;
-		String tempWho = stMsg2.nextString();
-		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-			statusWho = true;
-
-			tempWho = tempWho.substring(1);
-		}
-		who = new Who(tempWho);
-		if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-		if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
-		if (stMsg2.hasNext()) value = new Value(stMsg2.nextString());
-	}
-
-	private void decodeWhoWhereProperty(StringIterator stMsg2) {
-		statusWho = false;
-		String tempWho = stMsg2.nextString();
-		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-			statusWho = true;
-
-			tempWho = tempWho.substring(1);
-		}
-		who = new Who(tempWho);
-
-		if (statusWho) {
-			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-			if (stMsg2.hasNext()) property = new Property(stMsg2.nextString());
-		} else {
-			if (stMsg2.hasNext()) what = new What(stMsg2.nextString());
-			if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
-		}
-	}
-
-	/**
-	 * Messaggio: *WHO*WHERE##
-	 */
-	private void decodeWhoWhere(StringIterator stMsg2) {
-		statusWho = false;
-
-		String tempWho = stMsg2.nextString();
-		if (tempWho.charAt(0) == SCSMsg.MSG_CHAR_STATUS) {
-			statusWho = true;
-
-			tempWho = tempWho.substring(1);
-		}
-		who = new Who(tempWho);
-		if (stMsg2.hasNext()) where = new Where(stMsg2.nextString());
 	}
 
 	private String encode() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(MSG_STARTER);
-		if (statusWho) sb.append(MSG_CHAR_STATUS);
 		if (who != null) sb.append(who);
 		if (what != null) sb.append(MSG_SEPARATOR).append(what);
-
-		if (statusWhere) {
-			sb.append(MSG_SEPARATOR).append(MSG_CHAR_STATUS);
-			if (where != null) sb.append(where);
-		} else {
-			if (where != null) sb.append(MSG_SEPARATOR).append(where);
-		}
-		if (statusProperty) {
-			sb.append(MSG_SEPARATOR).append(MSG_CHAR_STATUS);
-			if (property != null) sb.append(property);
-		} else {
-			if (property != null) sb.append(MSG_SEPARATOR).append(property);
-		}
+		if (where != null) sb.append(MSG_SEPARATOR).append(where);
+		if (property != null) sb.append(MSG_SEPARATOR).append(property);
 		if (value != null) sb.append(MSG_SEPARATOR).append(value);
-		sb.append(MSG_ENDER);
+		sb.append(MSG_ENDED);
 
 		return sb.toString();
 	}
@@ -291,83 +176,35 @@ public class SCSMsg implements Serializable {
 	}
 
 	public boolean isStatus() {
-		return statusWho;
+		return who.isStatus();
 	}
 
 	public boolean isStatusProperty() {
-		return statusProperty;
+		return property.isStatus();
 	}
 
 	public boolean isAreaMsg() {
-		if (getWhere().getPL() == 0) return true;
-
-		return false;
+		return getWhere().getPL() == 0;
 	}
 
 	public boolean isWhoMsg() {
-		if (getWhere().getPL() == 0 && getWhere().getArea() == 0) return true;
-		return false;
+		return getWhere().getPL() == 0 && getWhere().getArea() == 0;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SCSMsg scsMsg = (SCSMsg) o;
+		return Objects.equals(who, scsMsg.who) &&
+				Objects.equals(where, scsMsg.where) &&
+				Objects.equals(what, scsMsg.what) &&
+				Objects.equals(property, scsMsg.property) &&
+				Objects.equals(value, scsMsg.value);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((what == null) ? 0 : what.hashCode());
-		result = prime * result + ((property == null) ? 0 : property.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		result = prime * result + ((where == null) ? 0 : where.hashCode());
-		result = prime * result + ((who == null) ? 0 : who.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-
-		if (obj == null)
-			return false;
-
-		if (getClass() != obj.getClass())
-			return false;
-
-		SCSMsg other = (SCSMsg) obj;
-		if (what == null) {
-			if (other.what != null)
-				return false;
-		} else if (!what.equals(other.what)) {
-			return false;
-		}
-
-		if (property == null) {
-			if (other.property != null)
-				return false;
-		} else if (!property.equals(other.property)) {
-			return false;
-		}
-
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value)) {
-			return false;
-		}
-
-		if (where == null) {
-			if (other.where != null)
-				return false;
-		} else if (!where.equals(other.where)) {
-			return false;
-		}
-
-		if (who == null) {
-			if (other.who != null)
-				return false;
-		} else if (!who.equals(other.who)) {
-			return false;
-		}
-
-		return true;
+		return Objects.hash(who, where, what, property, value);
 	}
 }

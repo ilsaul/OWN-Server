@@ -128,7 +128,7 @@ public abstract class AbstractConfig {
 
 		if (pos > -1) {
 			config.setProperty(nodeToSearch + "(" + pos + ")." + param, value);
-			logger.debug("Param: {} ({}).{}={}", nodeToSearch, pos, param, value);
+			logger.debug("Unit: {} ({}).{}={}", nodeToSearch, pos, param, value);
 		}
 	}
 
@@ -138,7 +138,7 @@ public abstract class AbstractConfig {
 
 		if (pos > -1) {
 			value = (String) config.getProperty(nodeToSearch + "(" + pos + ")." + param);
-			logger.debug("Param: {} ({}).{}={}", nodeToSearch, pos, param, value);
+			logger.debug("Unit: {} ({}).{}={}", nodeToSearch, pos, param, value);
 		}
 
 		return value;
