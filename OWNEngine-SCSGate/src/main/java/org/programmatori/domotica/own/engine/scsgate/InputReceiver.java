@@ -35,7 +35,7 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	@Override
 	public int getListeningEvents() {
 		logger.trace("Call getListeningEvents()");
-		//return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+
 		return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
 	}
 
@@ -43,7 +43,6 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	public void serialEvent(SerialPortEvent event) {
 		logger.trace("EventType: {}", event.getEventType());
 
-		//if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
 		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
 
 			// Retrieve bytes from bus
@@ -68,7 +67,8 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 			UByte[] logQueue = new UByte[charsQueue.size()];
 			logQueue = charsQueue.toArray(logQueue);
 			List<UByte> logList = Arrays.asList(logQueue);
-			logger.debug("I red: {}", ArrayUtils.bytesToHex(logList));
+			String msg = ArrayUtils.bytesToHex(logList);
+			logger.debug("I red from SCSGate: {}", msg);
 
 		} else if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_WRITTEN) {
 			logger.warn("Event Data Written");
@@ -76,18 +76,18 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	}
 
 	public String takeString(int length) {
-		String value = "";
+		StringBuilder value = new StringBuilder();
 
 		for (int i = 0; i < length; i++) {
 			UByte b = take();
 			if (b == null) return null;
 
 			char ch = (char) b.byteValue();
-			value += ch;
+			value.append(ch);
 		}
 
 		logger.debug("get from Queue: {}", value);
-		return value;
+		return value.toString();
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	}
 
 	public UByte[] take(int length) {
-		UByte values[] = new UByte[length];
+		UByte[] values = new UByte[length];
 		for (int i = 0; i < length; i++) {
 			values[i] = take();
 		}
@@ -137,8 +137,9 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 			UByte[] logQueue = new UByte[charsQueue.size()];
 			logQueue = charsQueue.toArray(logQueue);
 			List<UByte> logList = Arrays.asList(logQueue);
-			if (logList.size() > 0) {
-				logger.debug("Queue: ({}) [{}] - Observer: {}", charsQueue.size(), ArrayUtils.bytesToHex(logList), countObservers());
+			if (!logList.isEmpty()) {
+				String list = ArrayUtils.bytesToHex(logList);
+				logger.debug("Queue: ({}) [{}] - Observer: {}", charsQueue.size(), list, countObservers());
 			} else {
 				logger.debug("Queue: (0) [] - Observer: {}", countObservers());
 			}

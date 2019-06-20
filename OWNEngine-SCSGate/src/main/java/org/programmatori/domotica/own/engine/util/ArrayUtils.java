@@ -76,4 +76,10 @@ public class ArrayUtils {
 
 		return list.toArray(uBytes);
 	}
+
+	public static String bytesToString(UByte[] msg) {
+		List<UByte> list = ArrayUtils.asList(msg);
+
+		return ArrayUtils.bytesToHex(list);
+	}
 }

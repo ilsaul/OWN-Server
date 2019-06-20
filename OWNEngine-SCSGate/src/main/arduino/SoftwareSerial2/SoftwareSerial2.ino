@@ -28,14 +28,14 @@
 #include <SoftwareSerial.h>
 
 byte s, m;
-byte strSerial[16];
-byte strMySerial[255];
+byte strSerial[255];
+byte strMySerial[64];
 
 SoftwareSerial mySerial(10, 11); // RX, TX
 
 void setup()  
 {
-  pinMode(13, OUTPUT); // 13 LED
+  pinMode(13, OUTPUT); // LED
 
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
@@ -44,69 +44,57 @@ void setup()
   }
   digitalWrite(13, HIGH);    // turn the LED on
 
-  Serial.println("Started!");
+  Serial.println("Serial v2.0");
 
   // set the data rate for the SoftwareSerial port
   mySerial.begin(115200);
-  mySerial.write("@s");  // set SCSgate/KNXgate slow speed
-  delay(100);            // wait 100ms
-  mySerial.flush();
+  mySerial.write("@s");      // set SCSgate/KNXgate slow speed
+  delay(100);                // wait 100ms
   mySerial.end();
   Serial.flush();
   
   // reopen serial port at slow speed
   mySerial.begin(38400);
-  mySerial.write("@5");   // setup for 5 volts power supply
-  delay(5);
-  //mySerial.write("@MA");  // ascii mode
-  mySerial.write("@MX");  // bynary mode
-  delay(5);
-  mySerial.write("@l");   // continuous log request
-  delay(5);
-  
-  mySerial.write("@q");   // query request
-  digitalWrite(13, LOW);  // turn the LED off 
+  digitalWrite(13, LOW);    // turn the LED off 
 }
 
 void loop() // run over and over
 {
-
-// USB -> BUS
+// BUS -> USB
 // ========================================================================================
   m = 0;
   while (mySerial.available())
   {
-    strMySerial[m++] = mySerial.read();     // receive from KNXgate/SCSgate
+    strMySerial[m++] = mySerial.read();       // receive from KNXgate/SCSgate
     delayMicroseconds(100);
-    digitalWrite(13, HIGH);    // turn the LED on
+    digitalWrite(13, HIGH);                   // turn the LED on
   }
   s = 0;
   while (m)
   {
-    Serial.write(strMySerial[s++]);        // write on serial USB
+    Serial.write(strMySerial[s++]);           // write on serial USB
     m--;
   }
 // ========================================================================================
 
-// BUS -> USB
+// USB -> BUS
 // ========================================================================================
   s = 0;
   while (Serial.available())
   {
-    strSerial[s++] = Serial.read();        // receive from serial USB
+    strSerial[s++] = Serial.read();           // receive from serial USB
     delayMicroseconds(100);
-    digitalWrite(13, HIGH);    // turn the LED on
+    digitalWrite(13, HIGH);                   // turn the LED on
   }
   m = 0;
   while (s)
   {
-    Serial.write(strSerial[m]);            // write back - local echo
-    mySerial.write(strSerial[m++]);        // write on serial KNXgate/SCSgate 
+    mySerial.write(strSerial[m++]);           // write on serial KNXgate/SCSgate
     s--;
     delayMicroseconds(100);
   }
 // ========================================================================================
-
   digitalWrite(13, LOW);    // turn the LED oFF
 
 }
+

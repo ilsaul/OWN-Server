@@ -49,7 +49,7 @@ public class SCSConverter {
 			// Particular message
 
 			if (values[1].intValue() == 0xA5) { // *#*1##
-				what = new What("1");
+				where = new Where("1");
 				who = new Who(true, "");
 
 			} else {
@@ -111,9 +111,13 @@ public class SCSConverter {
 				wherePosition = 1;
 				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
 
-				if (where.getArea() * 10 != Integer.parseInt(ArrayUtils.byteToHex(values[2]))) {
-					logUnknown(values, 2);
-					return null;
+				if (0xCA == values[2].intValue()) {
+					logger.debug("Send by L4686SDK");
+				} else {
+					if (where.getArea() * 10 != Integer.parseInt(ArrayUtils.byteToHex(values[2]))) {
+						logUnknown(values, 2);
+						return null;
+					}
 				}
 			}
 

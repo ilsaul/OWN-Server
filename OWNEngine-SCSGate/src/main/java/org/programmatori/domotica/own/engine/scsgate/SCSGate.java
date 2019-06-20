@@ -31,7 +31,15 @@ import java.util.TooManyListenersException;
 public class SCSGate extends Serial implements Engine, Observer {
 	private static final Logger logger = LoggerFactory.getLogger(SCSGate.class);
 
-	private static final String WELCOME = "Started!\r\n";
+	//private static final String WELCOME = "Started!\r\n";
+	private static final String WELCOME = "Serial v2.0\r\n";
+	private static final String START_SEND = "@W"; // 0x40 0x57
+	private static final String SCSGATE_VOLT = "@5";
+	private static final String SCSGATE_BYTE = "@MX";
+	private static final String SCSGATE_READ = "@l";
+	private static final String SCSGATE_VERSION = "@q";
+
+	private static final int MAX_WRITE_SGSGATE = 15;
 
 	private SCSGateState state;
 	private OutputStream out;
@@ -84,27 +92,27 @@ public class SCSGate extends Serial implements Engine, Observer {
 
 		// Check state
 		if (state == SCSGateState.STATE_INITIAL) {
-			busInitializeInitial(errorMsg);
+			busInitializeReady(errorMsg, setMsg);
+			sendSGSGateCommand(SCSGATE_VOLT);
 		}
 
 		if (state == SCSGateState.STATE_ARDUINO_READY) {
-			busInitializeReady(errorMsg, setMsg);
-		}
-
-		if (state == SCSGateState.STATE_SCS_GATE_SET_SLOW_SPEED) {
-			busInitializeSpeed(errorMsg, setMsg);
+			busInitializeVolt(errorMsg, setMsg);
+			sendSGSGateCommand(SCSGATE_BYTE);
 		}
 
 		if (state == SCSGateState.STATE_SCS_GATE_SET_VOLT) {
-			busInitializeVolt(errorMsg, setMsg);
+			busInitializeMode(errorMsg, setMsg);
+			sendSGSGateCommand(SCSGATE_READ);
 		}
 
-		if (state == SCSGateState.STATE_SCS_GATE_SET_ASCII) {
-			busInitializeAscii(errorMsg, setMsg);
+		if (state == SCSGateState.STATE_SCS_GATE_SET_MODE) {
+			busInitializeLog(errorMsg, setMsg);
+			sendSGSGateCommand(SCSGATE_VERSION);
 		}
 
 		if (state == SCSGateState.STATE_SCS_GATE_SET_LOG) {
-			busInitializeLog();
+			busInitializeVersion();
 		}
 
 		logger.debug("Add Serial Observer");
@@ -112,7 +120,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 		return state == SCSGateState.STATE_SCS_GATE_READY;
 	}
 
-	private void busInitializeInitial(String errorMsg) {
+	private void busInitializeReady(String errorMsg, String setMsg) {
 		logger.trace("Start busInitializeInitial");
 		StringBuilder value = new StringBuilder();
 
@@ -125,7 +133,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 				while (!WELCOME.startsWith(value.toString()) && value.length() > 0) {
 					String delete = value.substring(0,1);
 					logger.debug("Delete byte '{}' - value size: {}", delete, value.length());
-					value.delete(1, 1);
+					value.delete(0, 1);
 				}
 				logger.trace("Wrong Message after delete");
 			}
@@ -134,30 +142,6 @@ public class SCSGate extends Serial implements Engine, Observer {
 		if (WELCOME.equals(value.toString())) {
 			state = state.next();
 			logger.info(state.getDescription());
-		} else {
-			logger.error(errorMsg, state.next().getDescription());
-		}
-	}
-
-	private void busInitializeReady(String errorMsg, String setMsg) {
-		logger.trace("start busInitializeReady");
-		char ch = input.takeChar();
-
-		if (ch == 'k') {
-			state = state.next();
-			logger.info(setMsg, state.getDescription());
-		} else {
-			logger.error(errorMsg, state.next().getDescription());
-		}
-	}
-
-	private void busInitializeSpeed(String errorMsg, String setMsg) {
-		logger.trace("start busInitializeSpeed");
-		char ch = input.takeChar();
-
-		if (ch == 'k') {
-			state = state.next();
-			logger.info(setMsg, state.getDescription());
 		} else {
 			logger.error(errorMsg, state.next().getDescription());
 		}
@@ -175,8 +159,8 @@ public class SCSGate extends Serial implements Engine, Observer {
 		}
 	}
 
-	private void busInitializeAscii(String errorMsg, String setMsg) {
-		logger.trace("start busInitializeAscii");
+	private void busInitializeMode(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeByte");
 		char ch = input.takeChar();
 
 		if (ch == 'k') {
@@ -187,28 +171,87 @@ public class SCSGate extends Serial implements Engine, Observer {
 		}
 	}
 
-	private void busInitializeLog() {
-		logger.trace("start busInitializeLog");
-		String version = input.takeString(9);
+	private void busInitializeLog(String errorMsg, String setMsg) {
+		logger.trace("start busInitializeByte");
+		char ch = input.takeChar();
 
-		logger.info("SCS Gate: Version {}", version);
-		state = state.next();
+		if (ch == 'k') {
+			state = state.next(); // I must change always state
+			logger.info(setMsg, state.getDescription());
+		} else {
+			logger.error(errorMsg, state.next().getDescription());
+		}
+	}
+
+	private void busInitializeVersion() {
+		logger.trace("start busInitializeLog");
+		char ch = input.takeChar();
+
+		if (ch == 'k') {
+			String version = input.takeString(9);
+
+			logger.info("SCS Gate: Version {}", version);
+			state = state.next();
+		}
+	}
+
+	/**
+	 * This is use for send @ coomand to SCSGate
+	 * @param sendRow
+	 */
+	public void sendSGSGateCommand(String sendRow) {
+		logger.info("Send command to SCSGate: {}", sendRow);
+		byte[] byteRow = sendRow.getBytes();
+		UByte[] row = new UByte[byteRow.length];
+
+		for (int i = 0; i < byteRow.length; i++) {
+			row[i] = Unsigned.ubyte(byteRow[i]);
+		}
+
+		sendRow(row);
 	}
 
 	public void sendRow(UByte[] sendRow) {
-		List<UByte> list = Arrays.asList(sendRow);
+		List<UByte> list = new ArrayList<>();
+		list.addAll(Arrays.asList(sendRow));
+
 		String values = ArrayUtils.bytesToHex(list);
 		logger.debug("SendRow {}", values);
 
 		try {
-			for (int i = 0; i < sendRow.length; i++) {
-				out.write(sendRow[i].byteValue());
+			for (UByte b : list) {
+				out.write(b.byteValue());
 			}
 
 			out.flush();
+			Thread.sleep(5);
 
 		} catch (IOException e) {
 			logger.error("Error:", e);
+		} catch (InterruptedException e) {
+			logger.error("Interrupt Send Message:", e);
+		}
+	}
+
+	private void sendWriteToSGSGate(UByte[] sendRow) {
+		int pos = Math.min(MAX_WRITE_SGSGATE, sendRow.length);
+		List<UByte> msg = new ArrayList<>();
+
+		for (int i = 0; i < sendRow.length; i++) {
+			if (msg.isEmpty()) {
+				msg.add(UByte.valueOf(START_SEND.charAt(0)));
+				msg.add(UByte.valueOf(START_SEND.charAt(1)));
+				msg.add(UByte.valueOf(pos));
+			}
+
+			msg.add(sendRow[i]);
+			pos--;
+
+			if (pos == 0) {
+				sendRow(msg.toArray(new UByte[msg.size()]));
+				msg.clear();
+				pos = Math.min(MAX_WRITE_SGSGATE, sendRow.length - i);
+			}
 		}
 	}
 
@@ -216,9 +259,10 @@ public class SCSGate extends Serial implements Engine, Observer {
 	public void sendCommand(SCSMsg msg) {
 		SCSConverter scsConverter = new SCSConverter();
 		UByte[] sendRow = scsConverter.convertFromSCS(msg);
-		logger.debug("Send {} -> {}", msg, sendRow);
+		String sRow = ArrayUtils.bytesToString(sendRow);
+		logger.debug("Send {} -> {}", msg, sRow);
 
-		sendRow(sendRow);
+		sendWriteToSGSGate(sendRow);
 	}
 
 	@Override
@@ -310,30 +354,23 @@ public class SCSGate extends Serial implements Engine, Observer {
 		retrieveMessage();
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		SCSGate engine = new SCSGate();
 		engine.start();
 
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Thread.sleep(10000);
 
-//		UByte[] sendRow = ArrayUtils.stringToArray("07:a8:24:ca:12:01:fd:a3");
-		UByte[] sendRow = ArrayUtils.stringToArray("07:a8:24:20:12:00:16:a3:01:a5"); //ON
-		//07:a8:24:20:12:01:17:a3 OFF
-		engine.sendRow(sendRow);
+		UByte[] sendRow;
 
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Luce Accesa
+		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:00:16:a3"); //ON
+		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:00:fc:a3");
+		//engine.sendWriteToSGSGate(sendRow);
 
-//		sendRow = ArrayUtils.stringToArray("07:a8:24:ca:15:00:fb:a3");
-		sendRow = ArrayUtils.stringToArray("07:a8:b8:24:12:00:8e:a3");
-		//07:a8:b8:24:12:01:8f:a3
+		//Thread.sleep(5000);
+
+		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:01:17:a3"); //OFF non va
+		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:01:fd:a3");
 		engine.sendRow(sendRow);
 
 		logger.debug("Bytes wait to write: {}", engine.getSerial().bytesAwaitingWrite());
