@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -45,7 +47,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 	private OutputStream out;
 	private List<SCSListener> listListener;
 
-	private InputReceiver input = new InputReceiver();
+	private InputReceiver input;
 
 	public SCSGate() {
 		findSerial(Config.getInstance().getNode("scsgate"));
@@ -73,6 +75,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 	@Override
 	protected boolean connect() throws IOException {
 		if (super.connect()) {
+			input = new InputReceiver(getSerial());
 			getSerial().addDataListener(input);
 			out = getSerial().getOutputStream();
 
@@ -358,22 +361,49 @@ public class SCSGate extends Serial implements Engine, Observer {
 		SCSGate engine = new SCSGate();
 		engine.start();
 
-		Thread.sleep(10000);
+		Thread.sleep(5000);
 
 		UByte[] sendRow;
+		//Deque<UByte> msg = new ArrayDeque<>();
+
+//		//a8:b1:00:15:00:a4:a3
+//		for (int y = 0; y < 15; y++) {
+//			msg.add(UByte.valueOf(0xB0 + y));
+//			msg.add(UByte.valueOf(0x00));
+//			msg.add(UByte.valueOf(0x15));
+//			msg.add(UByte.valueOf(0x00));
+//			UByte[] ret = new UByte[msg.size()];
+//			msg.add(SCSConverter.calcHash(msg.toArray(ret)));
+//			msg.add(UByte.valueOf(0xA3));
+//			msg.push(UByte.valueOf(0xA8));
+//
+//			ret = new UByte[msg.size()];
+//			engine.sendWriteToSGSGate(msg.toArray(ret));
+//
+//			msg.clear();
+//			Thread.sleep(10000);
+//		}
+
+		// Power
+		//A8 B7 01 13 04 A1 A3
+		//sendRow = ArrayUtils.stringToArray("a8:01:CA:15:00:DC:A3");
+		//engine.sendWriteToSGSGate(sendRow);
 
 		// Luce Accesa
 		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:00:16:a3"); //ON
-		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:00:fc:a3");
-		//engine.sendWriteToSGSGate(sendRow);
+		//sendRow = ArrayUtils.stringToArray("a8:24:ca:12:00:fc:a3");
+		sendRow = ArrayUtils.stringToArray("a8:24:ca:15:00:fb:a3"); // Status
+		engine.sendWriteToSGSGate(sendRow);
 
-		//Thread.sleep(5000);
+		Thread.sleep(5000);
 
 		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:01:17:a3"); //OFF non va
 		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:01:fd:a3");
 		engine.sendRow(sendRow);
 
 		logger.debug("Bytes wait to write: {}", engine.getSerial().bytesAwaitingWrite());
+
+		Config.getInstance().setExit(true);
 
 //		//row.send("@q");
 		try {

@@ -54,7 +54,7 @@ public class SCSMsgTest {
 	}
 
 	@Test
-	public void testCreateMsgFromSting() {
+	public void testCreateMsgFromString() {
 
 		// Request Commands
 		generateFormString("*1*0*24##", "Light - Turn OFF");

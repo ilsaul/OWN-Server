@@ -52,6 +52,9 @@ public class SCSConverter {
 				where = new Where("1");
 				who = new Who(true, "");
 
+			} else if (values[1].intValue() == 0xE9) {
+				logUnknown(values, 1); //TODO: What is?
+
 			} else {
 				logUnknown(values, 1);
 			}
@@ -212,8 +215,9 @@ public class SCSConverter {
 
 		} else {
 			// Current Bus
-			msg.add(UByte.valueOf(WHERE_APL));
+			//msg.add(UByte.valueOf(WHERE_APL));
 			msg.add(destination);
+			msg.add(UByte.valueOf(0xCA)); // Mittente
 		}
 
 		if (scsMsg.isStatus()) {
@@ -245,7 +249,7 @@ public class SCSConverter {
 		return check == calcHash(values);
 	}
 
-	private UByte calcHash(UByte[] values) {
+	public static UByte calcHash(UByte[] values) {
 		UByte ret = values[0];
 
 		for (int i = 1; i < values.length; i++) {

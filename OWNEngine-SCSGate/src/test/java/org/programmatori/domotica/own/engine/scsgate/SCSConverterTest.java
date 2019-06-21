@@ -64,36 +64,37 @@ public class SCSConverterTest {
 
 	@Test
 	public void convertFromSCS() {
-		// Status Light
-		SCSToBytes("*1*1*24##","a8:b8:24:12:00:8e:a3","Status light off");
-		SCSToBytes("*1*0*24##","a8:b8:24:12:01:8f:a3","Status light on");
+		// Request Command Light
+		SCSToBytes("*1*1*24##","a8:24:ca:12:00:fc:a3","Command light off");
+		SCSToBytes("*1*0*24##","a8:24:ca:12:01:fd:a3","Command light on");
+		SCSToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Status Light");
 
 		// Status Blind
-		SCSToBytes("*2*1*62##","a8:b8:62:12:08:c0:a3","Status Blind Up");
-		SCSToBytes("*2*2*62##","a8:b8:62:12:09:c1:a3","Status Blind Down");
-		SCSToBytes("*2*0*62##","a8:b8:62:12:0a:c2:a3","Status Blind Stop");
+		SCSToBytes("*2*1*62##","a8:62:ca:12:08:b2:a3","Command Blind Up");
+		SCSToBytes("*2*2*62##","a8:62:ca:12:09:b3:a3","Command Blind Down");
+		SCSToBytes("*2*0*62##","a8:62:ca:12:0a:b0:a3","Command Blind Stop");
+		SCSToBytes("*#2*62##","a8:62:ca:15:00:bd:a3","Command Status Blind");
 
 		// Other Bus
 		SCSToBytes("*1*0*24#4#1##","a8:e4:01:00:00:24:ca:12:01:18:a3","Other Bus light on message");
 
 		// GENeral Command
-		SCSToBytes("*2*1*##","a8:b5:09:12:08:a6:a3","General Blind Up message");
+		//SCSToBytes("*2*1*##","a8:b5:09:12:08:a6:a3","General Blind Up message");
+		//a8:b5:00:12:01:a6:a3
+		//a8:b1:00:12:01:a2:a3
 
 		// GRoup Command
-		SCSToBytes("*1*0*07##","a8:b3:07:12:01:a7:a3","Area Light on message");
-
-		// Request Status
-		//SCSToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Light XXX message");
-
-		// Command
-		//SCSToBytes("*1*1*24##","a8:24:ca:15:00:fb:a3","Command Light on");
-		//SCSToBytes("*1*0*24##","a8:24:ca:12:01:fd:a3","Command Light off");
+		SCSToBytes("*1*0*70##","a8:70:ca:12:01:a9:a3","Area Light off");
 
 
 		// Status General
 		SCSToBytes("*#1*0##","a8:b1:00:15:00:a4:a3","General Status");
 		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
 
+
+		// 6b -> NACK ?
+		// 01:e9 -> NACK ?
+		// 01:05 -> ACK
 	}
 
 	private void SCSToBytes(String scsMsg, String bytesMsg, String assertMsg) {
