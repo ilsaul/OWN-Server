@@ -84,7 +84,11 @@ abstract class Unit implements Serializable {
 		this.status = status;
 
 		sMain = main;
-		if (!sMain.isEmpty()) this.main = Integer.parseInt(sMain);
+		if (sMain.isEmpty()) {
+			this.main = 0;
+		} else {
+			this.main = Integer.parseInt(sMain);
+		}
 
 		this.params.addAll(Arrays.asList(params));
 	}

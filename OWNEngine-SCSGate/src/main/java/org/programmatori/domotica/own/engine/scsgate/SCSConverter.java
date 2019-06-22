@@ -90,11 +90,11 @@ public class SCSConverter {
 					where.addParam(Integer.toString(bus));
 				}
 
-			} else if (values[1].intValue() == 0xB1) {
+			} else if (values[1].intValue() == WHERE_CMD_GEN) {
 				// General Request Status
 				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
 
-			} else if (values[1].intValue() == WHERE_GR) {
+			} else if (values[1].intValue() == WHERE_CMD_GR) {
 				// Group
 				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
 
