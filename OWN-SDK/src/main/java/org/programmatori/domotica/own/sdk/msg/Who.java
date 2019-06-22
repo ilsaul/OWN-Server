@@ -33,13 +33,6 @@ public class Who extends Unit {
 		super(who);
 
 		if (getSMain().isEmpty()) setMain(0); //ToDo: check it
-
-//		String tempWho = who;
-//		if (tempWho.trim().length() > 0) {
-//			this.who = Integer.parseInt(tempWho);
-//		} else {
-//			this.who = 0;
-//		}
     }
 
     public Who(boolean status, String who) {

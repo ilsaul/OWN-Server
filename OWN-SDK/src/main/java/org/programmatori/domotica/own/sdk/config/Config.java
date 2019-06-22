@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -36,11 +36,12 @@ import java.util.TimeZone;
 /**
  * Configuration
  *
- * @version 1.3, 10/08/2015
+ * @since 10/08/2015
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class Config extends AbstractConfig {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
+	private final Logger logger = LoggerFactory.getLogger(Config.class);
+
 	public static final String SERVER_VERSION = "0.4.7";
 	public static final String SERVER_NAME = "OWN Server";
 
@@ -61,7 +62,7 @@ public class Config extends AbstractConfig {
 		if (isConfigLoaded()) {
 			// Check File Version to update information
 			String version = getString("version");
-			LOGGER.debug("config file version: {}", version);
+			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
@@ -104,6 +105,7 @@ public class Config extends AbstractConfig {
 
 	public void setExit(boolean exit) {
 		this.exit = exit;
+		logger.info("Quit Server");
 
 		KillThread kill = new KillThread(listThread);
 		kill.start();
@@ -149,7 +151,7 @@ public class Config extends AbstractConfig {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			LOGGER.error("Errore:", e); //LogUtility.getErrorTrace(e));
+			logger.error("Error:", e); //LogUtility.getErrorTrace(e));
 			desc = "" + who;
 		}
 

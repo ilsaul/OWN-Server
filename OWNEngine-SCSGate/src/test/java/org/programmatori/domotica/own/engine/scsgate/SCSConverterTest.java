@@ -30,9 +30,10 @@ public class SCSConverterTest {
 	public void convertToSCS() {
 
 		// Normal Light
-		bytesToSCS("A8:24:20:12:00:16:A3", "*1*1*24##","Normal light off Command");
-		bytesToSCS("a8:b8:24:12:00:8e:a3", "*1*1*24##","Normal light off Status");
-		bytesToSCS("a8:b8:24:12:01:8f:a3", "*1*0*24##","Normal light on Status");
+		bytesToSCS("A8:24:20:12:00:16:A3", "*1*1*24##","Command Normal light off Command");
+		bytesToSCS("A8:24:CA:12:00:FC:A3", "*1*1*24##","Command Normal light off Command");
+		bytesToSCS("a8:b8:24:12:00:8e:a3", "*1*1*24##","Status Normal light off Status");
+		bytesToSCS("a8:b8:24:12:01:8f:a3", "*1*0*24##","Status Normal light on Status");
 
 		// Other Bus
 		bytesToSCS("a8:e4:01:00:00:24:ca:12:01:18:a3", "*1*0*24#4#1##","Other Bus light on message");
@@ -55,11 +56,16 @@ public class SCSConverterTest {
 
 		// Request Status
 		bytesToSCS("a8:24:ca:15:00:fb:a3", "*#1*24##","Command Light XXX message");
-		bytesToSCS("a8:62:ca:15:00:bd:a3", "*#2*62##","Command Blind XXX message");
-
-
 
 		bytesToSCS("01:a5", "*#*1##","ACK message");
+		//bytesToSCS("01:e9", "*#*0##","NACK message"); // Not sure
+
+		// Impossible to solve 2 can't retrive from value 0
+		//bytesToSCS("a8:62:ca:15:00:bd:a3", "*#2*62##","Command Blind XXX message");
+
+
+
+
 	}
 
 	@Test

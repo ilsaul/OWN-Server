@@ -6,6 +6,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import org.joou.UByte;
 import org.joou.Unsigned;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
+import org.programmatori.domotica.own.sdk.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +26,10 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
 	private BlockingQueue<UByte> charsQueue = new LinkedBlockingQueue<>();
+	private SerialPort serial;
 
-	public InputReceiver() {
+	public InputReceiver(SerialPort serial) {
+		this.serial = serial;
 		Thread t = new Thread(this);
 		t.setName("SGSGate Queue");
 		t.start();
@@ -126,22 +129,28 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 
 	@Override
 	public void run() {
+		long sec = 0;
 
-		while (1 == 1) {
+		while (!Config.getInstance().isExit()) {
 			try {
 				Thread.sleep(1000);
+				sec++;
 			} catch (InterruptedException e) {
 				// Stub !!!
 			}
+
 
 			UByte[] logQueue = new UByte[charsQueue.size()];
 			logQueue = charsQueue.toArray(logQueue);
 			List<UByte> logList = Arrays.asList(logQueue);
 			if (!logList.isEmpty()) {
 				String list = ArrayUtils.bytesToHex(logList);
-				logger.debug("Queue: ({}) [{}] - Observer: {}", charsQueue.size(), list, countObservers());
+				logger.debug("Queue: ({}) [{}] - Ob: {}", charsQueue.size(), list, countObservers());
 			} else {
-				logger.debug("Queue: (0) [] - Observer: {}", countObservers());
+				if ((sec % 10) == 0) {
+					logger.debug("Queue: (0) [] - Ob: {} - St: {} r/w: {}/{}", countObservers(), serial.isOpen(), serial.bytesAvailable(), serial.bytesAwaitingWrite());
+				}
+
 			}
 
 			if (!charsQueue.isEmpty()) {

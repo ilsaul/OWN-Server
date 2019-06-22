@@ -32,7 +32,10 @@ public class Where extends Unit implements Serializable {
 	private static final long serialVersionUID = -3912228509235975203L;
 
 	public Where(String where) {
-		super(where);
+		// 00 have no meaning because general use 0 only
+		super(where.equals("00")? "0" : where);
+
+
 	}
 
 	public Where(boolean status, String main, String...params) {

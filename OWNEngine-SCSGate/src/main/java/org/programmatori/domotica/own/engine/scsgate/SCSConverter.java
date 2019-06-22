@@ -26,7 +26,8 @@ public class SCSConverter {
 	private static final int OTHER_BUS_START = 0xE4;
 	private static final int OTHER_BUS_END = 0xCA;
 
-	private static final int WHERE_GR = 0xB3;
+	private static final int WHERE_CMD_GEN = 0xB1;
+	private static final int WHERE_CMD_GR = 0xB3;
 	private static final int WHERE_GEN = 0xB5;
 	private static final int WHERE_APL = 0xB8;
 
@@ -34,6 +35,8 @@ public class SCSConverter {
 
 	private static final int REQUEST_COMMNAD = 0x12;
 	private static final int REQUEST_STATUS = 0x15;
+
+	private static final int SENDER = 0xCA;
 
 	public SCSMsg convertToSCS(UByte[] values) {
 		logger.trace("start conversion to SCS");
@@ -89,7 +92,7 @@ public class SCSConverter {
 
 			} else if (values[1].intValue() == 0xB1) {
 				// General Request Status
-				//where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
+				where = new Where(ArrayUtils.byteToHex(values[wherePosition]));
 
 			} else if (values[1].intValue() == WHERE_GR) {
 				// Group
@@ -117,7 +120,9 @@ public class SCSConverter {
 				if (0xCA == values[2].intValue()) {
 					logger.debug("Send by L4686SDK");
 				} else {
-					if (where.getArea() * 10 != Integer.parseInt(ArrayUtils.byteToHex(values[2]))) {
+					String from = ArrayUtils.byteToHex(values[2]);
+					logger.debug("Send by {}", from);
+					if (where.getArea() * 10 != Integer.parseInt(from)) {
 						logUnknown(values, 2);
 						return null;
 					}
@@ -137,10 +142,10 @@ public class SCSConverter {
 			who = new Who(statusWho, String.valueOf(status.getWho()));
 
 			if (statusWho) {
-				// If is a status what must be 0
-				if (values[statusPosition].intValue() == 0) {
-					what = new What("0");
-				}
+				// If is a status what need to be empty
+				//if (values[statusPosition].intValue() == 0) {
+					what = null; //new What("0");
+				//}
 			}
 		}
 
@@ -188,12 +193,14 @@ public class SCSConverter {
 		if (destination == null) {
 			// GENeral Command
 			msg.add(UByte.valueOf(WHERE_GEN));
-			msg.add(UByte.valueOf(9)); // Fix Value 9
+			msg.add(UByte.valueOf(SENDER)); // Sender
 
-		} else if (where.getPL() == 0 && where.getArea() > 0) { // TODO: scsMsg.isAreaMsg() -> isGroupMsg()
-			// GRoup Command
-			msg.add(UByte.valueOf(WHERE_GR));
-			msg.add(UByte.valueOf(7)); // Fix Value 7
+			// Equals to last else
+//		} else if (where.getPL() == 0 && where.getArea() > 0) { // TODO: scsMsg.isAreaMsg() -> isGroupMsg()
+//			// GRoup Command
+//			//msg.add(UByte.valueOf(WHERE_GR));
+//			msg.add(destination);
+//			msg.add(UByte.valueOf(SENDER)); // Sender
 
 		} else if (where.countParams() == 2 && where.getLevel() == 4) {
 			// Other Bus
@@ -217,7 +224,7 @@ public class SCSConverter {
 			// Current Bus
 			//msg.add(UByte.valueOf(WHERE_APL));
 			msg.add(destination);
-			msg.add(UByte.valueOf(0xCA)); // Mittente
+			msg.add(UByte.valueOf(SENDER)); // Sender
 		}
 
 		if (scsMsg.isStatus()) {

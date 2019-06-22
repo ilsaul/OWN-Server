@@ -59,6 +59,7 @@ public class SCSMsgTest {
 		// Request Commands
 		generateFormString("*1*0*24##", "Light - Turn OFF");
 		generateFormString("*1*1*24##", "Light - Turn ON");
+		generateFormString("*1*1*20##", "Light - Turn ON Group 2");
 		generateFormString("*1*11*24##", "Light - Timed 1min Turn ON");
 		generateFormString("*1*29*24##", "Light - Timed 2min Turn ON");
 		generateFormString("*1*1000#0*24##", "Light - Blink 5sec");
@@ -84,6 +85,7 @@ public class SCSMsgTest {
 
 		// Request Status
 		generateFormString("*#1*24##", "Light - RequestStatus");
+		generateFormString("*#1*20##", "Light - RequestStatus - Group");
 		//generateFormString("*#1*24#1*995##", "set up the level at X speed - Dimension 1");
 		generateFormString("*#2*26##", "Blind - RequestStatus");
 		generateFormString("*#2*26*10##", "Blind - RequestStatus - Dimension 10");
