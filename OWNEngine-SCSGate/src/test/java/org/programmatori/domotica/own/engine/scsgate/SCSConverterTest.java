@@ -90,7 +90,9 @@ public class SCSConverterTest {
 		//a8:b1:00:12:01:a2:a3
 
 		// GRoup Command
-		SCSToBytes("*1*0*70##","a8:70:ca:12:01:a9:a3","Area Light off");
+		SCSToBytes("*1*0*7##","a8:b3:07:12:01:a7:a3","Area Light off");
+		SCSToBytes("*1*1*7##","a8:b3:07:12:00:a6:a3","Area Light on");
+		SCSToBytes("*1*1*2##","a8:b3:02:12:00:a3:a3","Area Light on");
 
 
 		// Status General

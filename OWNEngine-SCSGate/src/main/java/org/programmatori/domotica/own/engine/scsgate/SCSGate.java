@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
+ * This file is part of OWN Server.
+ *
+ * OWN Server is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ * OWN Server is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with OWN Server.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 package org.programmatori.domotica.own.engine.scsgate;
 
 import org.joou.UByte;
@@ -50,6 +69,9 @@ public class SCSGate extends Serial implements Engine, Observer {
 	private InputReceiver input;
 
 	public SCSGate() {
+		logger.trace("Trace Enable");
+		logger.debug("Debug Enable");
+		logger.info("Info Enable");
 		findSerial(Config.getInstance().getNode("scsgate"));
 		// I leave default setting
 
@@ -224,6 +246,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 		try {
 			for (UByte b : list) {
 				out.write(b.byteValue());
+				Thread.sleep(0,10000); // Sleep 1 millisecond
 			}
 
 			out.flush();
@@ -290,6 +313,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 	private void retrieveMessage() {
 		SCSMsg msg = null;
 		SCSConverter scsConverter = new SCSConverter();
+		int length = 0;
 
 		do {
 			List<UByte> rowMsg = new ArrayList<>();
@@ -297,37 +321,29 @@ public class SCSGate extends Serial implements Engine, Observer {
 			// Take first character for understand the message
 			UByte b = input.take();
 
-			// I search a normal message
-			if (b.intValue() == SCSConverter.MSG_START) {
-				rowMsg.add(b);
+			if (b.intValue() > 0 && b.intValue() <= 0x0F) {
+				length = b.intValue();
+				logger.debug("length {}", length);
 
-				// I add all byte until I find the close byte
-				do {
-					b = input.take();
-					rowMsg.add(b);
-				} while (b.intValue() != SCSConverter.MSG_END);
+				// Read Message
+				for (int i = 0; i < length; i++) {
+					rowMsg.add(input.take());
+				}
 
-			} else if (b.intValue() == 0x01) {
-				// ACK Message
-				rowMsg.add(b);
-				rowMsg.add(input.take());
+			} else if (b.intValue() == 'k') {
+				logger.debug("Accepted preview operation");
 
 			} else {
-				if (b.intValue() == SCSConverter.MSG_SEPARATOR) {
-					// No Need this char
-					logger.debug("Discard Byte 0x07 -> Separator");
-
-				} else {
-					// Discard unknown byte
-					String res = ArrayUtils.byteToHex(b);
-					logger.debug("Discard byte {}", res);
-				}
+				// Discard unknown byte
+				String res = ArrayUtils.byteToHex(b);
+				logger.warn("Discard byte {}", res);
 			}
 
 			if (!rowMsg.isEmpty()) {
 				UByte[] list = new UByte[rowMsg.size()];
 
 				try {
+					length = 0;
 					msg = scsConverter.convertToSCS(rowMsg.toArray(list));
 				} catch (Exception e) {
 					logger.error("Error in conversion", e);
@@ -391,15 +407,15 @@ public class SCSGate extends Serial implements Engine, Observer {
 
 		// Luce Accesa
 		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:00:16:a3"); //ON
-		//sendRow = ArrayUtils.stringToArray("a8:24:ca:12:00:fc:a3");
-		sendRow = ArrayUtils.stringToArray("a8:24:ca:15:00:fb:a3"); // Status
+		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:00:fc:a3");
+		//sendRow = ArrayUtils.stringToArray("a8:24:ca:15:00:fb:a3"); // Status
 		engine.sendWriteToSGSGate(sendRow);
 
 		Thread.sleep(5000);
 
 		//sendRow = ArrayUtils.stringToArray("a8:24:20:12:01:17:a3"); //OFF non va
 		sendRow = ArrayUtils.stringToArray("a8:24:ca:12:01:fd:a3");
-		engine.sendRow(sendRow);
+		engine.sendWriteToSGSGate(sendRow);
 
 		logger.debug("Bytes wait to write: {}", engine.getSerial().bytesAwaitingWrite());
 

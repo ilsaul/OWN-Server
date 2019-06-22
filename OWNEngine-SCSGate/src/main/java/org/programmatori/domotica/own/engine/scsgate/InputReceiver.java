@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
+ * This file is part of OWN Server.
+ *
+ * OWN Server is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ * OWN Server is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with OWN Server.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 package org.programmatori.domotica.own.engine.scsgate;
 
 import com.fazecast.jSerialComm.SerialPort;
@@ -22,7 +41,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.1.0, 4/01/2019
  */
-public class InputReceiver extends Observable implements SerialPortDataListener, Runnable {
+public class InputReceiver extends Observable implements SerialPortDataListener {
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
 	private BlockingQueue<UByte> charsQueue = new LinkedBlockingQueue<>();
@@ -30,9 +49,6 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 
 	public InputReceiver(SerialPort serial) {
 		this.serial = serial;
-		Thread t = new Thread(this);
-		t.setName("SGSGate Queue");
-		t.start();
 	}
 
 	@Override
@@ -73,9 +89,17 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 			String msg = ArrayUtils.bytesToHex(logList);
 			logger.debug("I red from SCSGate: {}", msg);
 
+			if (!charsQueue.isEmpty()) {
+				setChanged();
+				notifyObservers();
+				logger.debug("Event send");
+			}
+
 		} else if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_WRITTEN) {
 			logger.warn("Event Data Written");
 		}
+
+		logQueue();
 	}
 
 	public String takeString(int length) {
@@ -127,39 +151,16 @@ public class InputReceiver extends Observable implements SerialPortDataListener,
 		return (char) take().byteValue();
 	}
 
-	@Override
-	public void run() {
-		long sec = 0;
-
-		while (!Config.getInstance().isExit()) {
-			try {
-				Thread.sleep(1000);
-				sec++;
-			} catch (InterruptedException e) {
-				// Stub !!!
-			}
-
-
-			UByte[] logQueue = new UByte[charsQueue.size()];
-			logQueue = charsQueue.toArray(logQueue);
-			List<UByte> logList = Arrays.asList(logQueue);
-			if (!logList.isEmpty()) {
-				String list = ArrayUtils.bytesToHex(logList);
-				logger.debug("Queue: ({}) [{}] - Ob: {}", charsQueue.size(), list, countObservers());
-			} else {
-				if ((sec % 10) == 0) {
-					logger.debug("Queue: (0) [] - Ob: {} - St: {} r/w: {}/{}", countObservers(), serial.isOpen(), serial.bytesAvailable(), serial.bytesAwaitingWrite());
-				}
-
-			}
-
-			if (!charsQueue.isEmpty()) {
-				setChanged();
-				notifyObservers();
-				logger.debug("Event send");
-			}
+	private void logQueue() {
+		UByte[] logQueue = new UByte[charsQueue.size()];
+		logQueue = charsQueue.toArray(logQueue);
+		List<UByte> logList = Arrays.asList(logQueue);
+		if (!logList.isEmpty()) {
+			String list = ArrayUtils.bytesToHex(logList);
+			logger.debug("Queue: ({}) [{}] - Ob: {}", charsQueue.size(), list, countObservers());
+		} else {
+			logger.debug("Queue: (0) [] - Ob: {} - St: {} r/w: {}/{}", countObservers(), serial.isOpen(), serial.bytesAvailable(), serial.bytesAwaitingWrite());
 		}
-
 	}
 
 	public int count() {

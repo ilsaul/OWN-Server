@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ *
+ * This file is part of OWN Server.
+ *
+ * OWN Server is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ * OWN Server is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with OWN Server.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 package org.programmatori.domotica.own.engine.scsgate;
 
 import org.joou.UByte;
@@ -48,18 +67,19 @@ public class SCSConverter {
 		Property property = null;
 		Value value = null;
 
-		if (values[0].intValue() == 0x01) {
+		if (values.length == 1) {
 			// Particular message
 
-			if (values[1].intValue() == 0xA5) { // *#*1##
+			if (values[0].intValue() == 0xA5) { // *#*1## ACK
 				where = new Where("1");
 				who = new Who(true, "");
 
-			} else if (values[1].intValue() == 0xE9) {
-				logUnknown(values, 1); //TODO: What is?
+			} else if (values[0].intValue() == 0xE9) { // *#*0## NACK
+				where = new Where("0");
+				who = new Who(true, "");
 
 			} else {
-				logUnknown(values, 1);
+				logUnknown(values, 0);
 			}
 
 		} else if (values[0].shortValue() == MSG_START && values[values.length - 1].intValue() == MSG_END) {
@@ -192,14 +212,14 @@ public class SCSConverter {
 
 		if (destination == null) {
 			// GENeral Command
-			msg.add(UByte.valueOf(WHERE_GEN));
+			msg.add(UByte.valueOf(WHERE_CMD_GEN));
 			msg.add(UByte.valueOf(SENDER)); // Sender
 
 			// Equals to last else
-//		} else if (where.getPL() == 0 && where.getArea() > 0) { // TODO: scsMsg.isAreaMsg() -> isGroupMsg()
-//			// GRoup Command
-//			//msg.add(UByte.valueOf(WHERE_GR));
-//			msg.add(destination);
+		} else if (where.getPL() == 0 && where.getArea() > 0) { // TODO: scsMsg.isAreaMsg() -> isGroupMsg()
+			// GRoup Command
+			msg.add(UByte.valueOf(WHERE_CMD_GR));
+			msg.add(destination);
 //			msg.add(UByte.valueOf(SENDER)); // Sender
 
 		} else if (where.countParams() == 2 && where.getLevel() == 4) {
@@ -213,7 +233,7 @@ public class SCSConverter {
 
 		} else if (scsMsg.isStatus()) {
 			if (destination.intValue() == 0) {
-				msg.add(UByte.valueOf(0xB1));
+				msg.add(UByte.valueOf(WHERE_CMD_GEN));
 				msg.add(destination); // I'm not sure is destination or only a zero value
 			} else {
 				msg.add(destination);
