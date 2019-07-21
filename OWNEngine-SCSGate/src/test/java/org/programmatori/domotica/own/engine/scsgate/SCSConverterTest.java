@@ -98,11 +98,6 @@ public class SCSConverterTest {
 		// Status General
 		SCSToBytes("*#1*0##","a8:b1:00:15:00:a4:a3","General Status");
 		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
-
-
-		// 6b -> NACK ?
-		// 01:e9 -> NACK ?
-		// 01:05 -> ACK
 	}
 
 	private void SCSToBytes(String scsMsg, String bytesMsg, String assertMsg) {

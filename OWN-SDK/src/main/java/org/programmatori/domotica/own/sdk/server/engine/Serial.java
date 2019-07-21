@@ -9,6 +9,9 @@ import java.io.IOException;
 public abstract class Serial {
 	private static final Logger logger = LoggerFactory.getLogger(Serial.class);
 
+	/** Default bits per second for COM port. */
+	private static final int BAUD_RATE = 115200;
+
 	private SerialPort currentSerial;
 
 	protected SerialPort findSerial(String portName) {
@@ -59,7 +62,7 @@ public abstract class Serial {
 	}
 
 	protected int getBaudRate() {
-		return 115200;
+		return BAUD_RATE;
 	}
 
 	protected int getNumDataBits() {

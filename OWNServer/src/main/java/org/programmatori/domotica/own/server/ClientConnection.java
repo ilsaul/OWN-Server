@@ -22,6 +22,8 @@ package org.programmatori.domotica.own.server;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.Where;
+import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
@@ -152,14 +154,15 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 						String sMsg = readMessage();
 						if (sMsg != null) {
 							SCSMsg msgSCS = new SCSMsg(sMsg);
-							response = processStart(msgSCS);
+							logger.info("{} RX Msg {}", getId(), msgSCS);
+							response = processMode(msgSCS);
 							if (response.equals(SCSMsg.MSG_ACK)) {
 								status = CHECK_IP;
 							} else {
 								status = ConnectionStatus.DISCONNECTED;
 							}
 						} else {
-							logger.debug("I wait because I don't receive message");
+							logger.debug("I continue to wait because because message is not valid");
 						}
 
 					} catch (MessageFormatException | IOException e) {
@@ -173,27 +176,40 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 					if (checkValidIP(clientSocket.getInetAddress())) {
 						status = ConnectionStatus.CONNECTED;
 					} else {
-						response = createPwAsk();
+						//response = createPwAsk();
 						status = ConnectionStatus.PASSWORD;
 					}
 					break;
 
 				case PASSWORD:
-//					try {
-//						SCSMsg msgNo = new SCSMsg("∗98∗##"); // Open Command
-//						SCSMsg msg1 = new SCSMsg("∗98∗1##"); // sha1 Authentication
-//						SCSMsg msg2 = new SCSMsg("∗98∗2##"); // sha2 Authentication
-//					} catch (MessageFormatException e) {
-//						// Stub!!
-//					}
+					try {
+//						SCSMsg msgNo = new SCSMsg("*98*##"); // Open Command
+						response = new SCSMsg("*98*1##"); // sha1 Authentication
+//						SCSMsg msg2 = new SCSMsg("*98*2##"); // sha2 Authentication
+					} catch (MessageFormatException e) {
+						// Stub!!
+					}
 
 					//TODO: Implement PASSWORD case - Bug.ID: #91
-					status = ConnectionStatus.CONNECTED;
+					status = ConnectionStatus.WAIT_IDENT;
+					break;
+
+				case WAIT_IDENT:
+					try {
+						String sMsg = readMessage();
+
+						response = new SCSMsg(new Who(true, "469712896"), new Where(false, ""), null, null, null);
+
+					} catch (IOException | MessageFormatException e) {
+						e.printStackTrace();
+					}
+
 					break;
 
 				case CONNECTED:
 					try {
 						String sMsg = readMessage();
+						logger.info("{} RX Msg {}", getId(), sMsg);
 
 						if (sMsg != null && mode == OpenWebNetProtocol.MODE_MONITOR) {
 							logger.error("Attempt to send command in monitor mode");
@@ -238,7 +254,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		logger.trace("Client End");
 	}
 
-	private SCSMsg processStart(SCSMsg msgSCS) {
+	private SCSMsg processMode(SCSMsg msgSCS) {
 		SCSMsg response = SCSMsg.MSG_ACK;
 
 		if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_COMMAND)) {
@@ -272,6 +288,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			logger.info("{} Mode: Test", getId());
 			engine.addMonitor(this);
 		} else {
+			logger.error("Connection Mode not supported {}", msgSCS);
 			response = SCSMsg.MSG_NACK;
 		}
 
@@ -289,7 +306,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	 */
 	private boolean checkValidIP(InetAddress ip) {
 		//FIXME: Now i accept anyone
-		return true;
+		return false;
 	}
 
 	@Override

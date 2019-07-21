@@ -17,15 +17,14 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.engine.scsgate;
+package org.programmatori.domotica.own.engine.l4686sdk;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-import org.joou.UByte;
-import org.joou.Unsigned;
-import org.programmatori.domotica.own.engine.util.ArrayUtils;
-import org.programmatori.domotica.own.sdk.config.Config;
+
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,19 +35,21 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Receive Input From SCSGate that receive input from BUS
+ * Receive Input From L4686SDK
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.1.0, 4/01/2019
+ * @version 0.1.0, 20/07/2019
  */
 public class InputReceiver extends Observable implements SerialPortDataListener {
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
-	private BlockingQueue<UByte> charsQueue = new LinkedBlockingQueue<>();
+	private BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>();
 	private SerialPort serial;
+	private String dirtyBuffer;
 
 	public InputReceiver(SerialPort serial) {
 		this.serial = serial;
+		dirtyBuffer = "";
 	}
 
 	@Override
@@ -63,6 +64,8 @@ public class InputReceiver extends Observable implements SerialPortDataListener 
 		logger.trace("EventType: {}", event.getEventType());
 
 		if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
+
+			String data = "";
 
 			// Retrieve bytes from bus
 			byte[] newData = event.getReceivedData(); // I's always null.
@@ -79,20 +82,30 @@ public class InputReceiver extends Observable implements SerialPortDataListener 
 			}
 
 			// load queue (It's for security that I transfer the bytes to a queue)
-			for (byte newDatum : newData) {
-				UByte b = Unsigned.ubyte(newDatum);
-				charsQueue.add(b);
-			}
-			UByte[] logQueue = new UByte[charsQueue.size()];
-			logQueue = charsQueue.toArray(logQueue);
-			List<UByte> logList = Arrays.asList(logQueue);
-			String msg = ArrayUtils.bytesToHex(logList);
-			logger.debug("I red from SCSGate: {}", msg);
+			data = new String(newData, 0, newData.length);
+			logger.debug("I red from L4686SDK: {}", data);
 
-			if (!charsQueue.isEmpty()) {
-				setChanged();
-				notifyObservers();
-				logger.debug("Event send");
+			// Bug.id 8: When 2 msg is in the same line
+			if (data.length() > 0) {
+				dirtyBuffer += data;
+			}
+
+			// Continue until there is message
+			while (dirtyBuffer.contains(SCSMsg.MSG_ENDED)) {
+				int pos = dirtyBuffer.indexOf(SCSMsg.MSG_ENDED);
+				if (pos > 0) {
+					String cmd = dirtyBuffer.substring(0, pos+2);
+					dirtyBuffer = dirtyBuffer.substring(pos+2);
+
+					logger.debug("RX from BUS: {}", cmd);
+					msgQueue.add(cmd);
+
+					if (!msgQueue.isEmpty()) {
+						setChanged();
+						notifyObservers();
+						logger.debug("Event send");
+					}
+				}
 			}
 
 		} else if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_WRITTEN) {
@@ -102,28 +115,13 @@ public class InputReceiver extends Observable implements SerialPortDataListener 
 		logQueue();
 	}
 
-	public String takeString(int length) {
-		StringBuilder value = new StringBuilder();
-
-		for (int i = 0; i < length; i++) {
-			UByte b = take();
-			if (b == null) return null;
-
-			char ch = (char) b.byteValue();
-			value.append(ch);
-		}
-
-		logger.debug("get from Queue: {}", value);
-		return value.toString();
-	}
-
 	/**
 	 * Remove the value
 	 * @return
 	 */
-	public UByte take() {
+	public String take() {
 		try {
-			return charsQueue.take();
+			return msgQueue.take();
 		} catch (InterruptedException e) {
 			logger.error("Interruption of the waiting of the value", e);
 			return null;
@@ -134,36 +132,19 @@ public class InputReceiver extends Observable implements SerialPortDataListener 
 	 * Watch the value but don't remove.
 	 * @return
 	 */
-	public UByte peek() {
-		return charsQueue.peek();
-	}
-
-	public UByte[] take(int length) {
-		UByte[] values = new UByte[length];
-		for (int i = 0; i < length; i++) {
-			values[i] = take();
-		}
-
-		return values;
-	}
-
-	public char takeChar() {
-		return (char) take().byteValue();
+	public String peek() {
+		return msgQueue.peek();
 	}
 
 	private void logQueue() {
-		UByte[] logQueue = new UByte[charsQueue.size()];
-		logQueue = charsQueue.toArray(logQueue);
-		List<UByte> logList = Arrays.asList(logQueue);
-		if (!logList.isEmpty()) {
-			String list = ArrayUtils.bytesToHex(logList);
-			logger.debug("Queue: ({}) [{}] - Ob: {}", charsQueue.size(), list, countObservers());
+		if (!msgQueue.isEmpty()) {
+			logger.debug("Queue: ({}) [{}] - Ob: {}", msgQueue.size(), msgQueue, countObservers());
 		} else {
 			logger.debug("Queue: (0) [] - Ob: {} - St: {} r/w: {}/{}", countObservers(), serial.isOpen(), serial.bytesAvailable(), serial.bytesAwaitingWrite());
 		}
 	}
 
 	public int count() {
-		return charsQueue.size();
+		return msgQueue.size();
 	}
 }
