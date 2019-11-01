@@ -50,7 +50,7 @@ public final class Emulator implements Engine, SCSComponent {
 	 * Default Constructor. This constructor load the configuration from a File.
 	 */
 	public Emulator()  {
-		listListener = new ArrayList<SCSListener>();
+		listListener = new ArrayList<>();
 		bus = new SCSBus();
 		bus.start();
 
@@ -73,9 +73,6 @@ public final class Emulator implements Engine, SCSComponent {
 		logger.trace("Start sendCommand");
 		//SCSMsg msgOut =
 		bus.sendCommand(msg, this);
-
-//		if (!msg.equals(SCSMsg.MSG_ACK))
-//		  receiveMessage(bus, msgOut);
 
 		logger.trace("End sendCommand");
 	}
@@ -100,7 +97,7 @@ public final class Emulator implements Engine, SCSComponent {
 
 	private void notifyListeners(SCSEvent event) {
 		for (SCSListener listener: listListener)
-            listener.SCSValueChanged(event);
+            listener.scsValueChanged(event);
 	}
 
 	@Override

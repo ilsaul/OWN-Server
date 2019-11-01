@@ -20,9 +20,6 @@
  */
 package org.programmatori.domotica.own.engine.l4686sdk;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
@@ -33,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +129,7 @@ public class L4686Sdk extends Serial implements Engine, Observer {
 
 	private void notifyListeners(SCSEvent event) {
 		for (SCSListener listener: listListener)
-			listener.SCSValueChanged(event);
+			listener.scsValueChanged(event);
 	}
 
 //	@Override

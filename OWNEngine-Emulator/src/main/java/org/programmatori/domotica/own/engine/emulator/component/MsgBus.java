@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWn Server.
  *
@@ -25,7 +25,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
  * Internal use of SCS Bus
- * @author Moreno
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class MsgBus implements Serializable {
 	private static final long serialVersionUID = -8067209723766915723L;

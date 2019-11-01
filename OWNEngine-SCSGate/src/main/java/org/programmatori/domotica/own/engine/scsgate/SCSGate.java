@@ -33,10 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -303,7 +301,7 @@ public class SCSGate extends Serial implements Engine, Observer {
 
 	private void notifyListeners(SCSEvent event) {
 		for (SCSListener listener: listListener)
-			listener.SCSValueChanged(event);
+			listener.scsValueChanged(event);
 	}
 
 	/**

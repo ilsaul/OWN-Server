@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -50,8 +50,8 @@ public class SCSBus extends ConfigBus {
 		setDaemon(true);
 		Config.getInstance().addThread(this);
 
-		components = new ArrayList<SCSComponent>();
-		msgQueue = new ArrayBlockingQueue<MsgBus>(1); // On the bus only 1 msg can go
+		components = new ArrayList<>();
+		msgQueue = new ArrayBlockingQueue<>(1); // On the bus only 1 msg can go
 
 		ready = true;
 	}
@@ -90,7 +90,7 @@ public class SCSBus extends ConfigBus {
 			MsgBus msgBus = new MsgBus(msg, sender);
 			msgQueue.put(msgBus);
 		} catch (Exception e) {
-			LOGGER.error("Error:", e);
+			LOGGER.error("Error sendCommand:", e);
 		}
 	}
 
@@ -100,24 +100,28 @@ public class SCSBus extends ConfigBus {
 			MsgBus msgBus = null;
 			try {
 				msgBus = msgQueue.take();
-				LOGGER.debug("MSG Send To Component: {}", msgBus.getMsg().toString());
+				LOGGER.debug("MSG Send To Component: {}", msgBus.getMsg());
 			} catch (InterruptedException e) {
-				LOGGER.error("Error:", e);
+				LOGGER.error("Error run:", e);
 				Thread.currentThread().interrupt();
 			}
 
-			notifyComponents(msgBus);
+			try {
+				notifyComponents(msgBus);
+			} catch (NullPointerException e) {
+				LOGGER.error("error on notification", e);
+			}
 			ready = true;
 		}
 	}
 
 	private void notifyComponents(MsgBus msgBus) {
 		for (Iterator<SCSComponent> iter = components.iterator(); iter.hasNext();) {
-			SCSComponent c = (SCSComponent) iter.next();
+			SCSComponent c = iter.next();
 
 			if (!c.equals(msgBus.getComponent())) {
 				c.receiveMessage(msgBus.getMsg());
-				LOGGER.debug("Send to component: {}", c.toString());
+				LOGGER.debug("Send to component: {}", c);
 			} else {
 				LOGGER.debug("I don't send to sender");
 			}
@@ -160,7 +164,7 @@ public class SCSBus extends ConfigBus {
 			Config.getInstance().setExit(true);
 
 		} catch (MessageFormatException e) {
-			LOGGER.error("Error:", e);
+			LOGGER.error("Error main:", e);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -26,7 +26,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 /**
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.2, 10/08/2016
+ * @since 21/02/2013
  */
 public interface SCSComponent extends Serializable {
 

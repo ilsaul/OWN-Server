@@ -44,7 +44,7 @@ public class KillThread extends Thread {
 		}
 
 		for (Iterator<Thread> iter = list.iterator(); iter.hasNext();) {
-			Thread t = (Thread) iter.next();
+			Thread t = iter.next();
 
 			if (t.isAlive()) {
 				//t.interrupt();

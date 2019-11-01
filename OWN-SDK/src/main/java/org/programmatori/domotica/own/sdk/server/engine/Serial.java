@@ -11,6 +11,7 @@ public abstract class Serial {
 
 	/** Default bits per second for COM port. */
 	private static final int BAUD_RATE = 115200;
+	private static final int BITS = 8;
 
 	private SerialPort currentSerial;
 
@@ -66,14 +67,14 @@ public abstract class Serial {
 	}
 
 	protected int getNumDataBits() {
-		return 8;
+		return BITS;
 	}
 
 	protected int getNumStopBits() {
 		return SerialPort.ONE_STOP_BIT;
 	}
 
-	private int getParity() {
+	protected int getParity() {
 		return SerialPort.NO_PARITY;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -26,7 +26,7 @@ import java.util.GregorianCalendar;
  * Utility for manage the Time.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.1, 10/08/2016
+ * @since 10/08/2016
  */
 public final class TimeUtility {
 	/** One sencond in Milliseconds. */
@@ -63,7 +63,7 @@ public final class TimeUtility {
 		final long newMilliseconds = milliseconds - days * DAY;
 
 		// I use res for don't change date1
-		final Calendar res = GregorianCalendar.getInstance();
+		final Calendar res = Calendar.getInstance();
 		res.setTimeInMillis(date1.getTimeInMillis());
 
 		res.add(Calendar.MILLISECOND, (int)newMilliseconds);

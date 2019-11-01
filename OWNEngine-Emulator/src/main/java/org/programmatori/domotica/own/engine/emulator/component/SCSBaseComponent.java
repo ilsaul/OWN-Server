@@ -99,7 +99,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 				return true;
 
 			// General Command
-			//TODO: Da rivedere per il power manager
+			//TODO: revision for power manager
 			} else if (msg.getWhere() != null && msg.getWhere().getMain() == 0) {
 				logger.debug("it is My (General)");
 				return true;

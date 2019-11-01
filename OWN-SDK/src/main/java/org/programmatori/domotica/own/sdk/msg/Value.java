@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -54,7 +54,7 @@ public class Value extends Unit implements Serializable {
 		sb.append(getSMain());
 		params.iterator();
 		for (Iterator<String> iter = params.iterator(); iter.hasNext();) {
-			String value = (String) iter.next();
+			String value = iter.next();
 			sb.append(SCSMsg.MSG_SEPARATOR).append(value);
 		}
 

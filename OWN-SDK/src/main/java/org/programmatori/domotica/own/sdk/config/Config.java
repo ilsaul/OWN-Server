@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.sdk.config;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.programmatori.domotica.own.sdk.msg.MessageBusLog;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -39,11 +39,14 @@ import java.util.TimeZone;
  * @since 10/08/2015
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
+@ThreadSafe
 public class Config extends AbstractConfig {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
 
 	public static final String SERVER_VERSION = "0.4.7";
 	public static final String SERVER_NAME = "OWN Server";
+
+	private static final String VERSION = "version";
 
 	private static Config instance = null;
 
@@ -57,29 +60,25 @@ public class Config extends AbstractConfig {
 	private Config() {
 		super();
 
-		startTime = GregorianCalendar.getInstance();
+		startTime = Calendar.getInstance();
 
 		if (isConfigLoaded()) {
 			// Check File Version to update information
-			String version = getString("version");
+			String version = getString(VERSION);
 			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
 		}
 
-		listThread = new ArrayList<Thread>();
+		listThread = new ArrayList<>();
 
 		messageLog = new MessageBusLog();
 	}
 
-	public static Config getInstance() {
+	public static synchronized Config getInstance() {
 		if (instance == null) {
-			synchronized (Config.class) {
-				if (instance == null) {
-					instance = new Config();
-				}
-			}
+			instance = new Config();
 		}
 
 		return instance;
@@ -93,9 +92,9 @@ public class Config extends AbstractConfig {
 	protected void updateConfigFile(XMLConfiguration config) {
 
 		// Last change is the server version
-		String version = getString("version");
+		String version = getString(VERSION);
 		if (version == null) {
-			setParam("version", SERVER_VERSION);
+			setParam(VERSION, SERVER_VERSION);
 		}
 	}
 
@@ -151,7 +150,7 @@ public class Config extends AbstractConfig {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			logger.error("Error:", e); //LogUtility.getErrorTrace(e));
+			logger.error("Error:", e);
 			desc = "" + who;
 		}
 
@@ -168,7 +167,7 @@ public class Config extends AbstractConfig {
 	public List<String> getPlugIn() {
 		Map<String, String> plugins = getMap("plugins.plugin");
 
-		return new ArrayList<String>(plugins.values());
+		return new ArrayList<>(plugins.values());
 	}
 
 	public Calendar getStartUpTime() {
@@ -179,14 +178,14 @@ public class Config extends AbstractConfig {
 	 * Let you set the user time
 	 */
 	public void setUserTime(Calendar userTime) {
-		Calendar now = GregorianCalendar.getInstance();
+		Calendar now = Calendar.getInstance();
 
 		timeDiff = TimeUtility.timeDiff(userTime, now);
 		timeZone = userTime.getTimeZone();
 	}
 
 	public Calendar getCurentTime() {
-		Calendar now = GregorianCalendar.getInstance();
+		Calendar now = Calendar.getInstance();
 
 		Calendar ret;
 		if (timeDiff != 0) {

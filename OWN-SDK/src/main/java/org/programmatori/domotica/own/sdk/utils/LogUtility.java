@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -28,6 +28,10 @@ import java.io.PrintWriter;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class LogUtility {
+
+	private LogUtility() {
+		// Stub !!
+	}
 
 	/**
 	 * Print the stack trace of the error in the log

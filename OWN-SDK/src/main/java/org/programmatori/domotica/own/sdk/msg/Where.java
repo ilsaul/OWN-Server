@@ -61,10 +61,8 @@ public class Where extends Unit implements Serializable {
 	public int getLevel() {
 		int level = -1;
 
-		if (params != null) {
-			if (params.size() > 0) {
+		if (params != null && params.isEmpty()) {
 				level = Integer.valueOf(params.get(0));
-			}
 		}
 
 		return level;
@@ -73,10 +71,8 @@ public class Where extends Unit implements Serializable {
 	public int getAddress() {
 		int address = -1;
 
-		if (params != null) {
-			if (params.size() > 1) {
+		if (params != null && params.size() > 1) {
 				address = Integer.valueOf(params.get(1));
-			}
 		}
 
 		return address;

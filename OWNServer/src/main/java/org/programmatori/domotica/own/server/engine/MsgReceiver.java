@@ -146,7 +146,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 	}
 
 	@Override
-	public void SCSValueChanged(SCSEvent e) {
+	public void scsValueChanged(SCSEvent e) {
 		logger.trace("Start SCSValueChanged");
 		SCSMsg msg = e.getMessage();
 

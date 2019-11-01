@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,19 +19,21 @@
  */
 package org.programmatori.domotica.own.sdk.config;
 
-import java.io.File;
-import java.util.*;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 /**
  * Abstract configuration
  *
- * @version 2.1, 16/10/2010
+ * @since 16/10/2010
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public abstract class AbstractConfig {
@@ -40,7 +42,7 @@ public abstract class AbstractConfig {
 	public static final String DEFAULT_CONFIG_FOLDER = "conf";
 	public static final String DEFAULT_CONFIG_PATH = "./" + DEFAULT_CONFIG_FOLDER;
 	public static final String DEFAULT_CONFIG_FILE = "config.xml";
-	public static String HOME_FILE = "home.config";
+	public static final String HOME_FILE = "home.config";
 
 
 	private String configPath;
@@ -75,6 +77,7 @@ public abstract class AbstractConfig {
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
+			logger.error("Error", e);
 			e.printStackTrace();
 		}
 	}
@@ -124,7 +127,7 @@ public abstract class AbstractConfig {
 	}
 
 	protected void setParamWithNameSearch(String nodeToSearch, String nameSearched, String param, String value) {
-		int pos = IndexOfAttributeName(nodeToSearch, nameSearched);
+		int pos = indexOfAttributeName(nodeToSearch, nameSearched);
 
 		if (pos > -1) {
 			config.setProperty(nodeToSearch + "(" + pos + ")." + param, value);
@@ -134,7 +137,7 @@ public abstract class AbstractConfig {
 
 	protected String getParamWithNameSearch(String nodeToSearch, String nameSearched, String param) {
 		String value = null;
-		int pos = IndexOfAttributeName(nodeToSearch, nameSearched);
+		int pos = indexOfAttributeName(nodeToSearch, nameSearched);
 
 		if (pos > -1) {
 			value = (String) config.getProperty(nodeToSearch + "(" + pos + ")." + param);
@@ -144,7 +147,7 @@ public abstract class AbstractConfig {
 		return value;
 	}
 
-	protected int IndexOfAttributeName(String nodeToSearch, String nameSearched) {
+	protected int indexOfAttributeName(String nodeToSearch, String nameSearched) {
 		int idx = config.getMaxIndex(nodeToSearch);
 
 		int pos = 0;
@@ -154,8 +157,9 @@ public abstract class AbstractConfig {
 
 		if (nameSearched.equals(config.getProperty(nodeToSearch + "(" + pos + ")[@name]"))) {
 			return pos;
-		} else
+		} else {
 			return -1;
+		}
 	}
 
 	public String getConfigPath() {
@@ -164,7 +168,7 @@ public abstract class AbstractConfig {
 		if (path == null) {
 			try {
 				String home = getHomeDirectory();
-				path = home + "/" + DEFAULT_CONFIG_FOLDER;
+				path = home + File.separator + DEFAULT_CONFIG_FOLDER; // File.separator = "/"
 
 			} catch (Exception e) {
 				logger.error("Error", LogUtility.getErrorTrace(e));
@@ -177,7 +181,7 @@ public abstract class AbstractConfig {
 	protected Map<String, String> getMap(String nodeToSearch) {
 		int idx = config.getMaxIndex(nodeToSearch);
 
-		Map<String, String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new HashMap<>();
 
 		int pos = 0;
 		while (pos <= idx) {
@@ -218,7 +222,7 @@ public abstract class AbstractConfig {
 
 			String separator = File.separator;
 			boolean first = true;
-			String home = "";
+			StringBuilder home = new StringBuilder();
 
 			logger.debug("Path {}", path);
 
@@ -247,13 +251,13 @@ public abstract class AbstractConfig {
 				if (bBin && bRealFile && bJar && bFile) { // If i build under bin i don't insert in
 					// home path
 					if (home.length() > 0)
-						home += "/";
-					home = home + folder;
+						home.append("/");
+					home.append(folder);
 					logger.debug("home: {}", home);
 				}
 			}
 
-			return home;
+			return home.toString();
 		}
 
 }

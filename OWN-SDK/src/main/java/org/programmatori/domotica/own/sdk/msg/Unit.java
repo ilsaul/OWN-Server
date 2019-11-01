@@ -41,7 +41,7 @@ abstract class Unit implements Serializable {
 
 	private int main = -1;
 	private String sMain;
-	ArrayList<String> params = new ArrayList<>();
+	protected ArrayList<String> params = new ArrayList<>();
 	private boolean status;
 
 	/**
@@ -52,11 +52,9 @@ abstract class Unit implements Serializable {
 	public Unit(String param) {
 		String newParam = param;
 
-		if (statusExist()) {
-			if (param.startsWith(String.valueOf(UNIT_STATUS))) {
+		if (statusExist() && param.startsWith(String.valueOf(UNIT_STATUS))) {
 				status = true;
 				newParam = param.substring(1);
-			}
 		}
 
 		StringIterator st = new StringIterator(newParam, PARAM_SEPARATOR);

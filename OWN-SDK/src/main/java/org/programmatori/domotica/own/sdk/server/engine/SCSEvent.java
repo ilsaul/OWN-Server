@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * SCS Event
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.0, 21/03/2010
+ * @since 21/03/2010
  */
 public class SCSEvent extends EventObject {
 	private static final long serialVersionUID = -7415969899219144543L;
-	private static final Logger logger = LoggerFactory.getLogger(EventObject.class);
+	private static final Logger logger = LoggerFactory.getLogger(SCSEvent.class);
 
 	private SCSMsg msg = null;
 
@@ -52,7 +52,7 @@ public class SCSEvent extends EventObject {
 		try {
 			this.msg = new SCSMsg(msg);
 		} catch (MessageFormatException e) {
-			logger.error("Errore in evento", e);
+			logger.error("Event error ", e);
 		}
 	}
 

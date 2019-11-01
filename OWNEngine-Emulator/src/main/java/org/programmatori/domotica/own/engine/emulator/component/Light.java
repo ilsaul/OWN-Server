@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -51,15 +51,13 @@ public class Light extends SCSBaseComponent {
 
 	@Override
 	public void receiveMessage(SCSMsg msg) {
-		logger.debug("MSG arrive to component: {}", msg.toString());
+		logger.debug("MSG arrive to component: {}", msg);
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {
 				sendMsgToBus(getStatus());
-				//bus.sendCommand(SCSMsg.MSG_ACK);
-			} else if (msg.getWhat() != null) { // && !getWhat().equals(msg.getWhat())) {
+			} else if (msg.getWhat() != null) {
 				setWhat(msg.getWhat());
 				sendMsgToBus(getStatus());
-				//bus.sendCommand(SCSMsg.MSG_ACK);
 			} else {
 				sendMsgToBus(SCSMsg.MSG_NACK);
 			}
