@@ -36,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.programmatori.domotica.own.engine.emulator.component.Blind;
 import org.programmatori.domotica.own.engine.emulator.component.Light;
 import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
+import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
@@ -135,26 +136,23 @@ public class Map extends Thread implements PlugIn {
 
 	@Override
 	public void receiveMsg(SCSMsg msg) {
-		switch (msg.getWho().getMain()) {
-		case Light.MUST_WHO:
+		int currentWho = msg.getWho().getMain();
+
+		if (currentWho == Who.LIGHT.getValue()) {
 			int area = msg.getWhere().getArea();
 			int lightPoint = msg.getWhere().getPL();
 			int value = msg.getWhat().getMain();
 			SCSComponent c = Light.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
-			break;
 
-		case Blind.MUST_WHO:
-			area = msg.getWhere().getArea();
-			lightPoint = msg.getWhere().getPL();
-			value = msg.getWhat().getMain();
-			c = Blind.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
+		} else if (currentWho == Who.BLIND.getValue()) {
+			int area = msg.getWhere().getArea();
+			int lightPoint = msg.getWhere().getPL();
+			int value = msg.getWhat().getMain();
+			SCSComponent c = Blind.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
 			addBus(area, c);
-			break;
-
-		default:
-			break;
 		}
+		//TODO: What do in case an other things arrive?
 	}
 
 	@Override

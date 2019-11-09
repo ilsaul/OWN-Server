@@ -61,7 +61,7 @@ public class Where extends Unit implements Serializable {
 	public int getLevel() {
 		int level = -1;
 
-		if (params != null && params.isEmpty()) {
+		if (params != null && !params.isEmpty()) {
 				level = Integer.valueOf(params.get(0));
 		}
 

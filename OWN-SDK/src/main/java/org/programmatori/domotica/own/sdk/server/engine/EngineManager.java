@@ -36,6 +36,8 @@ public interface EngineManager extends Serializable {
 
 	/**
 	 * Use for send command to the bus
+	 * @param msg SCSMsg that you want to send
+	 * @param client Who send the message
 	 */
 	void sendCommand(SCSMsg msg, Sender client);
 

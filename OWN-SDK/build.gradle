@@ -38,6 +38,9 @@ dependencies {
 	implementation 'commons-lang:commons-lang:2.+'
 	implementation 'org.slf4j:slf4j-api:1.+'
 	implementation 'ch.qos.logback:logback-classic:1.+'
+	implementation 'net.jcip:jcip-annotations:1.0'
+
+
 
 	runtimeOnly 'commons-collections:commons-collections:3.+'
 

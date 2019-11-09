@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.engine.emulator.component;
 
+import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
@@ -37,13 +38,13 @@ public class Light extends SCSBaseComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(Light.class);
 
-	public static final int MUST_WHO = 1;
-	public static final String NAME = "light";
+	//public static final int MUST_WHO = 1;
+	//public static final String NAME = "light";
 
 	public Light(SCSMsg msg, Bus bus) {
 		super(msg, bus);
 
-		if (msg.isStatus() || msg.getWho().getMain() != MUST_WHO)
+		if (msg.isStatus() || msg.getWho().getMain() != Who.LIGHT.getValue())
 			throw new RuntimeWrongMessageException("Wrong Message in the creation of " + this.getClass().getSimpleName());
 
 		if (getWhat() == null) setWhat(new What("0"));
@@ -65,7 +66,7 @@ public class Light extends SCSBaseComponent {
 	}
 
 	public static SCSComponent create(Bus bus, String area, String lightPoint, String value) {
-		SCSMsg msg = createStatusMsg(MUST_WHO, area, lightPoint, value);
+		SCSMsg msg = createStatusMsg(Who.LIGHT.getValue(), area, lightPoint, value);
 		logger.debug("Create Light Status: {}", msg);
 		return new Light(msg, bus);
 	}

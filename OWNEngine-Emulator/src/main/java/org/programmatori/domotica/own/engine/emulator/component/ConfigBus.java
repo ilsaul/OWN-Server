@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.*;
+import org.programmatori.domotica.own.sdk.component.Who;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,9 +92,9 @@ public abstract class ConfigBus extends Thread implements Bus {
 				String lightPoint = areaConf.getString(COMPONENT + "(" + posC + ")[@pl]");
 
 				SCSComponent c = null;
-				if (type.equals(Light.NAME)) {
+				if (type.equals(Who.LIGHT.getName())) {
 					c = Light.create(this, area, lightPoint, value);
-				} else if (type.equals(Blind.NAME)) {
+				} else if (type.equals(Who.BLIND.getName())) {
 					c = Blind.create(this, area, lightPoint, value);
 				}  else if (type.equals(PowerUnit.NAME)) {
 					c = PowerUnit.create(this, area, value);
@@ -137,9 +138,9 @@ public abstract class ConfigBus extends Thread implements Bus {
 			String value = component.getString("value");
 
 			SCSComponent c = null;
-			if (type.equals(Light.NAME)) {
+			if (type.equals(Who.LIGHT.getName())) {
 				c = Light.create(this, area, lightPoint, value);
-			} else if (type.equals(Blind.NAME)) {
+			} else if (type.equals(Who.BLIND.getName())) {
 				c = Blind.create(this, area, lightPoint, value);
 			}
 			add(c);
