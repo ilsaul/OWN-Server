@@ -16,3 +16,5 @@ include 'OWNPlugin-System'
 include 'OWNPlugin-Remote'
 include 'OWNPlugin-Map'
 include 'OWNPlugin-Power'
+include 'OWNPlugin-HomeKit'
+
