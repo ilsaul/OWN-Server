@@ -47,7 +47,7 @@ public class HomeKit implements PlugIn {
         try {
             OWNAuthInfo mockAuth = new OWNAuthInfo();
 
-            InetAddress localAddress = InetAddress.getByAddress(new byte[]{(byte) 192, (byte) 168, 3, 115});
+            InetAddress localAddress = InetAddress.getByAddress(new byte[]{(byte) 192, (byte) 168, 3, 109});
             HomekitServer homeKit = new HomekitServer(localAddress, PORT);
 
             bridge = homeKit.createBridge(mockAuth, "Test Bridge", "TestBridge, Inc.", "G6", "111abe234");
@@ -150,7 +150,8 @@ public class HomeKit implements PlugIn {
             }
 
         } else {
-            throw new RuntimeException("Unknown element");
+            logger.warn("Unknown element {}", msg);
+            //throw new RuntimeException("Unknown element " + who);
         }
     }
 

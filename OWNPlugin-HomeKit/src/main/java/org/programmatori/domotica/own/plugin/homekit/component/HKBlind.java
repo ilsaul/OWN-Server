@@ -2,10 +2,7 @@ package org.programmatori.domotica.own.plugin.homekit.component;
 
 import io.github.hapjava.HomekitCharacteristicChangeCallback;
 import io.github.hapjava.accessories.BasicWindowCovering;
-import io.github.hapjava.accessories.Lightbulb;
 import io.github.hapjava.accessories.properties.WindowCoveringPositionState;
-import org.programmatori.domotica.own.engine.emulator.component.Blind;
-import org.programmatori.domotica.own.engine.emulator.component.Light;
 import org.programmatori.domotica.own.sdk.component.BlindState;
 import org.programmatori.domotica.own.sdk.component.Who;
 import org.slf4j.Logger;

@@ -2,14 +2,12 @@ package org.programmatori.domotica.own.plugin.homekit.component;
 
 import io.github.hapjava.HomekitCharacteristicChangeCallback;
 import io.github.hapjava.accessories.Lightbulb;
-import org.programmatori.domotica.own.engine.emulator.component.Light;
 import org.programmatori.domotica.own.plugin.homekit.HomeKit;
 import org.programmatori.domotica.own.sdk.component.LightState;
 import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.programmatori.domotica.own.sdk.msg.Where;
-import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +49,12 @@ public class HKLight implements Lightbulb {
 
     @Override
     public String getModel() {
-        return "Light Base";
+        return "none";
     }
 
     @Override
     public String getManufacturer() {
-        return "BTicino";
+        return "none";
     }
 
     @Override
@@ -66,7 +64,6 @@ public class HKLight implements Lightbulb {
 
     @Override
     public CompletableFuture<Void> setLightbulbPowerState(boolean newState) throws Exception {
-        //LightState nextState;
         if (newState) {
             state = LightState.ON;
         } else {

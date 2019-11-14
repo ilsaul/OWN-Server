@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     compile project(':OWN-SDK')
-    compile project(':OWNEngine-Emulator')
+    //compile project(':OWNEngine-Emulator')
 
     compile 'io.github.hap-java:hap:1.2.0-snapshot'
 }
