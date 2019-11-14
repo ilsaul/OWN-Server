@@ -136,6 +136,114 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 	}
 
+	private SCSMsg commandStart() {
+		// Welcome
+		SCSMsg response = OpenWebNetProtocol.MSG_WELCOME;
+		logger.debug("Welcome msg: {}", response);
+		status = ConnectionStatus.MODE;
+
+		return response;
+	}
+
+	private SCSMsg commandMode() {
+		SCSMsg response = null;
+		try {
+			String sMsg = readMessage();
+			if (sMsg != null) {
+				SCSMsg msgSCS = new SCSMsg(sMsg);
+				logger.info("{} RX Msg {}", getId(), msgSCS);
+				response = processMode(msgSCS);
+				if (response.equals(SCSMsg.MSG_ACK)) {
+					status = CHECK_IP;
+				} else {
+					status = ConnectionStatus.DISCONNECTED;
+				}
+			} else {
+				logger.debug("I continue to wait because because message is not valid");
+			}
+
+		} catch (MessageFormatException | IOException e) {
+			logger.error("Error Client in Mode setting", e);
+			status = ConnectionStatus.DISCONNECTED;
+			response = SCSMsg.MSG_NACK;
+		}
+
+		return response;
+	}
+
+	private SCSMsg commandCheckIp() {
+		if (checkValidIP(clientSocket.getInetAddress())) {
+			status = ConnectionStatus.CONNECTED;
+		} else {
+			//response = createPwAsk();
+			status = ConnectionStatus.PASSWORD;
+		}
+
+		return null;
+	}
+
+	private SCSMsg commandPw() {
+		SCSMsg response = null;
+
+		try {
+//						SCSMsg msgNo = new SCSMsg("*98*##"); // Open Command
+			response = new SCSMsg("*98*1##"); // sha1 Authentication
+//						SCSMsg msg2 = new SCSMsg("*98*2##"); // sha2 Authentication
+		} catch (MessageFormatException e) {
+			// Stub!!
+		}
+
+		//TODO: Implement PASSWORD case - Bug.ID: #91
+		status = ConnectionStatus.WAIT_IDENT;
+
+		return response;
+	}
+
+	private SCSMsg commandWaitIdent() {
+		SCSMsg response = null;
+
+		try {
+			String sMsg = readMessage();
+
+			response = new SCSMsg(new Who(true, "469712896"), new Where(false, ""), null, null, null);
+
+		} catch (IOException | MessageFormatException e) {
+			e.printStackTrace();
+		}
+
+		return response;
+	}
+
+	private SCSMsg commandConnected() {
+		SCSMsg response = null;
+
+		try {
+			String sMsg = readMessage();
+			logger.info("{} RX Msg {}", getId(), sMsg);
+
+			if (sMsg != null && mode == OpenWebNetProtocol.MODE_MONITOR) {
+				logger.error("Attempt to send command in monitor mode");
+				status = ConnectionStatus.DISCONNECTED;
+
+			} else if (sMsg != null) {
+				try {
+					SCSMsg msg = new SCSMsg(sMsg);
+					engine.sendCommand(msg, this);
+
+				} catch (MessageFormatException e) {
+					logger.error("Command format received invalid", e);
+					status = ConnectionStatus.DISCONNECTED;
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Error Client in Mode setting", e);
+			status = ConnectionStatus.DISCONNECTED;
+			response = SCSMsg.MSG_NACK;
+		}
+
+		return response;
+	}
+
 	private void processCommands() {
 		// Loop Message
 		while (clientSocket.isConnected() && !Config.getInstance().isExit()) {
@@ -143,93 +251,27 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 			switch (status) {
 				case START:
-					// Welcome
-					response = OpenWebNetProtocol.MSG_WELCOME;
-					logger.debug("Welcome msg: {}", response);
-					status = ConnectionStatus.MODE;
+					response = commandStart();
 					break;
 
 				case MODE:
-					try {
-						String sMsg = readMessage();
-						if (sMsg != null) {
-							SCSMsg msgSCS = new SCSMsg(sMsg);
-							logger.info("{} RX Msg {}", getId(), msgSCS);
-							response = processMode(msgSCS);
-							if (response.equals(SCSMsg.MSG_ACK)) {
-								status = CHECK_IP;
-							} else {
-								status = ConnectionStatus.DISCONNECTED;
-							}
-						} else {
-							logger.debug("I continue to wait because because message is not valid");
-						}
-
-					} catch (MessageFormatException | IOException e) {
-						logger.error("Error Client in Mode setting", e);
-						status = ConnectionStatus.DISCONNECTED;
-						response = SCSMsg.MSG_NACK;
-					}
+					response = commandMode();
 					break;
 
 				case CHECK_IP:
-					if (checkValidIP(clientSocket.getInetAddress())) {
-						status = ConnectionStatus.CONNECTED;
-					} else {
-						//response = createPwAsk();
-						status = ConnectionStatus.PASSWORD;
-					}
+					commandCheckIp();
 					break;
 
 				case PASSWORD:
-					try {
-//						SCSMsg msgNo = new SCSMsg("*98*##"); // Open Command
-						response = new SCSMsg("*98*1##"); // sha1 Authentication
-//						SCSMsg msg2 = new SCSMsg("*98*2##"); // sha2 Authentication
-					} catch (MessageFormatException e) {
-						// Stub!!
-					}
-
-					//TODO: Implement PASSWORD case - Bug.ID: #91
-					status = ConnectionStatus.WAIT_IDENT;
+					response = commandPw();
 					break;
 
 				case WAIT_IDENT:
-					try {
-						String sMsg = readMessage();
-
-						response = new SCSMsg(new Who(true, "469712896"), new Where(false, ""), null, null, null);
-
-					} catch (IOException | MessageFormatException e) {
-						e.printStackTrace();
-					}
-
+					response = commandWaitIdent();
 					break;
 
 				case CONNECTED:
-					try {
-						String sMsg = readMessage();
-						logger.info("{} RX Msg {}", getId(), sMsg);
-
-						if (sMsg != null && mode == OpenWebNetProtocol.MODE_MONITOR) {
-							logger.error("Attempt to send command in monitor mode");
-							status = ConnectionStatus.DISCONNECTED;
-
-						} else if (sMsg != null) {
-							try {
-								SCSMsg msg = new SCSMsg(sMsg);
-								engine.sendCommand(msg, this);
-
-							} catch (MessageFormatException e) {
-								logger.error("Command format received invalid", e);
-								status = ConnectionStatus.DISCONNECTED;
-							}
-						}
-					} catch (IOException e) {
-						logger.error("Error Client in Mode setting", e);
-						status = ConnectionStatus.DISCONNECTED;
-						response = SCSMsg.MSG_NACK;
-					}
+					response = commandConnected();
 					break;
 
 				case DISCONNECTED:

@@ -19,20 +19,6 @@
  */
 package org.programmatori.domotica.own.plugin.map;
 
-import java.io.File;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
-
 import org.programmatori.domotica.own.engine.emulator.component.Blind;
 import org.programmatori.domotica.own.engine.emulator.component.Light;
 import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
@@ -46,6 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.util.*;
 
 /**
  * This class is the main part of the plug-in. This read all information about the building and display on the console.
