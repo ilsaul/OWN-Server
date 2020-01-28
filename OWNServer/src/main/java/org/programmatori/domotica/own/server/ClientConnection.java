@@ -310,7 +310,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
-				logger.error("Error:" , e);
+				logger.error("Error:", e);
 			}
 
 			logger.info("{} Mode: Monitor", getId());
@@ -324,7 +324,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
-				logger.error("Error:" , e);
+				logger.error("Error:", e);
 			}
 
 			logger.info("{} Mode: Test", getId());
