@@ -266,6 +266,7 @@ OWNServer/conf/
 OWNEngine-Row/conf/
 OWN-SDK/conf/
 OWNPlugin-Map/conf/
+OWNEngine-SCSGate/conf/
 
 # Gradle Personal Settings
 gradle.properties
@@ -273,4 +274,4 @@ gradle.properties
 # BTicino files
 doc/
 
-OWNEngine-SCSGate/conf/
+
