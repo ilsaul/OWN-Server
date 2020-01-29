@@ -30,6 +30,7 @@ dependencies {
 	runtime project(':OWNPlugin-Power')
 	runtime project(':OWNPlugin-Remote')
 	runtime project(':OWNPlugin-System')
+	runtime project(':OWNPlugin-HomeKit')
 }
 
 startScripts {
