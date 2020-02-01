@@ -63,7 +63,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private StringBuilder commandBuffer;
 
 	/**
-	 * Access is restricted to a local package
+	 * Access restricted to a local package
 	 */
 	ClientConnection(Socket clientSocket, TcpIpServer server, EngineManager engine) {
 		logger.trace("Client Start");
@@ -316,11 +316,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			logger.info("{} Mode: Monitor", getId());
 			engine.addMonitor(this);
 
-		// This mode don't exist in BTicino Server
+		// This mode doesn't exist in BTicino Server
 		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_TEST)) {
 			mode = OpenWebNetProtocol.MODE_TEST;
 
-			// Mixed mode I disable timeout
+			// A mixed mode: I disable timeout
 			try {
 				clientSocket.setSoTimeout(0);
 			} catch (SocketException e) {
