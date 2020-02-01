@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,6 +19,7 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine.core;
 
+import java.io.IOException;
 import java.util.TooManyListenersException;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
@@ -33,24 +34,38 @@ import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
  */
 public interface Engine {
 
+	/**
+	 * If the engine can start to use.
+	 * @return true if is ready
+	 */
 	boolean isReady();
 
 	/**
 	 * Use from server to send a command to the bus
 	 * @param msg message that it want to send
 	 */
-	void sendCommand(SCSMsg msg);
+	void sendCommand(SCSMsg msg) throws IOException;
 
 	/**
-	 * The client connection add itself to a list of listener of the bus for recive a msg from BUS
-	 * @param listener what want recive the message from the bus
+	 * The client connection add itself to a list of listener of the bus for receive a msg from BUS
+	 * @param listener what want receive the message from the bus
 	 * @throws TooManyListenersException Exception if too musch client is connetced
 	 */
 	void addEventListener(SCSListener listener) throws TooManyListenersException;
 
 	/**
 	 * Remove from list of listener
-	 * @param listener The object that Previously ask to recive msg from bus
+	 * @param listener The object that Previously ask to receive msg from bus
 	 */
 	void removeEventListener(SCSListener listener);
+
+	/**
+	 * Start to work, normally mean connect to the device.
+	 */
+	void start() throws IOException;
+
+	/**
+	 * It is use for close connection with the bus
+	 */
+	void close();
 }

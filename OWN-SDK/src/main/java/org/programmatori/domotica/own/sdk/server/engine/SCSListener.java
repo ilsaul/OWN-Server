@@ -25,7 +25,7 @@ import java.util.EventListener;
  * SCS Listener
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.0, 21/03/2010
+ * @since 21/03/2010
  */
 public interface SCSListener extends EventListener {
 	/**
@@ -33,5 +33,5 @@ public interface SCSListener extends EventListener {
      * The code written for this method performs the operations
      * that need to occur when data changes.
      */
-    public void SCSValueChanged(SCSEvent e);
+    void scsValueChanged(SCSEvent e);
 }

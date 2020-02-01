@@ -1,7 +1,7 @@
 apply plugin:'application'
 mainClassName = "org.programmatori.domotica.own.server.Controller"
 
-version = '0.4.6-SNAPSHOT'
+version = '0.4.8-SNAPSHOT'
 jar {
 	manifest {
 		attributes 'Implementation-Title': project.name,
@@ -24,7 +24,21 @@ dependencies {
 	//compile group: 'commons-collections', name: 'commons-collections', version: '3.+'
 
 	runtime project(':OWNEngine-Emulator')
-	runtime project(':OWNPlugin-System')
-	runtime project(':OWNPlugin-Remote')
+	runtime project(':OWNEngine-L4686Sdk')
+	runtime project(':OWNEngine-SCSGate')
 	runtime project(':OWNPlugin-Map')
+	runtime project(':OWNPlugin-Power')
+	runtime project(':OWNPlugin-Remote')
+	runtime project(':OWNPlugin-System')
+	runtime project(':OWNPlugin-HomeKit')
+}
+
+startScripts {
+	classpath += files('src/dist/conf')
+	doLast {
+		def windowsScriptFile = file getWindowsScript()
+		def unixScriptFile    = file getUnixScript()
+		windowsScriptFile.text = windowsScriptFile.text.replace('%APP_HOME%\\lib\\conf', '%APP_HOME%\\conf')
+		unixScriptFile.text  = unixScriptFile.text.replace('$APP_HOME/lib/conf', '$APP_HOME/conf')
+	}
 }

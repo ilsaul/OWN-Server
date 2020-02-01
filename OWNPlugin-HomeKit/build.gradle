@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':OWN-SDK')
+    //compile project(':OWNEngine-Emulator')
+
+    compile 'io.github.hap-java:hap:1.2.0-snapshot'
+}

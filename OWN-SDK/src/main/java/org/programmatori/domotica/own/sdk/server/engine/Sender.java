@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -29,6 +29,12 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.0, 21/03/2010
  */
-public interface Sender extends Serializable {
-	void reciveMsg(SCSMsg msg);
+public interface Sender {
+
+	/**
+	 * Recive messge from Bus and delivery to the client
+	 * @param msg recived message
+	 */
+	void receiveMsg(SCSMsg msg);
 }
+

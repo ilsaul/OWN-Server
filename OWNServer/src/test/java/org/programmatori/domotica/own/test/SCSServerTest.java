@@ -64,7 +64,7 @@ public class SCSServerTest {
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			fail("Non deve essere interrotto");
+			fail("It must not be interrupted");
 		}
 
 		assertEquals(true, server != null);
@@ -72,11 +72,11 @@ public class SCSServerTest {
 		try {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
-			fail("Non deve essere interrotto");
+			fail("It must not be interrupted");
 		}
 	}
 
-	@Ignore("disable becase need remake")
+	@Ignore("disable because need remake")
 	@Test
 	public void testClientTimeOut() {
 		startUpServer();
@@ -101,7 +101,7 @@ public class SCSServerTest {
 		try {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
-			fail("Non deve essere interrotto");
+			fail("It must not be interrupted");
 		}
 	}
 

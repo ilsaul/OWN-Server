@@ -1,5 +1,5 @@
-# Created by https://www.gitignore.io/api/java,macos,gradle,windows,eclipse,intellij
-# Edit at https://www.gitignore.io/?templates=java,macos,gradle,windows,eclipse,intellij
+# Created by https://www.gitignore.io/api/java,macos,gradle,windows,eclipse,intellij+all
+# Edit at https://www.gitignore.io/?templates=java,macos,gradle,windows,eclipse,intellij+all
 
 ### Eclipse ###
 .metadata
@@ -70,7 +70,7 @@ local.properties
 
 .sts4-cache/
 
-### Intellij ###
+### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -141,13 +141,18 @@ fabric.properties
 # JetBrains templates
 **___jb_tmp___
 
-### Intellij Patch ###
-# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+### Intellij+all Patch ###
+# Ignores the whole .idea folder and all .iml files
+# See https://github.com/joeblau/gitignore.io/issues/186 and https://github.com/joeblau/gitignore.io/issues/360
 
-# *.iml
-# modules.xml
-# .idea/misc.xml
-# *.ipr
+.idea/
+
+# Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
+
+*.iml
+modules.xml
+.idea/misc.xml
+*.ipr
 
 # Sonarlint plugin
 .idea/sonarlint
@@ -249,18 +254,24 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
-# End of https://www.gitignore.io/api/java,macos,gradle,windows,eclipse,intellij
+# End of https://www.gitignore.io/api/java,macos,gradle,windows,eclipse,intellij+all
 
-# OWN Server local
-.idea/
+# OWN Server local -----------
 
 #Test files
 dest/
 log/
-OWNServer/conf/log4j.xml
-OWNServer/conf/emuNew.xml
+/conf/
+OWNServer/conf/
 OWNEngine-Row/conf/
+OWN-SDK/conf/
+OWNPlugin-Map/conf/
+OWNEngine-SCSGate/conf/
+
+# Gradle Personal Settings
 gradle.properties
 
 # BTicino files
 doc/
+
+

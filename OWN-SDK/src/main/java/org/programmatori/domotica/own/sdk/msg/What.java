@@ -22,15 +22,29 @@ package org.programmatori.domotica.own.sdk.msg;
 import java.io.Serializable;
 
 /**
- * Part of SCS Message
+ * Part of SCS Message.
+ * Value of the message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 10/08/2016
  */
-public class What extends Param implements Serializable {
+public class What extends Unit implements Serializable {
 	private static final long serialVersionUID = 4206270180792686072L;
 
 	public What(String param) {
 	    super(param);
     }
+
+    public What(String main, String...params) {
+		super(false, main, params);
+    }
+
+	/**
+	 * Force to false the status
+	 * @return
+	 */
+	@Override
+	protected boolean statusExist() {
+		return false;
+	}
 }

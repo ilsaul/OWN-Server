@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -22,33 +22,47 @@ package org.programmatori.domotica.own.sdk.msg;
 import java.io.Serializable;
 
 /**
- * Part of SCS Message
+ * Part of SCS Message.
+ * Destination of the message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 10/08/2016
+ * @since 10/08/2016
  */
-public class Where extends Param implements Serializable {
+public class Where extends Unit implements Serializable {
 	private static final long serialVersionUID = -3912228509235975203L;
 
-	public Where(String param) {
-		super(param);
+	public Where(String where) {
+		// 00 have no meaning because general use 0 only
+		super(where.equals("00")? "0" : where);
+
+
+	}
+
+	public Where(boolean status, String main, String...params) {
+		super(status, main, params);
 	}
 
 	public int getArea() {
-		return (int) getMain() / 10;
+		if (getMain() > 9) {
+			return (int) getMain() / 10;
+		} else {
+			return getMain();
+		}
 	}
 
 	public int getPL() {
-		return (getMain() - (getArea() * 10));
+		if (getMain() > 9) {
+			return (getMain() - (getArea() * 10));
+		} else {
+			return 0;
+		}
 	}
 
 	public int getLevel() {
 		int level = -1;
 
-		if (params != null) {
-			if (params.size() > 0) {
+		if (params != null && !params.isEmpty()) {
 				level = Integer.valueOf(params.get(0));
-			}
 		}
 
 		return level;
@@ -57,10 +71,8 @@ public class Where extends Param implements Serializable {
 	public int getAddress() {
 		int address = -1;
 
-		if (params != null) {
-			if (params.size() > 1) {
+		if (params != null && params.size() > 1) {
 				address = Integer.valueOf(params.get(1));
-			}
 		}
 
 		return address;

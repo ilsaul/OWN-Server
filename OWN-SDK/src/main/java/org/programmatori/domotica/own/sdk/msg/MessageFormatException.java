@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -23,9 +23,9 @@ package org.programmatori.domotica.own.sdk.msg;
  * This error occurred when the SCS Message is not well formatted
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.0, 21/03/2010
+ * @since 21/03/2010
  */
-public class MessageFormatException extends Exception {
+public class MessageFormatException extends RuntimeException {
 	private static final long serialVersionUID = 1584054744811135388L;
 
 	public MessageFormatException() {

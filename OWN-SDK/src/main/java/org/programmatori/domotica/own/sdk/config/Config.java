@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,27 +19,34 @@
  */
 package org.programmatori.domotica.own.sdk.config;
 
-import java.io.File;
-import java.util.*;
-
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.programmatori.domotica.own.sdk.msg.MessageBusLog;
 import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 /**
  * Configuration
  *
- * @version 1.3, 10/08/2015
+ * @since 10/08/2015
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
+@ThreadSafe
 public class Config extends AbstractConfig {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
-	public static final String SERVER_VERSION = "0.5.3";
+	private final Logger logger = LoggerFactory.getLogger(Config.class);
+
+	public static final String SERVER_VERSION = "0.4.7";
 	public static final String SERVER_NAME = "OWN Server";
+
+	private static final String VERSION = "version";
 
 	private static Config instance = null;
 
@@ -48,46 +55,30 @@ public class Config extends AbstractConfig {
 	private Calendar startTime;
 	private long timeDiff;
 	private TimeZone timeZone;
+	private MessageBusLog messageLog;
 
 	private Config() {
 		super();
 
-		startTime = GregorianCalendar.getInstance();
-
-		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		JoranConfigurator jc = new JoranConfigurator();
-		jc.setContext(context);
-		context.reset(); // override default configuration
-		// inject the name of the current application as "application-name"
-		// property of the LoggerContext
-		context.putProperty("application-name", "OWNServer");
-		try {
-			String cfg = getConfigPath() + File.separatorChar + "logback.xml";
-			System.out.println("Log path: " + cfg);
-			jc.doConfigure(cfg);
-		} catch (Exception e) { // if is logback, error is JoranException
-			e.printStackTrace();
-		}
+		startTime = Calendar.getInstance();
 
 		if (isConfigLoaded()) {
 			// Check File Version to update information
-			String version = getString("version");
-			LOGGER.debug("config file version: {}", version);
+			String version = getString(VERSION);
+			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
 			}
 		}
 
-		listThread = new ArrayList<Thread>();
+		listThread = new ArrayList<>();
+
+		messageLog = new MessageBusLog();
 	}
 
-	public static Config getInstance() {
+	public static synchronized Config getInstance() {
 		if (instance == null) {
-			synchronized (Config.class) {
-				if (instance == null) {
-					instance = new Config();
-				}
-			}
+			instance = new Config();
 		}
 
 		return instance;
@@ -101,9 +92,9 @@ public class Config extends AbstractConfig {
 	protected void updateConfigFile(XMLConfiguration config) {
 
 		// Last change is the server version
-		String version = getString("version");
+		String version = getString(VERSION);
 		if (version == null) {
-			setParam("version", SERVER_VERSION);
+			setParam(VERSION, SERVER_VERSION);
 		}
 	}
 
@@ -113,6 +104,7 @@ public class Config extends AbstractConfig {
 
 	public void setExit(boolean exit) {
 		this.exit = exit;
+		logger.info("Quit Server");
 
 		KillThread kill = new KillThread(listThread);
 		kill.start();
@@ -158,7 +150,7 @@ public class Config extends AbstractConfig {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
 			desc = resource.getString("" + who);
 		} catch (Exception e) {
-			LOGGER.error("Errore:", e); //LogUtility.getErrorTrace(e));
+			logger.error("Error:", e);
 			desc = "" + who;
 		}
 
@@ -175,7 +167,7 @@ public class Config extends AbstractConfig {
 	public List<String> getPlugIn() {
 		Map<String, String> plugins = getMap("plugins.plugin");
 
-		return new ArrayList<String>(plugins.values());
+		return new ArrayList<>(plugins.values());
 	}
 
 	public Calendar getStartUpTime() {
@@ -186,14 +178,14 @@ public class Config extends AbstractConfig {
 	 * Let you set the user time
 	 */
 	public void setUserTime(Calendar userTime) {
-		Calendar now = GregorianCalendar.getInstance();
+		Calendar now = Calendar.getInstance();
 
 		timeDiff = TimeUtility.timeDiff(userTime, now);
 		timeZone = userTime.getTimeZone();
 	}
 
 	public Calendar getCurentTime() {
-		Calendar now = GregorianCalendar.getInstance();
+		Calendar now = Calendar.getInstance();
 
 		Calendar ret;
 		if (timeDiff != 0) {
@@ -208,5 +200,9 @@ public class Config extends AbstractConfig {
 		ret.setTimeZone(timeZone);
 
 		return ret;
+	}
+
+	public MessageBusLog getMessageLog() {
+		return messageLog;
 	}
 }

@@ -27,6 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.Value;
 import org.programmatori.domotica.own.sdk.msg.Who;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @version 0.2 16/08/2016
  */
 public class System extends Thread implements PlugIn {
-	private static final long serialVersionUID = -8915105861982264418L;
+	private static final Logger logger = LoggerFactory.getLogger(System.class);
 
 	/** log for the class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
@@ -80,10 +81,10 @@ public class System extends Thread implements PlugIn {
 	}
 
 	@Override
-	public void reciveMsg(SCSMsg msg) {
-		LOGGER.debug("System recived msg: {}", msg);
+	public void receiveMsg(SCSMsg msg) {
+		LOGGER.debug("System received msg: {}", msg);
 		Value value = null;
-		SCSMsg msgResonse = null;
+		SCSMsg msgResponse = null;
 
 		if (msg.getWho().getMain() == MUST_WHO && msg.isStatus()) {
 
@@ -91,7 +92,7 @@ public class System extends Thread implements PlugIn {
 			switch (msg.getProperty().getMain()) {
 				case PM_TIME:
 					if (msg.isStatusProperty()) {
-						msgResonse = this.setTime(msg);
+						msgResponse = this.setTime(msg);
 					} else {
 						value = this.getTime();
 					}
@@ -142,16 +143,20 @@ public class System extends Thread implements PlugIn {
 			}
 
 			if (value != null) {
-				final Who who = new Who(Integer.toString(MUST_WHO));
-				msgResonse = new SCSMsg(who, true, msg.getWhere(), null, msg.getProperty(), value);
+				final Who who = new Who(true, Integer.toString(MUST_WHO));
+				try {
+					msgResponse = new SCSMsg(who, msg.getWhere(), null, msg.getProperty(), value);
+				} catch (MessageFormatException e) {
+					logger.error("Create Res to SCS Error", e);
+				}
 			}
 
-			if (msgResonse != null) {
+			if (msgResponse != null) {
 				// Test purpose
 				if (this.engine == null) {
-					LOGGER.debug("msg: {}", msgResonse);
+					LOGGER.debug("msg: {}", msgResponse);
 				} else {
-					this.engine.sendCommand(msgResonse, this);
+					this.engine.sendCommand(msgResponse, this);
 				}
 			}
 
@@ -165,9 +170,9 @@ public class System extends Thread implements PlugIn {
 		Calendar newTime = GregorianCalendar.getInstance();
 
 		newTime.set(Calendar.HOUR_OF_DAY, msg.getProperty().getMain());
-		newTime.set(Calendar.MINUTE, Integer.parseInt(msg.getProperty().getParams(0)));
-		newTime.set(Calendar.SECOND, Integer.parseInt(msg.getProperty().getParams(1)));
-		newTime.set(Calendar.ZONE_OFFSET, Integer.parseInt(msg.getProperty().getParams(2)));
+		newTime.set(Calendar.MINUTE, Integer.parseInt(msg.getProperty().getParam(0)));
+		newTime.set(Calendar.SECOND, Integer.parseInt(msg.getProperty().getParam(1)));
+		newTime.set(Calendar.ZONE_OFFSET, Integer.parseInt(msg.getProperty().getParam(2)));
 
 		Config.getInstance().setUserTime(newTime);
 
@@ -472,4 +477,3 @@ public class System extends Thread implements PlugIn {
 		// Stub !!
 	}
 }
-

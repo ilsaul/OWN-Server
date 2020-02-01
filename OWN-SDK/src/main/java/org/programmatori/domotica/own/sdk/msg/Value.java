@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -28,11 +28,15 @@ import java.util.Iterator;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 10/08/2016
  */
-public class Value extends Param implements Serializable {
+public class Value extends Unit implements Serializable {
 	private static final long serialVersionUID = -251741168444549427L;
 
 	public Value(String param) {
 		super(param);
+	}
+
+	public Value(String main, String...params) {
+		super(false, main, params);
 	}
 
 	public void addValue(String value) {
@@ -50,10 +54,15 @@ public class Value extends Param implements Serializable {
 		sb.append(getSMain());
 		params.iterator();
 		for (Iterator<String> iter = params.iterator(); iter.hasNext();) {
-			String value = (String) iter.next();
+			String value = iter.next();
 			sb.append(SCSMsg.MSG_SEPARATOR).append(value);
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	protected boolean statusExist() {
+		return false;
 	}
 }

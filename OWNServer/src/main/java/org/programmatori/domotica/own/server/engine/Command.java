@@ -26,7 +26,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
 
 /**
- * Manage the association between message recived to the bus and the answare received.
+ * Manage the association between message received to the bus and the answare received.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since OWNServer v0.1.0
