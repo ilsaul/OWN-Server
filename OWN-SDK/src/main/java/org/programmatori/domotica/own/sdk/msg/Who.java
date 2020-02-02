@@ -32,7 +32,7 @@ public class Who extends Unit {
 	public Who(String who) {
 		super(who);
 
-		if (getSMain().isEmpty()) setMain(0); //ToDo: check it
+		if (getMainAsString().isEmpty()) setMain(0); //ToDo: check it
     }
 
     public Who(boolean status, String who) {

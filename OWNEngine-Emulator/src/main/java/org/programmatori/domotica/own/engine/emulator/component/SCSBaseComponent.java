@@ -23,25 +23,36 @@ import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.programmatori.domotica.own.sdk.component.Bus;
+import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.*;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.Property;
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.Value;
+import org.programmatori.domotica.own.sdk.msg.What;
+import org.programmatori.domotica.own.sdk.msg.Where;
+import org.programmatori.domotica.own.sdk.msg.Who;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Moreno Cattaneo
+ */
 public abstract class SCSBaseComponent extends Thread implements SCSComponent, Serializable {
 	private static final long serialVersionUID = -4174453941105833387L;
 
 	private static final Logger logger = LoggerFactory.getLogger(SCSBaseComponent.class);
 
-	private Who who;
+	private final Who who;
 	private What what;
-	private Where where; // they are 2 digits A + PL
+	private final Where where; // they are 2 digits A + PL
 	private int group;
-	private Property property;
-	private Value value;
+	private final Property property;
+	private final Value value;
 
-	private BlockingQueue<SCSMsg> msgOut;
-	private Bus bus;
+	private final BlockingQueue<SCSMsg> msgOut;
+	private final Bus bus;
 
 	public SCSBaseComponent(SCSMsg msg, Bus bus) {
 		super();
@@ -75,7 +86,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 		return where;
 	}
 
-	protected Property getpProperty() {
+	protected Property getProperty() {
 		return property;
 	}
 
@@ -134,7 +145,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 		return msg;
 	}
 
-	static SCSMsg createStatusMsg(int who, String area, String lightPoint, String value) {
+	protected static SCSMsg createStatusMsg(int who, String area, String lightPoint, String value) {
 		SCSMsg msg = null;
 		try {
 			if (value.contains("*")) {

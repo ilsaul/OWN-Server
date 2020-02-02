@@ -70,7 +70,7 @@ public class PowerMeter extends Thread implements PlugIn {
 		if (!DbUtil.getInstance().isValidDB("SELECT count(*) FROM WATT_READ")) {
 			InputStream in = PowerMeter.class.getResourceAsStream("createDB.sql");
 			if (in == null) {
-				in = PowerMeter.class.getResourceAsStream("org/programmatori/domotica/own/plugin/power/createDB.sql");
+				in = PowerMeter.class.getResourceAsStream("createDB.sql");
 			}
 
 			DbUtil.getInstance().createDB(in);
@@ -78,7 +78,7 @@ public class PowerMeter extends Thread implements PlugIn {
 	}
 
 	@Override
-	public void reciveMsg(SCSMsg msg) {
+	public void receiveMsg(SCSMsg msg) {
 		log.debug("Power recived msg: "+ msg);
 		if (msg.getWho().getMain() == 3) { //PowerUnit.MUST_WHO) {
 			if (msg.getWhere().getMain() == 10) { //&& msg.isStatus()) {

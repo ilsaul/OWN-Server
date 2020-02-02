@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -17,16 +17,21 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.engine.emulator.component;
+package org.programmatori.domotica.own.sdk.component;
 
 import java.io.Serializable;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
-public interface Bus extends Serializable {
+/**
+ * Base Interface for Component attach to the bus.
+ *
+ * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @since 21/02/2013
+ */
+public interface SCSComponent extends Serializable {
 
-	boolean isReady();
+	void receiveMessage(SCSMsg msg);
 
-	void sendCommand(SCSMsg msg, SCSComponent component);
-
+	SCSMsg getStatus();
 }

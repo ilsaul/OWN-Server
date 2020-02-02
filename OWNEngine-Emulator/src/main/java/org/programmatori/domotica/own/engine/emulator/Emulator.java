@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.programmatori.domotica.own.engine.emulator.component.SCSBus;
-import org.programmatori.domotica.own.engine.emulator.component.SCSComponent;
+import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;

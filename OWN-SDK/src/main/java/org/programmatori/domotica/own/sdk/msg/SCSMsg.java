@@ -53,7 +53,7 @@ public class SCSMsg implements Serializable {
 	public static final SCSMsg MSG_NOBUS = new SCSMsg("*#*5##");
 	/** Command not execute, because interface already busy in transmission */
 	public static final SCSMsg MSG_BUSY = new SCSMsg("*#*6##");
-	/** Procedure multiframe not execute complete */
+	/** Procedure multi frame not execute complete */
 	public static final SCSMsg MSG_PROC = new SCSMsg("*#*7##");
 
 	private Who who = null;
@@ -63,12 +63,11 @@ public class SCSMsg implements Serializable {
 	private Value value = null;
 
 	/**
-	 * This Constructor create the message from a real message
+	 * This Constructor creates the message from a real message
 	 *
 	 * @param msg a string that represent the message
-	 * @throws MessageFormatException if the message is badly formatted
 	 */
-	public SCSMsg(String msg) throws MessageFormatException {
+	public SCSMsg(String msg) {
 		this.decode(msg);
 	}
 
@@ -79,11 +78,11 @@ public class SCSMsg implements Serializable {
 	 * @param where Where
 	 * @param what What
 	 */
-	public SCSMsg(Who who, Where where, What what) throws MessageFormatException {
+	public SCSMsg(Who who, Where where, What what) {
 		this(who, where, what,null,null);
 	}
 
-	public SCSMsg(Who who, Where where, What what, Property property, Value value) throws MessageFormatException {
+	public SCSMsg(Who who, Where where, What what, Property property, Value value) {
 		this.who = who;
 		this.where = where;
 		this.what = what;
@@ -95,7 +94,7 @@ public class SCSMsg implements Serializable {
 		}
 	}
 
-	private void decode(String msg) throws MessageFormatException {
+	private void decode(String msg) {
 		// Check if msg is correct
 		if (!msg.startsWith(MSG_STARTER)) {
 			throw new MessageFormatException();
