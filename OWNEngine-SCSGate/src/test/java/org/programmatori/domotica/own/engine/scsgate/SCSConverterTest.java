@@ -2,18 +2,13 @@ package org.programmatori.domotica.own.engine.scsgate;
 
 import org.joou.UByte;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.programmatori.domotica.own.engine.util.ArrayUtils;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
-import org.programmatori.domotica.own.sdk.utils.StringIterator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SCSConverterTest {
-	private SCSConverter converter = new SCSConverter();
+	private final SCSConverter converter = new SCSConverter();
 
 	private void bytesToSCS(String bytesMsg, String scsMsg, String assertMsg)  {
 		try {
@@ -71,18 +66,18 @@ public class SCSConverterTest {
 	@Test
 	public void convertFromSCS() {
 		// Request Command Light
-		SCSToBytes("*1*1*24##","a8:24:ca:12:00:fc:a3","Command light off");
-		SCSToBytes("*1*0*24##","a8:24:ca:12:01:fd:a3","Command light on");
-		SCSToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Status Light");
+		scsToBytes("*1*1*24##","a8:24:ca:12:00:fc:a3","Command light off");
+		scsToBytes("*1*0*24##","a8:24:ca:12:01:fd:a3","Command light on");
+		scsToBytes("*#1*24##","a8:24:ca:15:00:fb:a3","Command Status Light");
 
 		// Status Blind
-		SCSToBytes("*2*1*62##","a8:62:ca:12:08:b2:a3","Command Blind Up");
-		SCSToBytes("*2*2*62##","a8:62:ca:12:09:b3:a3","Command Blind Down");
-		SCSToBytes("*2*0*62##","a8:62:ca:12:0a:b0:a3","Command Blind Stop");
-		SCSToBytes("*#2*62##","a8:62:ca:15:00:bd:a3","Command Status Blind");
+		scsToBytes("*2*1*62##","a8:62:ca:12:08:b2:a3","Command Blind Up");
+		scsToBytes("*2*2*62##","a8:62:ca:12:09:b3:a3","Command Blind Down");
+		scsToBytes("*2*0*62##","a8:62:ca:12:0a:b0:a3","Command Blind Stop");
+		scsToBytes("*#2*62##","a8:62:ca:15:00:bd:a3","Command Status Blind");
 
 		// Other Bus
-		SCSToBytes("*1*0*24#4#1##","a8:e4:01:00:00:24:ca:12:01:18:a3","Other Bus light on message");
+		scsToBytes("*1*0*24#4#1##","a8:e4:01:00:00:24:ca:12:01:18:a3","Other Bus light on message");
 
 		// GENeral Command
 		//SCSToBytes("*2*1*##","a8:b5:09:12:08:a6:a3","General Blind Up message");
@@ -90,17 +85,17 @@ public class SCSConverterTest {
 		//a8:b1:00:12:01:a2:a3
 
 		// GRoup Command
-		SCSToBytes("*1*0*7##","a8:b3:07:12:01:a7:a3","Area Light off");
-		SCSToBytes("*1*1*7##","a8:b3:07:12:00:a6:a3","Area Light on");
-		SCSToBytes("*1*1*2##","a8:b3:02:12:00:a3:a3","Area Light on");
+		scsToBytes("*1*0*7##","a8:b3:07:12:01:a7:a3","Area Light off");
+		scsToBytes("*1*1*7##","a8:b3:07:12:00:a6:a3","Area Light on");
+		scsToBytes("*1*1*2##","a8:b3:02:12:00:a3:a3","Area Light on");
 
 
 		// Status General
-		SCSToBytes("*#1*0##","a8:b1:00:15:00:a4:a3","General Status");
+		scsToBytes("*#1*0##","a8:b1:00:15:00:a4:a3","General Status");
 		//SCSToBytes("*#2*0##","a8:b1:00:15:00:a4:a3","General Status");
 	}
 
-	private void SCSToBytes(String scsMsg, String bytesMsg, String assertMsg) {
+	private void scsToBytes(String scsMsg, String bytesMsg, String assertMsg) {
 		try {
 			SCSMsg msg = new SCSMsg(scsMsg);
 			UByte[] expected = ArrayUtils.stringToArray(bytesMsg);

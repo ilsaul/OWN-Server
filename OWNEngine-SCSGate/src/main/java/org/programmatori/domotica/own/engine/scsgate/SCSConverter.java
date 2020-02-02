@@ -67,19 +67,22 @@ public class SCSConverter {
 		Property property = null;
 		Value value = null;
 
-		if (values.length == 1) {
+		if (values.length == 2) {
 			// Particular message
 
-			if (values[0].intValue() == 0xA5) { // *#*1## ACK
-				where = new Where("1");
-				who = new Who(true, "");
+			if (values[0].intValue() == 0x01) { // start msg ???
 
-			} else if (values[0].intValue() == 0xE9) { // *#*0## NACK
-				where = new Where("0");
-				who = new Who(true, "");
+				if (values[1].intValue() == 0xA5) { // *#*1## ACK
+					where = new Where("1");
+					who = new Who(true, "");
 
-			} else {
-				logUnknown(values, 0);
+				} else if (values[1].intValue() == 0xE9) { // *#*0## NACK
+					where = new Where("0");
+					who = new Who(true, "");
+
+				} else {
+					logUnknown(values, 0);
+				}
 			}
 
 		} else if (values[0].shortValue() == MSG_START && values[values.length - 1].intValue() == MSG_END) {
@@ -201,7 +204,7 @@ public class SCSConverter {
 		Where where = scsMsg.getWhere();
 		UByte destination = null;
 		if (where.getMain() > -1) {
-			String sWhere = where.getSMain(); // Area + PL
+			String sWhere = where.getMainAsString(); // Area + PL
 
 			if (sWhere.length() == 1) {
 				sWhere = "0" + sWhere;
