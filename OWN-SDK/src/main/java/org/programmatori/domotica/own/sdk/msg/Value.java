@@ -51,7 +51,7 @@ public class Value extends Unit implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(getSMain());
+		sb.append(getMainAsString()); // to accept 0250 and not only 250 but I'm not sure is correct
 		params.iterator();
 		for (Iterator<String> iter = params.iterator(); iter.hasNext();) {
 			String value = iter.next();

@@ -211,7 +211,7 @@ public class System extends Thread implements PlugIn {
 		Value v = getTime();
 		Value tmp = getDate();
 
-		v.addValue(tmp.getSMain());
+		v.addValue(tmp.getMainAsString());
 		for (int i = 0; i < tmp.countParams(); i++) {
 			v.addValue(tmp.getSingleValue(i));
 		}
@@ -220,7 +220,6 @@ public class System extends Thread implements PlugIn {
 	}
 
 	private Value getStartUpTime() {
-		//Calendar now = GregorianCalendar.getInstance();
 		Calendar start = GregorianCalendar.getInstance();
 		try {
 			start = Config.getInstance().getStartUpTime();

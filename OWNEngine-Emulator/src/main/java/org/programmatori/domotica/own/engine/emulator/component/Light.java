@@ -19,6 +19,8 @@
  */
 package org.programmatori.domotica.own.engine.emulator.component;
 
+import org.programmatori.domotica.own.sdk.component.Bus;
+import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;

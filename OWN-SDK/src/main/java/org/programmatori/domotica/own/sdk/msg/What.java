@@ -26,7 +26,7 @@ import java.io.Serializable;
  * Value of the message
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 10/08/2016
+ * @version 10/08/2016
  */
 public class What extends Unit implements Serializable {
 	private static final long serialVersionUID = 4206270180792686072L;

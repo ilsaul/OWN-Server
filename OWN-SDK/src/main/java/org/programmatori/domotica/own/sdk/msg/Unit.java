@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,10 +19,12 @@
  */
 package org.programmatori.domotica.own.sdk.msg;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.programmatori.domotica.own.sdk.utils.StringIterator;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Basic part of SCS Message.
@@ -112,7 +114,7 @@ abstract class Unit implements Serializable {
 		return main;
 	}
 
-	public String getSMain() {
+	public String getMainAsString() {
 		return sMain;
 	}
 
