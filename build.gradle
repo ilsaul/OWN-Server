@@ -54,7 +54,7 @@ subprojects {
 
 	repositories {
 		// Personal Nexus
-		maven { url 'http://localhost:8082/repository/maven-public/' }
+		//maven { url 'http://localhost:8082/repository/maven-public/' }
 
 		// Local Machine Repo
 		mavenLocal()
