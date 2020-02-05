@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -53,20 +53,17 @@ public class Controller extends Thread {
 			Config.getInstance().setConfig(configFile);
 		}
 
-		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2013 Moreno Cattaneo";
+		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2020 Moreno Cattaneo";
 		String line2 = "This program comes with ABSOLUTELY NO WARRANTY.";
 		String line3 = "This is free software, and you are welcome to redistribute it";
 		String line4 = "under certain conditions.";
-
-		System.out.println(line1);
-		System.out.println(line2);
-		System.out.println(line3);
-		System.out.println(line4);
+		String line5 = "----";
 
 		logger.info(line1);
 		logger.info(line2);
 		logger.info(line3);
 		logger.info(line4);
+		logger.info(line5);
 		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
 	}
 
@@ -77,13 +74,13 @@ public class Controller extends Thread {
 				logger.debug("Controller: control now");
 
 				if (engine == null || engine.getState() == Thread.State.TERMINATED) {
-					logger.warn("Engine is down i load it");
+					logger.warn("Engine is down, I load it");
 					engine = new EngineManagerImpl(); //TODO: Read from configuration (exist only one)
 					engine.start();
 				}
 
 				if (server == null || !server.isRunning()) {
-					logger.warn("Server is down i load it");
+					logger.warn("Server is down, I load it");
 					server = new TcpIpServer(engine);
 					Thread t = new Thread(server);
 					t.start();
@@ -97,7 +94,7 @@ public class Controller extends Thread {
 	}
 
 	/**
-	 * For test if the server continue to work. It's use in junit test
+	 * For test if the server continue to work. It's use in junit test.
 	 * @return
 	 */
 	public boolean isAliveServer() {
