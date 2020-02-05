@@ -43,7 +43,7 @@ import java.util.TimeZone;
 public class Config extends AbstractConfig {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
 
-	public static final String SERVER_VERSION = "0.4.7";
+	public static final String SERVER_VERSION = "0.4.8";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private static final String VERSION = "version";
