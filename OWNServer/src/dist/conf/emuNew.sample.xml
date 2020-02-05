@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<configuration>
+	<version>2.0</version>
+	<statusSave>1</statusSave>
+
+	<area id="1">
+		<component type="light" pl="1">0</component>
+		<component type="light" pl="2">0</component>
+		<component type="blind" pl="3">0</component>
+	</area>
+	<area id="2">
+		<component type="light" pl="1">0</component>
+		<component type="light" pl="2">0</component>
+		<component type="blind" pl="3">0</component>
+	</area>
+	<area id="10">
+		<component type="power" pl="0">5*6*7*8</component>
+	</area>
+
+	<scheduler>
+		<command time="2">*1*1*11##</command>
+		<command time="5">*#1*0##</command>
+	</scheduler>
+</configuration>
