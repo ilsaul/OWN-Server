@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<server>
+		<port>20000</port>
+		<maxConnections>50</maxConnections>
+		<timeoutWelcome>30000</timeoutWelcome> <!-- Milliseconds -->
+		<timeoutSend>4000</timeoutSend> <!-- Milliseconds -->
+	</server>
+	<bus>org.programmatori.domotica.own.engine.emulator.Emulator</bus>
+	<version>0.4.8</version>
+	<areas>
+		<area id="1">Bathroom</area>
+		<area id="2">Living Room</area>
+		<area id="3">Main Bedroom</area>
+	</areas>
+	<plugins />
+</configuration>
