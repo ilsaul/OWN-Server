@@ -43,8 +43,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class InputReceiver extends Observable implements SerialPortDataListener {
 	private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
-	private BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>();
-	private SerialPort serial;
+	private final BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>();
+	private final SerialPort serial;
 	private String dirtyBuffer;
 
 	public InputReceiver(SerialPort serial) {

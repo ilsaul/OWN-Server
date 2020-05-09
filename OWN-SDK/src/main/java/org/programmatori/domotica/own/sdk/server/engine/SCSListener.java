@@ -22,7 +22,7 @@ package org.programmatori.domotica.own.sdk.server.engine;
 import java.util.EventListener;
 
 /**
- * SCS Listener
+ * Receive message from bus
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 21/03/2010

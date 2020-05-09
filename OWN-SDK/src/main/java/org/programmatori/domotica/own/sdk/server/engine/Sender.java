@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -24,7 +24,7 @@ import java.io.Serializable;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
- * Sender
+ * Send message to the bus
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.0, 21/03/2010

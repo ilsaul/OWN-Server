@@ -21,11 +21,11 @@ package org.programmatori.domotica.own.sdk.config;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.programmatori.domotica.own.sdk.utils.LogUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -37,13 +37,12 @@ import java.util.StringTokenizer;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public abstract class AbstractConfig {
-	private static Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
 	public static final String DEFAULT_CONFIG_FOLDER = "conf";
 	public static final String DEFAULT_CONFIG_PATH = "./" + DEFAULT_CONFIG_FOLDER;
 	public static final String DEFAULT_CONFIG_FILE = "config.xml";
-	public static final String HOME_FILE = "home.config";
-
+	//public static final String HOME_FILE = "home.config";
 
 	private String configPath;
 	private boolean configLoaded;
@@ -51,11 +50,7 @@ public abstract class AbstractConfig {
 	private XMLConfiguration config = null;
 
 	protected AbstractConfig() {
-		this(null);
-	}
-
-	protected AbstractConfig(String configPath) {
-		this(configPath, DEFAULT_CONFIG_FILE);
+		this(null, DEFAULT_CONFIG_FILE);
 	}
 
 	protected AbstractConfig(String configPath, String configFile) {
@@ -66,19 +61,38 @@ public abstract class AbstractConfig {
 	}
 
 	private void loadConfig(String configFile) {
-		System.out.println("Config File: " + configFile);
+		logger.debug("Config File: {}", configFile);
 		if (configFile == null || configFile.trim().length() == 0) return;
 
 		try {
 			String cfg = getConfigPath() + File.separatorChar + configFile;
-			config = new XMLConfiguration(cfg);
+			config = new XMLConfiguration();
+			config.load(cfg);
+
+			config.setThrowExceptionOnMissing(true);
 			config.setAutoSave(true);
-			System.out.println("Full Config: " + config.getURL());
+
+			logger.info("Full Config: {}", config.getURL());
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
 			logger.error("Error", e);
-			e.printStackTrace();
+		}
+	}
+
+	private void loadConfig(InputStream is) {
+		if (is == null) return;
+
+		try {
+			config = new XMLConfiguration();
+			config.load(is);
+
+			config.setThrowExceptionOnMissing(true);
+			config.setAutoSave(true);
+
+			configLoaded = true;
+		} catch (ConfigurationException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -87,7 +101,6 @@ public abstract class AbstractConfig {
 	}
 
 	public void setConfig(String configFile) {
-
 		File f = new File(configFile);
 		String fileName;
 
@@ -100,6 +113,12 @@ public abstract class AbstractConfig {
 		}
 
 		loadConfig(fileName);
+	}
+
+	public void setConfig(InputStream is) {
+		if (is != null) {
+			loadConfig(is);
+		}
 	}
 
 	protected String getString(String key) {
@@ -171,10 +190,11 @@ public abstract class AbstractConfig {
 				path = home + File.separator + DEFAULT_CONFIG_FOLDER; // File.separator = "/"
 
 			} catch (Exception e) {
-				logger.error("Error", LogUtility.getErrorTrace(e));
+				logger.error("Error in getConfigPath", e);
 				path = DEFAULT_CONFIG_PATH;
 			}
 		}
+
 		return path;
 	}
 
@@ -243,7 +263,7 @@ public abstract class AbstractConfig {
 				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
 
 				// BUG jar can not support . then use a real file for find a path
-				boolean bRealFile = true;
+				boolean bRealFile = true; //TODO: fix me
 
 				// BUG the home directory it cannot end with .jar
 				boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));

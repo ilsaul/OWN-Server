@@ -26,7 +26,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
 
 /**
- * Base Interface if someone want to implemented a new engine.
+ * Base Interface if someone want to implement a new engine.
  * The Engine is a component that TcpIpServer use to talk with SCS BUS.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)

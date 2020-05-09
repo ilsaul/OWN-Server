@@ -47,17 +47,14 @@ public class L4686Sdk extends Serial implements Engine, Observer {
 	private static final Logger logger = LoggerFactory.getLogger(L4686Sdk.class);
 
 	/** Milliseconds to block while waiting for port open */
-	private static final int TIME_OUT = 2000;
+	//private static final int TIME_OUT = 2000;
 
-	private OutputStream out;
-	private List<SCSListener> listListener;
+	private OutputStream out = null;
+	private final List<SCSListener> listListener = new ArrayList<>();
 
 	private InputReceiver input;
 
 	public L4686Sdk() {
-		out = null;
-		listListener = new ArrayList<>();
-
 		findSerial(Config.getInstance().getNode("l4686sdk"));
 		// I leave default setting
 
@@ -85,8 +82,6 @@ public class L4686Sdk extends Serial implements Engine, Observer {
 	protected boolean connect() throws IOException {
 		if (super.connect()) {
 			input = new InputReceiver(getSerial());
-			//in = getSerial().getInputStream();
-			//getSerial().addDataListener(this);
 			getSerial().addDataListener(input);
 			out = getSerial().getOutputStream();
 
@@ -103,14 +98,14 @@ public class L4686Sdk extends Serial implements Engine, Observer {
 	}
 
 	private boolean busInitialize() {
-		// usefull?
+		// useful?
 		return true;
 	}
 
 	@Override
 	public synchronized void sendCommand(SCSMsg msg) {
 		try {
-			logger.debug("TX to BUS: {}", msg.toString());
+			logger.debug("TX to BUS: {}", msg);
 			out.write(msg.toString().getBytes());
 		} catch (IOException e) {
 			logger.error("Error:", e);

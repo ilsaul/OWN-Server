@@ -24,6 +24,8 @@ import java.io.Serializable;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
+ * Basic Bus Interface.
+ *
  * @author Moreno Cattaneo
  */
 public interface Bus extends Serializable {

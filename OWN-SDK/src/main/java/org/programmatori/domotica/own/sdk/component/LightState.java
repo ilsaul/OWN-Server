@@ -20,6 +20,8 @@
 package org.programmatori.domotica.own.sdk.component;
 
 /**
+ * State fot Light.
+ *
  * @author Moreno Cattaneo
  */
 public enum LightState {
@@ -29,8 +31,7 @@ public enum LightState {
     private final int value;
     private final String name;
 
-    // enum constructor - cannot be public or protected
-    private LightState(int value, String name) {
+    LightState(int value, String name) {
         this.value = value;
         this.name = name;
     }
@@ -39,9 +40,10 @@ public enum LightState {
         switch (value) {
             case 0: return OFF;
             case 1: return ON;
-        }
 
-        throw new IndexOutOfBoundsException("Must be 0 or 1");
+			default:
+				throw new IllegalStateException("Unexpected value: " + value);
+		}
     }
 
     // getter method

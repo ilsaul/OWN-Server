@@ -20,6 +20,7 @@
 package org.programmatori.domotica.own.server;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 
 /**
  * This class maintain some constant for the protocol SCS
@@ -29,7 +30,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
  * @since OWNServer v0.1.0
  */
 public class OpenWebNetProtocol {
-	public static final SCSMsg MSG_WELCOME = SCSMsg.MSG_ACK;
+	public static final SCSMsg MSG_WELCOME = ServerMsg.MSG_ACK.getMsg();
 	public static SCSMsg MSG_MODE_COMMAND;
 	public static SCSMsg MSG_MODE_MONITOR;
 	public static SCSMsg MSG_MODE_TEST;

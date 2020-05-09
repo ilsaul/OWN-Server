@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -40,11 +40,11 @@ public class Value extends Unit implements Serializable {
 	}
 
 	public void addValue(String value) {
-		params.add(value);
+			addParam(value);
 	}
 
 	public String getSingleValue(int index) {
-		return params.get(index);
+		return getParam(index);
 	}
 
 	@Override
@@ -52,9 +52,8 @@ public class Value extends Unit implements Serializable {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(getMainAsString()); // to accept 0250 and not only 250 but I'm not sure is correct
-		params.iterator();
-		for (Iterator<String> iter = params.iterator(); iter.hasNext();) {
-			String value = iter.next();
+		for (int i = 0; i < countParams(); i++) {
+			String value = getParam(i);
 			sb.append(SCSMsg.MSG_SEPARATOR).append(value);
 		}
 

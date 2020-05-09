@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is a {@link PriorityBlockingQueue} that implement listener for chnge data.
+ * This class is a {@link PriorityBlockingQueue} that implement listener for change data.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 27/02/2013
@@ -36,11 +36,11 @@ public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 	private static final Logger logger = LoggerFactory.getLogger(ListenerPriorityBlockingQueue.class);
 	private static final long serialVersionUID = 8861915379323068946L;
 
-	List<QueueListener> listeners;
+	private final List<QueueListener> listeners;
 
 	public ListenerPriorityBlockingQueue() {
 		super();
-		listeners = new ArrayList<QueueListener>();
+		listeners = new ArrayList<>();
 	}
 
 	@Override
@@ -66,9 +66,7 @@ public class ListenerPriorityBlockingQueue<T> extends PriorityBlockingQueue<T> {
 	}
 
 	private void fireChange() {
-		for (Iterator<QueueListener> iter = listeners.iterator(); iter.hasNext();) {
-			QueueListener listener = iter.next();
-
+		for (QueueListener listener : listeners) {
 			listener.changeNotify();
 		}
 	}

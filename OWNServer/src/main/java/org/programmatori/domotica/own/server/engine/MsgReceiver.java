@@ -39,13 +39,12 @@ import org.slf4j.LoggerFactory;
  */
 public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 	private static final long serialVersionUID = 4398470202679549451L;
-
 	private static final Logger logger = LoggerFactory.getLogger(MsgReceiver.class);
 
-	private BlockingQueue<Command> msgReceiveFromBus;
-	private BlockingQueue<Command> msgSended;
+	private final BlockingQueue<Command> msgReceiveFromBus;
+	private final BlockingQueue<Command> msgSended;
 	private Engine engine;
-	private List<Monitor> monitors;
+	private final List<Monitor> monitors;
 	private boolean changeQueue;
 
 	public MsgReceiver(Engine engine, BlockingQueue<Command> queueSended) {
@@ -54,11 +53,11 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		setDaemon(true);
 		Config.getInstance().addThread(this);
 
-		msgReceiveFromBus = new LinkedBlockingQueue<Command>();
+		msgReceiveFromBus = new LinkedBlockingQueue<>();
 		this.engine = engine;
 		msgSended = queueSended;
 		changeQueue = false;
-		monitors = new ArrayList<Monitor>();
+		monitors = new ArrayList<>();
 		try {
 			this.engine.addEventListener(this);
 		} catch (TooManyListenersException e) {
@@ -74,33 +73,34 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 			Command command = null;
 			try {
 				command = msgReceiveFromBus.take();
+
 			} catch (InterruptedException e) {
 				logger.error("Error:" , e);
 			}
 
 			if (command != null) {
 				SCSMsg received = null;
-				if (command.getReceiveMsg().size() > 0) received = command.getReceiveMsg().get(0); // From msgReceiveFromBus is only 1 msg
+				if (!command.getReceiveMsg().isEmpty()) received = command.getReceiveMsg().get(0); // From msgReceiveFromBus is only 1 msg
 				logger.debug("msg 0: {}", received);
 
 				if (received != null) {
 					sendToMonitor(received);
-					logger.debug("RX from Bus " + command.toString());
+					logger.debug("RX from Bus {}", command);
 
 					while (received != null) {
 						changeQueue = false;
 
 						//FIXME: Iterator don't follow the order of the priority
-						logger.debug("Queue sended: {}", msgSended.size());
+						logger.debug("Queue sending: {}", msgSended.size());
 						Iterator<Command> iter = msgSended.iterator();
 						while (iter.hasNext() && !changeQueue && received != null) {
 							Command commandSended = (Command) iter.next();
-							logger.debug("Command to examinate: {}", commandSended.toString());
+							logger.debug("Command to examine: {}", commandSended);
 
 							// Don't elaborate again the Binded Msg
 							//if (commandSended.getTimeAnswer() == null) {
 							SCSMsg sended = commandSended.getSendMsg();
-							logger.debug("Msg to examinate: {}", sended.toString());
+							logger.debug("Msg to examinate: {}", sended);
 
 							// Search if it is the same msg
 							//TODO: Improve for other case
@@ -137,9 +137,10 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 	private void addResponse(Command commandReceived, Command commandSended) {
 		msgSended.remove(commandSended);
 		commandSended.setReceived(commandReceived);
-		logger.debug("Msg Bind create: {}", commandSended.toString());
+		logger.debug("Msg Bind create: {}", commandSended);
 		try {
 			msgSended.put(commandSended);
+
 		} catch (InterruptedException e) {
 			logger.error("Error:" , e);
 		}
@@ -154,6 +155,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		try {
 			msgReceiveFromBus.put(command);
 			logger.debug("Received queue: {}", msgReceiveFromBus.size());
+
 		} catch (InterruptedException e1) {
 			logger.error("Error:" , e);
 		}

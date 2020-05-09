@@ -43,19 +43,26 @@ import java.util.TimeZone;
 public class Config extends AbstractConfig {
 	private final Logger logger = LoggerFactory.getLogger(Config.class);
 
+	private static final String CONF_VERSION = "version";
+	private static final String CONF_SERVER_PORT = "server.port";
+	private static final String CONF_SERVER_MAX_CONNECTIONS = "server.maxConnections";
+	private static final String CONF_SERVER_TIMEOUT_WELCOME = "server.timeoutWelcome";
+	private static final String CONF_BUS = "bus";
+	private static final String CONF_AREAS_AREA = "areas.area";
+	private static final String CONF_PLUGINS_PLUGIN = "plugins.plugin";
+
+	private static final String DEFAULT_BUS = "org.programmatori.domotica.bticino.bus.L4686Sdk";
 	public static final String SERVER_VERSION = "0.4.8";
 	public static final String SERVER_NAME = "OWN Server";
 
-	private static final String VERSION = "version";
-
 	private static Config instance = null;
 
+	private final List<Thread> listThread;
+	private final Calendar startTime;
+	private final MessageBusLog messageLog;
 	private boolean exit = false; // Tell to the application if it need to shutdown
-	private List<Thread> listThread;
-	private Calendar startTime;
 	private long timeDiff;
 	private TimeZone timeZone;
-	private MessageBusLog messageLog;
 
 	private Config() {
 		super();
@@ -64,7 +71,7 @@ public class Config extends AbstractConfig {
 
 		if (isConfigLoaded()) {
 			// Check File Version to update information
-			String version = getString(VERSION);
+			String version = getString(CONF_VERSION);
 			logger.debug("config file version: {}", version);
 			if (version == null || !version.equals(SERVER_VERSION)) {
 				updateConfigFileVersion();
@@ -92,9 +99,9 @@ public class Config extends AbstractConfig {
 	protected void updateConfigFile(XMLConfiguration config) {
 
 		// Last change is the server version
-		String version = getString(VERSION);
+		String version = getString(CONF_VERSION);
 		if (version == null) {
-			setParam(VERSION, SERVER_VERSION);
+			setParam(CONF_VERSION, SERVER_VERSION);
 		}
 	}
 
@@ -111,26 +118,26 @@ public class Config extends AbstractConfig {
 	}
 
 	public int getServerPort() {
-		return getInt("server.port", 20000);
+		return getInt(CONF_SERVER_PORT, 20000);
 	}
 
 	public int getMaxConnections() {
-		return getInt("server.maxConnections", 50);
+		return getInt(CONF_SERVER_MAX_CONNECTIONS, 50);
 	}
 
 	public int getSendTimeout() {
-		return getInt("server.timeoutSend", 4000);
+		return getInt("server.timeoutSend", TimeUtility.millisFromSeconds(4));
 	}
 
 	/**
 	 * BTicino say if not connect in 30s than disconnect the client
 	 */
 	public int getWelcomeTimeout() {
-		return getInt("server.timeoutWelcome", 30000);
+		return getInt(CONF_SERVER_TIMEOUT_WELCOME, TimeUtility.millisFromSeconds(30));
 	}
 
 	public String getBus() {
-		return getString("bus", "org.programmatori.domotica.bticino.bus.L4686Sdk");
+		return getString(CONF_BUS, DEFAULT_BUS);
 	}
 
 	public String getNode(String nodeName) {
@@ -138,13 +145,13 @@ public class Config extends AbstractConfig {
 	}
 
 	public String getRoomName(int area) {
-		Map<String, String> rooms = getMap("areas.area");
+		Map<String, String> rooms = getMap(CONF_AREAS_AREA);
 
 		return rooms.get(Integer.toString(area));
 	}
 
 	public String getWhoDescription(int who) {
-		String desc = null;
+		String desc;
 
 		try {
 			ResourceBundle resource = ResourceBundle.getBundle("Who");
@@ -165,7 +172,7 @@ public class Config extends AbstractConfig {
 	}
 
 	public List<String> getPlugIn() {
-		Map<String, String> plugins = getMap("plugins.plugin");
+		Map<String, String> plugins = getMap(CONF_PLUGINS_PLUGIN);
 
 		return new ArrayList<>(plugins.values());
 	}

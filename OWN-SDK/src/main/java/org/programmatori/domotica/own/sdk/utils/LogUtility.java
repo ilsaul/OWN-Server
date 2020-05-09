@@ -26,7 +26,9 @@ import java.io.PrintWriter;
  * Utility for manage the log.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
+ * @deprecated Don't use logger no need
  */
+@Deprecated
 public class LogUtility {
 
 	private LogUtility() {

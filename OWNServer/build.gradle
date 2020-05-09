@@ -1,7 +1,9 @@
 apply plugin:'application'
 mainClassName = "org.programmatori.domotica.own.server.Controller"
+applicationDefaultJvmArgs = ["-Dlogback.configurationFile=conf/logback.xml"]
+// -Dlogging.config="/Users/moreno/Programmazione/git/my/OWN/OWNServer/conf/logback.xml"
 
-version = '0.4.8-SNAPSHOT'
+version = '0.4.8'
 jar {
 	manifest {
 		attributes 'Implementation-Title': project.name,

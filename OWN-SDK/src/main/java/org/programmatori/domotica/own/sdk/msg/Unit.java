@@ -24,6 +24,7 @@ import org.programmatori.domotica.own.sdk.utils.StringIterator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -43,7 +44,7 @@ abstract class Unit implements Serializable {
 
 	private int main = -1;
 	private String sMain;
-	protected ArrayList<String> params = new ArrayList<>();
+	private final List<String> params = new ArrayList<>();
 	private boolean status;
 
 	/**

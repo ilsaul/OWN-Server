@@ -19,61 +19,42 @@
  */
 package org.programmatori.domotica.own.plugin.system;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.StringTokenizer;
 
+import org.jetbrains.annotations.NotNull;
+import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.msg.Value;
-import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
+import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * System manage the base command of the GateWay
+ *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.2 16/08/2016
  */
 public class System extends Thread implements PlugIn {
 	private static final Logger logger = LoggerFactory.getLogger(System.class);
 
-	/** log for the class. */
-	private static final Logger LOGGER = LoggerFactory.getLogger(System.class);
-
-	/** 13 = Gateway. */
-	public static final int MUST_WHO = 13;
-
-	/** Manage the time of the Gateway. */
-	private static final int PM_TIME = 0;
-	/** Get the Date of the Gateway. */
-	private static final int PM_DATE = 1;
-	/** Get the IP of the Gateway. */
-	private static final int PM_IP = 10;
-	/** Get the NetMask of the Gateway. */
-	private static final int PM_NETMASK = 11;
-	/** Get the Mac Address of the Gateway. */
-	private static final int PM_MAC_ADDRESS = 12;
-	/** Get the Model of the Gateway. */
-	private static final int PM_SERVER_MODEL = 15;
-	/** Get the Firmware version of the Gateway. */
-	private static final int PM_FIRMWARE_VERSION = 16;
-	/** Get the Starting time of the Gateway. */
-	private static final int PM_STARTUP_TIME = 19;
-	/** Get the current Time and Date of the Gateway. */
-	private static final int PM_TIME_DATE = 22;
-	/** Get the Kernel version of the Gateway. */
-	private static final int PM_KERNEL_VERSION = 23;
-	/** Get the Distributin version of the Gateway. */
-	private static final int PM_DISTRIBUTION_VERSION = 24;
-
-	private EngineManager engine;
+	private final EngineManager engine;
 
 	public System(EngineManager engine) {
 		setName("System");
@@ -82,15 +63,16 @@ public class System extends Thread implements PlugIn {
 
 	@Override
 	public void receiveMsg(SCSMsg msg) {
-		LOGGER.debug("System received msg: {}", msg);
+		logger.debug("System received msg: {}", msg);
 		Value value = null;
 		SCSMsg msgResponse = null;
 
-		if (msg.getWho().getMain() == MUST_WHO && msg.isStatus()) {
+		if (msg.getWho().getMain() == Who.GATEWAY.getValue() && msg.isStatus()) {
 
+			GatewayFunctions function = GatewayFunctions.createFromId(msg.getProperty().getMain());
 			// Chose the Command for the output
-			switch (msg.getProperty().getMain()) {
-				case PM_TIME:
+			switch (function) {
+				case TIME:
 					if (msg.isStatusProperty()) {
 						msgResponse = this.setTime(msg);
 					} else {
@@ -98,52 +80,52 @@ public class System extends Thread implements PlugIn {
 					}
 					break;
 
-				case PM_DATE:
+				case DATE:
 					value = this.getDate();
 					break;
 
-				case PM_IP:
+				case IP:
 					value = this.getIP();
 					break;
 
-				case PM_NETMASK:
+				case NETMASK:
 					value = this.getNetMask();
 					break;
 
-				case PM_MAC_ADDRESS:
+				case MAC_ADDRESS:
 					value = this.getMac();
 					break;
 
-				case PM_SERVER_MODEL:
+				case SERVER_MODEL:
 					value = this.getModel();
 					break;
 
-				case PM_FIRMWARE_VERSION:
+				case FIRMWARE_VERSION:
 					value = this.getFirmware();
 					break;
 
-				case PM_STARTUP_TIME:
+				case STARTUP_TIME:
 					value = this.getStartUpTime();
 					break;
 
-				case PM_TIME_DATE:
+				case TIME_DATE:
 					value = this.getTimeDate();
 					break;
 
-				case PM_KERNEL_VERSION:
+				case KERNEL_VERSION:
 					value = this.getKernel();
 					break;
 
-				case PM_DISTRIBUTION_VERSION:
+				case DISTRIBUTION_VERSION:
 					value = this.getVersion();
 					break;
 
 				default:
-					LOGGER.warn("Function not implemented: {}", msg.getProperty().getMain());
+					logger.warn("Function not implemented: {}", msg.getProperty().getMain());
 			}
 
 			if (value != null) {
-				final Who who = new Who(true, Integer.toString(MUST_WHO));
+				final org.programmatori.domotica.own.sdk.msg.Who who = new org.programmatori.domotica.own.sdk.msg.Who(true, Integer.toString(Who.GATEWAY.getValue()));
 				try {
 					msgResponse = new SCSMsg(who, msg.getWhere(), null, msg.getProperty(), value);
 				} catch (MessageFormatException e) {
@@ -154,16 +136,13 @@ public class System extends Thread implements PlugIn {
 			if (msgResponse != null) {
 				// Test purpose
 				if (this.engine == null) {
-					LOGGER.debug("msg: {}", msgResponse);
+					// Debug purpose
+					logger.debug("msg: {}", msgResponse);
 				} else {
 					this.engine.sendCommand(msgResponse, this);
 				}
 			}
-
-		} else {
-			// ignore other message
 		}
-
 	}
 
 	private SCSMsg setTime(SCSMsg msg) {
@@ -176,7 +155,7 @@ public class System extends Thread implements PlugIn {
 
 		Config.getInstance().setUserTime(newTime);
 
-		return SCSMsg.MSG_ACK;
+		return ServerMsg.MSG_ACK.getMsg();
 	}
 
 	private Value getVersion() {
@@ -184,7 +163,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			firmware = Config.getInstance().getNode("system.version");
 		} catch (Exception e) {
-			LOGGER.error("Error in getVersion", e);
+			logger.error("Error in getVersion", e);
 		}
 		if (firmware == null) {
 			firmware = Config.SERVER_VERSION;
@@ -198,7 +177,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			kernel = Config.getInstance().getNode("system.kernel");
 		} catch (Exception e) {
-			LOGGER.warn("Configuration system.kernel read error", e);
+			logger.warn("Configuration system.kernel read error", e);
 		}
 		if (kernel == null) {
 			kernel = "0.0.0";
@@ -220,33 +199,30 @@ public class System extends Thread implements PlugIn {
 	}
 
 	private Value getStartUpTime() {
+		/* starting date */
 		Calendar start = GregorianCalendar.getInstance();
 		try {
 			start = Config.getInstance().getStartUpTime();
 		} catch (Exception e) {
-			LOGGER.warn("Error in reading start up time", e);
+			logger.warn("Error in reading start up time", e);
 		}
 
-		/** The date */
-	    Date d1 = start.getTime();
-
-	    /** Today's date */
-	    Date today = new Date();
+	    /* now date */
+	    Calendar now = Calendar.getInstance();
 
 	    // Get msec from each, and subtract.
-	    long diff = today.getTime() - d1.getTime();
+		long diff = now.getTimeInMillis() - start.getTimeInMillis();
+	    long g = diff / TimeUtility.millisFromDays(1);
 
-	    //java.lang.System.out.println("The 21st century (up to " + today + ") is " + (diff / (1000 * 60 * 60 * 24)) + " days old.");
+	    diff -= TimeUtility.millisFromDays((int)g);
+	    int h = (int) diff / TimeUtility.millisFromHours(1);
 
-	    long g = diff / (1000 * 60 * 60 * 24);
-	    diff -= g * 24 * 60 * 60 * 1000;
-	    long h = diff / (1000 * 60 * 60);
-	    diff -= h * 60 * 60 * 1000;
-	    long m = diff / (1000 * 60);
-	    diff -= m * 60 * 1000;
-	    long s = diff / 1000;
+	    diff -= TimeUtility.millisFromHours(h);
+	    int m = (int) diff / TimeUtility.millisFromMinutes(1);
+	    
+	    diff -= TimeUtility.millisFromMinutes(m);
+	    int s = (int) diff / TimeUtility.millisFromSeconds(1);
 
-	    //Value v = null;
 		Value v = new Value(String.format("%02d", g)); // Day
 		v.addValue(String.format("%02d", h)); // Hour
 		v.addValue(String.format("%02d", m)); // Minutes
@@ -260,7 +236,7 @@ public class System extends Thread implements PlugIn {
 		try {
 			firmware = Config.getInstance().getNode("system.firmware");
 		} catch (Exception e) {
-			LOGGER.warn("Configuration system.firmware read error", e);
+			logger.warn("Configuration system.firmware read error", e);
 		}
 		if (firmware == null) {
 			firmware = "0.0.0";
@@ -301,48 +277,47 @@ public class System extends Thread implements PlugIn {
 	 * I use 99 for OWNServer<br>
 	 */
 	private Value getModel() {
-		String model = null;
+		GatewayModel model = null;
 		try {
-			model = Config.getInstance().getNode("system.model");
+			model = GatewayModel.createById(Integer.valueOf(Config.getInstance().getNode("system.model")));
 		} catch (Exception e) {
-			LOGGER.error("Error in getModel", e);
+			logger.error("Error in getModel", e);
 		}
 		if (model == null) {
-			model = "99";
+			model = GatewayModel.OWN_SERVER;
 		}
 
-		return new Value(model);
+		return new Value(Integer.toString(model.getModelId()));
 	}
 
 	private Value getMac() {
 		Value v = null;
 
 		try {
-			InetAddress thisIp = InetAddress.getLocalHost();
-			boolean first = true;
+			InetAddress thisIp = getAddress();
 
 			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(thisIp);
 			byte[] idr = networkInterface.getHardwareAddress();
 
 			if (idr != null && idr.length > 0) {
-				String val = "0";
-				for(int z=0; z<idr.length; z++) {
-					if (idr[z] < 0) {
-						val = Integer.toString(256 + idr[z]);
+				String val;
+
+				for (byte b : idr) {
+					if (b < 0) {
+						val = Integer.toString(b & 0xFF);
 					} else {
-						val = Integer.toString(idr[z]);
+						val = Integer.toString(b);
 					}
 
-					if (first) {
+					if (v == null) {
 						v = new Value(val);
-						first = false;
 					} else {
 						v.addValue(val);
 					}
 				}
 			}
 		} catch(Exception e) {
-			LOGGER.error("Error in getMac", e);
+			logger.error("Error in getMac", e);
 		}
 
 		return v;
@@ -352,11 +327,19 @@ public class System extends Thread implements PlugIn {
 		Value v = null;
 
 		try {
-			InetAddress thisIp = InetAddress.getLocalHost();
+			InetAddress thisIp = getAddress();
 			String ip = "";
 
 			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(thisIp);
-			short mask = networkInterface.getInterfaceAddresses().get(0).getNetworkPrefixLength();
+			List<InterfaceAddress> interfaces = networkInterface.getInterfaceAddresses();
+
+			short mask = 0;
+			for (InterfaceAddress ia: interfaces) {
+				if (ia.getAddress().equals(thisIp)) {
+					mask = ia.getNetworkPrefixLength();
+					break;
+				}
+			}
 
 			switch (mask) {
 			// IPv4
@@ -385,19 +368,9 @@ public class System extends Thread implements PlugIn {
 				break;
 			}
 
-			for (int i = 0; i < 3; i++) {
-				if (i == 0) {
-					v = new Value(ip.substring(0, ip.indexOf('.'))); // IP Part
-				} else {
-					v.addValue(ip.substring(0, ip.indexOf('.'))); // IP Part
-				}
-				ip = ip.substring(ip.indexOf('.')+1);
-			}
-
-			if (v != null)
-				v.addValue(ip); // IP End Part
+			v = createValue(ip);
 		} catch(Exception e) {
-			LOGGER.error("Error in getNetMask", e);
+			logger.error("Error in getNetMask", e);
 		}
 
 		return v;
@@ -407,22 +380,69 @@ public class System extends Thread implements PlugIn {
 		Value v = null;
 
 		try {
-			InetAddress thisIp = InetAddress.getLocalHost();
+			InetAddress thisIp = getAddress();
 			String ip = thisIp.getHostAddress();
 
-			for (int i = 0; i < 3; i++) {
-				if (i == 0) {
-					v = new Value(ip.substring(0, ip.indexOf('.'))); // IP Part
-				} else {
-					v.addValue(ip.substring(0, ip.indexOf('.'))); // IP Part
-				}
-				ip = ip.substring(ip.indexOf('.')+1);
-			}
-
-			if (v != null)
-				v.addValue(ip); // IP End Part
+			v = createValue(ip);
 		} catch(Exception e) {
-			LOGGER.error("Error in getIP", e);
+			logger.error("Error in getIP", e);
+		}
+
+		return v;
+	}
+
+	private InetAddress getAddress() throws SocketException {
+		InetAddress thisIp = null;
+
+		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		while (interfaces.hasMoreElements()) {
+			NetworkInterface inter = interfaces.nextElement();
+			EncapsulationNetworkInterface inte = new EncapsulationNetworkInterface(inter);
+
+			if (!inter.isLoopback()
+				&& !inter.isPointToPoint()
+				&& inter.isUp()
+				&& !inter.isVirtual()
+				&& !inter.getName().startsWith("awdl") // Apple Wireless Direct link
+				&& !inter.getName().startsWith("llw")) { // ???
+				logger.debug("Interface: {}", inte);
+
+				Enumeration<InetAddress> address = inter.getInetAddresses();
+				Inet6Address ipv6 = null;
+				while (address.hasMoreElements()) {
+					InetAddress tempIp = address.nextElement();
+
+					if (tempIp instanceof Inet6Address) {
+						ipv6 = (Inet6Address) tempIp;
+					} else if (tempIp instanceof Inet4Address) {
+						thisIp = tempIp;
+					}
+				}
+
+				// If not exist ipv4 i use ipv6
+				if (thisIp == null) {
+					thisIp = ipv6;
+				}
+
+			}
+		}
+
+		return thisIp;
+	}
+
+	@NotNull
+	private Value createValue(String ip) {
+		Value v = null;
+
+		String[] ipPart = ip.split("\\.");
+
+		// IPv4 have 3 part divide by point
+		for (int i = 0; i < ipPart.length; i++) {
+			if (i == 0) {
+				v = new Value(ipPart[i]); // IP Part
+			} else {
+				v.addValue(ipPart[i]); // IP Part
+			}
 		}
 
 		return v;

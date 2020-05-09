@@ -40,6 +40,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
@@ -53,7 +54,10 @@ import java.util.TreeSet;
  * @version 1.0.2, 17/06/2013
  */
 public class Map extends Thread implements PlugIn {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Map.class);
+	private static final Logger logger = LoggerFactory.getLogger(Map.class);
+
+	public static final String ASK_STATUS_LIGHT = "*#1*0##";
+	public static final String ASK_STATUS_BLIND = "*#2*0##";
 
 	private final EngineManager engine;
 	private final java.util.Map<Integer, Set<SCSComponent>> localBus;
@@ -79,20 +83,22 @@ public class Map extends Thread implements PlugIn {
 		// Retrieve Config Parameters
 		pauseStart = Integer.parseInt(Config.getInstance().getNode("map.pause.start"));
 		pauseUnit = Integer.parseInt(Config.getInstance().getNode("map.pause.unit"));
-		fileName = Config.getInstance().getNode("file");
+		fileName = Config.getInstance().getNode("map.file");
 		restartEvery = Integer.parseInt(Config.getInstance().getNode("map.interval"));
 
 		String unit = Config.getInstance().getNode("map.interval[@unit]");
-		if ("min".equals(unit)) {
-			restartEvery = restartEvery * 60 * 1000;
-		}
-		if ("sec".equals(unit)) {
-			restartEvery = restartEvery * 1000;
-		}
-		if ("hour".startsWith(unit)) {
-			restartEvery = restartEvery * 60 * 60 * 1000;
-		}
+		Time currentUnit = Time.createFromShortName(unit);
 
+		// ATTENTION: Order is important
+		switch (currentUnit) {
+			case HOUR: restartEvery *= Time.HOUR.getUnderUnit();
+			case MINUTE: restartEvery *= Time.MINUTE.getUnderUnit();
+			case SECOND: restartEvery = restartEvery * Time.SECOND.getUnderUnit();
+			break;
+
+			default:
+				throw new IllegalStateException("Unexpected value: " + currentUnit);
+		}
 
 		localBus = new TreeMap<>();
 		this.engine = engine;
@@ -100,21 +106,21 @@ public class Map extends Thread implements PlugIn {
 
 	private void prepareLight() {
 		try {
-			SCSMsg msg = new SCSMsg("*#1*0##");
+			SCSMsg msg = new SCSMsg(ASK_STATUS_LIGHT);
 
 			engine.sendCommand(msg, this);
 		} catch (MessageFormatException e) {
-			LOGGER.error("Error:", e);
+			logger.error("Error in prepareLight", e);
 		}
 	}
 
 	private void prepareBlind() {
 		try {
-			SCSMsg msg = new SCSMsg("*#2*0##");
+			SCSMsg msg = new SCSMsg(ASK_STATUS_BLIND);
 
 			engine.sendCommand(msg, this);
 		} catch (MessageFormatException e) {
-			LOGGER.error("Error:", e);
+			logger.error("Error in prepareBlind", e);
 		}
 	}
 
@@ -133,27 +139,27 @@ public class Map extends Thread implements PlugIn {
 
 	@Override
 	public void receiveMsg(SCSMsg msg) {
-		Who who = Who.create(msg.getWho().getMain());
+		Who who = Who.createByValue(msg.getWho().getMain());
+
+		int iArea = msg.getWhere().getArea();
+		String area = Integer.toString(iArea);
+		String lightPoint = Integer.toString(msg.getWhere().getPL());
+		String value = Integer.toString(msg.getWhat().getMain());
 
 		switch (who) {
 
 		case LIGHT:
-			int area = msg.getWhere().getArea();
-			int lightPoint = msg.getWhere().getPL();
-			int value = msg.getWhat().getMain();
-			SCSComponent c = Light.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
-			addBus(area, c);
+			SCSComponent c = Light.create(null, area, lightPoint, value);
+			addBus(iArea, c);
 			break;
 
 		case BLIND:
-			area = msg.getWhere().getArea();
-			lightPoint = msg.getWhere().getPL();
-			value = msg.getWhat().getMain();
-			c = Blind.create(null, Integer.toString(area), Integer.toString(lightPoint), Integer.toString(value));
-			addBus(area, c);
+			c = Blind.create(null, area, lightPoint, value);
+			addBus(iArea, c);
 			break;
 
 		default:
+			// I don't manage other kind.
 			break;
 		}
 	}
@@ -178,19 +184,17 @@ public class Map extends Thread implements PlugIn {
 			pause(pauseUnit, 3);
 
 			if (localBus.size() == 0) {
-				LOGGER.info("Bus Empty");
+				logger.info("Bus Empty");
 			} else {
 				createStatusFile(fileName);
 				
 				// Log the status
-				for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-					Integer area = iterAree.next();
+				for (java.util.Map.Entry<Integer, Set<SCSComponent>> area : localBus.entrySet()) {
+					logger.info("Room: {} - {}", area.getKey(), Config.getInstance().getRoomName(area.getKey()));
+					Set<SCSComponent> rooms = area.getValue();
 
-					LOGGER.info("Room: {} - {}", area, Config.getInstance().getRoomName(area));
-					Set<SCSComponent> rooms = localBus.get(area);
-					for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-						SCSComponent c = iterRoom.next();
-						LOGGER.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
+					for (SCSComponent c : rooms) {
+						logger.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 					}
 				}
 			}
@@ -202,8 +206,9 @@ public class Map extends Thread implements PlugIn {
 	private void pause(int pause, int pos) {
 		try {
 			sleep(pause);
+
 		} catch (InterruptedException e) {
-			LOGGER.error("error sleep {}: not important", pos, e);
+			logger.error("error sleep {}: not important", pos, e);
 			Thread.currentThread().interrupt();
 		}
 	}
@@ -217,13 +222,13 @@ public class Map extends Thread implements PlugIn {
 		try {
 			hd = tf.newTransformerHandler();
 		} catch (TransformerConfigurationException e) {
-			LOGGER.error("Error:", e);
+			logger.error("Error:", e);
 		}
 
 		if (hd != null) {
 			Transformer serializer = hd.getTransformer();
 
-			serializer.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
+			serializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.ISO_8859_1.displayName()); // "ISO-8859-1"
 			serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 			//serializer.setOutputProperty( XalanOutputKeys.OUTPUT_PROP_INDENT_AMOUNT, "2" );
 
@@ -245,9 +250,7 @@ public class Map extends Thread implements PlugIn {
 				hd.endElement("", "", "statusSave");
 
 				// ----------------------------------------- Area
-				for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext(); ) {
-					Integer area = iterAree.next();
-
+				for (Integer area : localBus.keySet()) {
 					attrs.clear();
 					attrs.addAttribute("", "", "id", "CDATA", area.toString());
 					attrs.addAttribute("", "", "name", "CDATA", Config.getInstance().getRoomName(area));
@@ -255,9 +258,8 @@ public class Map extends Thread implements PlugIn {
 
 					// ----------------------------------------- Component
 					Set<SCSComponent> rooms = localBus.get(area);
-					for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext(); ) {
-						SCSComponent c = iterRoom.next();
-						LOGGER.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
+					for (SCSComponent c : rooms) {
+						logger.info("PL: {}({})", c.getStatus().getWhere().getPL(), Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
 
 						attrs.clear();
 						attrs.addAttribute("", "", "type", "CDATA", Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()));
@@ -288,23 +290,9 @@ public class Map extends Thread implements PlugIn {
 				hd.endElement("", "", "home");
 				hd.endDocument();
 			} catch (SAXException e) {
-				LOGGER.error("La conversione è in errore", e);
+				logger.error("Conversion is in error", e);
 			}
 		}
-		
-		
-		
-		
-//		for (Iterator<Integer> iterAree = localBus.keySet().iterator(); iterAree.hasNext();) {
-//			Integer area = (Integer) iterAree.next();
-//
-//			log.info("Room: " + area + " - " + Config.getInstance().getRoomName(area));
-//			Set<SCSComponent> rooms = localBus.get(area);
-//			for (Iterator<SCSComponent> iterRoom = rooms.iterator(); iterRoom.hasNext();) {
-//				SCSComponent c = (SCSComponent) iterRoom.next();
-//				log.info("PL: " + c.getStatus().getWhere().getPL() + "(" + Config.getInstance().getWhoDescription(c.getStatus().getWho().getMain()) + ")");
-//			}
-//		}
 	}
 	
 	public static void main(String[] args) {

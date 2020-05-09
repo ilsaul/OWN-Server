@@ -19,6 +19,11 @@
  */
 package org.programmatori.domotica.own.sdk.component;
 
+/**
+ * State for Blind.
+ *
+ * @author Moreno Cattaneo
+ */
 public enum BlindState {
     STOP(0, "stop"),
     DOWN(1, "down"),
@@ -27,7 +32,6 @@ public enum BlindState {
     private final String name;
     private final int value;
 
-    // enum constructor - cannot be public or protected
     BlindState(int value, String name) {
         this.value = value;
         this.name = name;
@@ -38,9 +42,10 @@ public enum BlindState {
             case 0: return STOP;
             case 1: return DOWN;
             case 2: return UP;
-        }
 
-        throw new IndexOutOfBoundsException("Must be 0, 1 or 2");
+			default:
+				throw new IllegalStateException("Unexpected value: " + value);
+		}
     }
 
     // getter method

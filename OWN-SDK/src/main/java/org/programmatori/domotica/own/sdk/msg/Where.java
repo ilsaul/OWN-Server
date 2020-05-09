@@ -44,7 +44,7 @@ public class Where extends Unit implements Serializable {
 
 	public int getArea() {
 		if (getMain() > 9) {
-			return (int) getMain() / 10;
+			return getMain() / 10;
 		} else {
 			return getMain();
 		}
@@ -61,8 +61,8 @@ public class Where extends Unit implements Serializable {
 	public int getLevel() {
 		int level = -1;
 
-		if (params != null && !params.isEmpty()) {
-				level = Integer.valueOf(params.get(0));
+		if (countParams() > 0) { // It mean there is at least 1 param
+				level = Integer.parseInt(getParam(0));
 		}
 
 		return level;
@@ -71,8 +71,8 @@ public class Where extends Unit implements Serializable {
 	public int getAddress() {
 		int address = -1;
 
-		if (params != null && params.size() > 1) {
-				address = Integer.valueOf(params.get(1));
+		if (countParams() > 1) { // It mean there is at least 2 param
+				address = Integer.parseInt(getParam(1));
 		}
 
 		return address;

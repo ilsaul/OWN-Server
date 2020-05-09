@@ -25,6 +25,7 @@ import java.util.*;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.server.engine.*;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * EngineManager load the Driver Engine that manage the bus and manage the queue
- * of receve and trasmit message to the bus.<br>
+ * of receive and transmit message to the bus.<br>
  * <br>
  * This class is configured using a configuration file.<br>
  * In the configuration you need to use tag 'bus' and inside it a class
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * <code>
  * &lt;bus&gt;Emulator&lt;/bus&gt;<br>
  * </code><br>
- * The {@link org.programmatori.domotica.own.engine.emulator.Emulator} is our default and no need to change if don't want other.
+ * The Emulator Plugin is our default and no need to change if don't want other.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 1.0.1, 29/06/2011
@@ -56,7 +57,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	/**
 	 * List of Msg waiting to be send
 	 */
-	private ListenerPriorityBlockingQueue<Command> msgSended;
+	private final ListenerPriorityBlockingQueue<Command> msgSending= new ListenerPriorityBlockingQueue<>();
 
 	/**
 	 * Bus manager
@@ -76,7 +77,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	/**
 	 * Time to wait before the bus say no replay to msg
 	 */
-	private int sendTimeout;
+	private final int sendTimeout;
 	private boolean changeQueue;
 
 	public EngineManagerImpl() {
@@ -92,34 +93,38 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
 			engine = (Engine) c.newInstance();
+
 		} catch (NoClassDefFoundError e) {
+			// TODO: Fix with new serial
 			if (e.getMessage().contains("SerialPortEventListener")) {
 				logger.error("You must install RXTX library (http://rxtx.qbang.org/)");
 			} else {
 				throw e;
 			}
 			System.exit(-1);
+
 		} catch (Exception e) {
-			logger.error(LogUtility.getErrorTrace(e));
-			System.exit(-1);
+			logger.error("Error", e);
+			System.exit(-2);
 		}
 
 		try {
 			engine.start();
 		} catch (IOException e) {
 			logger.error("Error to start engine", e);
-			System.exit(-1);
+			System.exit(-3);
 		}
 
-		msgSended = new ListenerPriorityBlockingQueue<>();
-		msgSended.addListener(this);
+		msgSending.addListener(this);
 		changeQueue = false;
 
-		sender = new MsgSender(engine, msgSended);
+		sender = new MsgSender(engine, msgSending);
 		sender.start();
-		receiver = new MsgReceiver(engine, msgSended);
-		msgSended.addListener(receiver);
+
+		receiver = new MsgReceiver(engine, msgSending);
+		msgSending.addListener(receiver);
 		receiver.start();
+
 		sendTimeout = Config.getInstance().getSendTimeout();
 
 		// load Module
@@ -130,8 +135,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 
 	private void loadPlugIn() {
 		List<String> plugins = Config.getInstance().getPlugIn();
-		for (Iterator<String> iter = plugins.iterator(); iter.hasNext();) {
-			String nameClass = (String) iter.next();
+		for (String nameClass : plugins) {
 			logger.debug("Try to load plugins {}", nameClass);
 
 			try {
@@ -143,7 +147,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 				plugIn.start();
 				logger.info("{} started!", plugIn.getClass().getSimpleName());
 			} catch (Exception e) {
-				logger.error("Error:",e);
+				logger.error("Error:", e);
 			}
 		}
 	}
@@ -155,22 +159,22 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			changeQueue  = false;
 
 			// Iterate sent command to see if i can replay to someone
-			Iterator<Command> iter = msgSended.iterator();
+			Iterator<Command> iter = msgSending.iterator();
 			while (iter.hasNext() && !changeQueue) {
 				Command commandSended = (Command) iter.next();
-				commandSended = msgSended.peek();
+				commandSended = msgSending.peek();
 
 				// searching a command that have status (with problem)
 				if (commandSended != null) {
 					if (commandSended.getStatus() != null) {
-						msgSended.remove(commandSended);
+						msgSending.remove(commandSended);
 						commandSended.getClient().receiveMsg(commandSended.getStatus());
 						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
 
 					// searching a msg with replay added
 					} else if (commandSended.getReceiveMsg().size() > 0) {
 						if (!isTimeWait(commandSended)) {
-							msgSended.remove(commandSended);
+							msgSending.remove(commandSended);
 							if (commandSended.getSendMsg().isStatus()) {
 								logger.debug("requst is status");
 								logger.debug("Command: {}", commandSended);
@@ -184,7 +188,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 							} else {
 								logger.debug("requst is command");
 							}
-							commandSended.getClient().receiveMsg(SCSMsg.MSG_ACK);
+							commandSended.getClient().receiveMsg(ServerMsg.MSG_ACK.getMsg());
 							logger.debug("Reply to client by without status: ACK");
 						}
 
@@ -194,8 +198,8 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 							long now = Calendar.getInstance().getTimeInMillis();
 							long create = commandSended.getTimeSend().getTime();
 							if ((now - create) > sendTimeout) {
-								msgSended.remove(commandSended);
-								commandSended.getClient().receiveMsg(SCSMsg.MSG_NACK);
+								msgSending.remove(commandSended);
+								commandSended.getClient().receiveMsg(ServerMsg.MSG_NACK.getMsg());
 								logger.debug("Reply to client by over time: NACK");
 							}
 						}

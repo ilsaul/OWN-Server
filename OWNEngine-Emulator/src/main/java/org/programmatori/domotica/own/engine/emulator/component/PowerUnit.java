@@ -24,6 +24,7 @@ import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.msg.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class PowerUnit extends SCSBaseComponent {
 //				sendMsgToBus(getStatus());
 				//bus.sendCommand(SCSMsg.MSG_ACK);
 			} else {
-				sendMsgToBus(SCSMsg.MSG_NACK);
+				sendMsgToBus(ServerMsg.MSG_NACK.getMsg());
 			}
 		}
 	}

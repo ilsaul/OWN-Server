@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @version 0.1.1, 22/02/2013
  * @since OWNServer 0.5.0
  */
-public class Controller extends Thread {
+public class Controller implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
 	private EngineManager engine;
@@ -86,7 +86,7 @@ public class Controller extends Thread {
 					t.start();
 				}
 
-				sleep(10000);
+				Thread.sleep(10000);
 			}
 		} catch (InterruptedException e) {
 			logger.error("Error:", e);
@@ -112,6 +112,6 @@ public class Controller extends Thread {
 		}
 
 		Controller server = new Controller(configFile);
-		server.start();
+		server.run();
 	}
 }

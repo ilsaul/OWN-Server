@@ -22,6 +22,7 @@ package org.programmatori.domotica.own.server;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.msg.Where;
 import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
@@ -51,13 +52,13 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
 	private TcpIpServer server;
-	private Socket clientSocket;
-	private long id;
+	private final Socket clientSocket;
+	private final long id;
 
 	private PrintWriter socketOut = null;
 	private InputStream socketIn = null;
 
-	private EngineManager engine;
+	private final EngineManager engine;
 	private int mode;
 	private ConnectionStatus status;
 	private StringBuilder commandBuffer;
@@ -153,7 +154,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 				SCSMsg msgSCS = new SCSMsg(sMsg);
 				logger.info("{} RX Msg {}", getId(), msgSCS);
 				response = processMode(msgSCS);
-				if (response.equals(SCSMsg.MSG_ACK)) {
+				if (response.equals(ServerMsg.MSG_ACK.getMsg())) {
 					status = CHECK_IP;
 				} else {
 					status = ConnectionStatus.DISCONNECTED;
@@ -165,7 +166,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		} catch (MessageFormatException | IOException e) {
 			logger.error("Error Client in Mode setting", e);
 			status = ConnectionStatus.DISCONNECTED;
-			response = SCSMsg.MSG_NACK;
+			response = ServerMsg.MSG_NACK.getMsg();
 		}
 
 		return response;
@@ -238,7 +239,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		} catch (IOException e) {
 			logger.error("Error Client in Mode setting", e);
 			status = ConnectionStatus.DISCONNECTED;
-			response = SCSMsg.MSG_NACK;
+			response = ServerMsg.MSG_NACK.getMsg();
 		}
 
 		return response;
@@ -297,7 +298,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	}
 
 	private SCSMsg processMode(SCSMsg msgSCS) {
-		SCSMsg response = SCSMsg.MSG_ACK;
+		SCSMsg response = ServerMsg.MSG_ACK.getMsg();
 
 		if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_COMMAND)) {
 			mode = OpenWebNetProtocol.MODE_COMMAND;
@@ -331,7 +332,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			engine.addMonitor(this);
 		} else {
 			logger.error("Connection Mode not supported {}", msgSCS);
-			response = SCSMsg.MSG_NACK;
+			response = ServerMsg.MSG_NACK.getMsg();
 		}
 
 		return response;

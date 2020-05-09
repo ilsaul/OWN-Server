@@ -20,18 +20,20 @@
 package org.programmatori.domotica.own.sdk.component;
 
 /**
+ * Get component type base on Who value.
+ *
  * @author Moreno Cattaneo
  * @since 01/02/2020
  */
 public enum Who {
     LIGHT(1, "light"),
-    BLIND(2, "blind");
+    BLIND(2, "blind"),
+	GATEWAY(13, "gateway");
 
     private final String name;
     private final int value;
 
-    // enum constructor - cannot be public or protected
-    private Who(int value, String name)
+    Who(int value, String name)
     {
         this.value = value;
         this.name = name;
@@ -47,13 +49,13 @@ public enum Who {
         return name;
     }
 
-    public static Who create(int value) {
-    	switch (value) {
-			case 1: return LIGHT;
-			case 2: return BLIND;
-
-			default:
-				throw new UnknownComponent("Who value " + value + " unknown");
+    public static Who createByValue(int value) {
+		for (Who who : values()) {
+			if (who.getValue() == value) {
+				return who;
+			}
 		}
+
+		throw new IllegalStateException("Unexpected value: " + value);
 	}
 }

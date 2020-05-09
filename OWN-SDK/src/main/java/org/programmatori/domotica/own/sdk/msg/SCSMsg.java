@@ -40,22 +40,6 @@ public class SCSMsg implements Serializable {
 	/** Message end chars. */
 	public static final String MSG_ENDED = "##";
 
-	public static final SCSMsg MSG_NACK = new SCSMsg("*#*0##");
-	public static final SCSMsg MSG_ACK = new SCSMsg("*#*1##");
-
-	/** Command not operative / not know */
-	public static final SCSMsg MSG_NOP = new SCSMsg("*#*2##");
-	/** Command manage but receiver device don't replay (not exist) */
-	public static final SCSMsg MSG_RET = new SCSMsg("*#*3##");
-	/** Command non execute because message collision on bus */
-	public static final SCSMsg MSG_COLL = new SCSMsg("*#*4##");
-	/** Command not execute because impossible access to bus */
-	public static final SCSMsg MSG_NOBUS = new SCSMsg("*#*5##");
-	/** Command not execute, because interface already busy in transmission */
-	public static final SCSMsg MSG_BUSY = new SCSMsg("*#*6##");
-	/** Procedure multi frame not execute complete */
-	public static final SCSMsg MSG_PROC = new SCSMsg("*#*7##");
-
 	private Who who = null;
 	private Where where = null;
 	private What what = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -29,18 +29,14 @@ import java.util.NoSuchElementException;
  */
 public class StringIterator implements Iterator<Object> {
 
-	private String str;
-	private char delim;
+	private final String str;
+	private final char delim;
 	private int prevPos;
 	private int pos;
-	private boolean noFirst;
+	private final boolean noFirst;
 
 	public StringIterator(String str, char delim) {
-		this.str = str;
-		this.delim = delim;
-
-		noFirst = false;
-		start();
+		this(str, delim, false);
 	}
 
 	public StringIterator(String str, char delim, boolean noFirst) {

@@ -24,6 +24,7 @@ import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,6 @@ public class Blind extends SCSBaseComponent {
 	private static final long serialVersionUID = 5225952158561315171L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Blind.class);
-
-	//public static final int WHAT_UP = 2;
-	//public static final int WHAT_DOWN = 1;
-	//public static final int WHAT_STOP = 0;
-	//public static final String NAME = "blind";
 
 	public Blind(SCSMsg msg, Bus bus) {
 		super(msg, bus);
@@ -63,7 +59,7 @@ public class Blind extends SCSBaseComponent {
 				setWhat(msg.getWhat());
 				sendMsgToBus(getStatus());
 			} else {
-				sendMsgToBus(SCSMsg.MSG_NACK);
+				sendMsgToBus(ServerMsg.MSG_NACK.getMsg());
 			}
 		}
 	}

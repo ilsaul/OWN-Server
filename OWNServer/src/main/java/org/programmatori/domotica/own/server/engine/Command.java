@@ -26,7 +26,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
 
 /**
- * Manage the association between message received to the bus and the answare received.
+ * Manage the association between message send to the bus and the answer received.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since OWNServer v0.1.0
@@ -35,19 +35,17 @@ import org.programmatori.domotica.own.sdk.server.engine.Sender;
 public class Command implements Comparable<Command>, Serializable {
 	private static final long serialVersionUID = 3865810383162847583L;
 
-	private static String patternTime = "%1$tH:%1$tM:%1$tS:%1$tL";
-
-	private Sender client;
+	private final Sender client;
 	private Date timeCreate;
 	private Date timeSend;
 	private Date timeAnswer;
 	private SCSMsg msgSend;
-	private List<SCSMsg> msgReceive;
+	private final List<SCSMsg> msgReceive;
 	private SCSMsg status;
 
 	public Command(Sender client, SCSMsg msg) {
 		this.client = client;
-		msgReceive = new ArrayList<SCSMsg>();
+		msgReceive = new ArrayList<>();
 
 		if (client == null) {
 			msgReceive.add(msg);
@@ -96,7 +94,7 @@ public class Command implements Comparable<Command>, Serializable {
 		timeAnswer = command.getTimeAnswer();
 		msgReceive.addAll(command.getReceiveMsg());
 
-		// Settaggio Stato
+		// Status setting
 		if (status == null) {
 			status = command.getStatus();
 		}
@@ -122,8 +120,8 @@ public class Command implements Comparable<Command>, Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		//Format f = new SimpleDateFormat("H:m:s:S");
+		StringBuilder sb = new StringBuilder();
+		String patternTime = "%1$tH:%1$tM:%1$tS:%1$tL";
 
 		if (msgSend != null) {
 			sb.append("Msg Send: ");
@@ -131,23 +129,20 @@ public class Command implements Comparable<Command>, Serializable {
 
 			if (timeCreate != null) {
 				sb.append(" Create: ");
-				//sb.append(f.format(timeCreate));
 				sb.append(String.format(patternTime, timeCreate));
 			}
 
 			if (timeSend != null) {
 				sb.append(" Sended: ");
-				//sb.append(f.format(timeSend));
 				sb.append(String.format(patternTime, timeSend));
 			}
 		}
 
-		if (msgReceive.size() > 0) {
+		if (!msgReceive.isEmpty()) {
 			sb.append(" Msg Receive: ");
 			sb.append(msgReceive.toString());
 
 			sb.append(" Receive: ");
-			//sb.append(f.format(timeAnswer));
 			sb.append(String.format(patternTime, timeAnswer));
 		}
 

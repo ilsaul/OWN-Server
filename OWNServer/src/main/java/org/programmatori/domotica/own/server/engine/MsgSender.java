@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,23 +41,23 @@ import org.slf4j.LoggerFactory;
 public class MsgSender extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(MsgSender.class);
 
-	private BlockingQueue<Command> msgSendToBus;
-	private BlockingQueue<Command> msgSended;
-	private Engine engine;
-	private int sendTimeout;
+	private final BlockingQueue<Command> msgSendToBus;
+	private final BlockingQueue<Command> msgSended;
+	private final Engine engine;
+	private final int sendTimeout;
 
 	public MsgSender(Engine engine, BlockingQueue<Command> queueSended) {
-		logger.trace("Start Create Istance");
+		logger.trace("Start Create Instance");
 		setName("MsgSender");
 		setDaemon(true);
 		Config.getInstance().addThread(this);
 
-		msgSendToBus = new LinkedBlockingQueue<Command>();
+		msgSendToBus = new LinkedBlockingQueue<>();
 		msgSended = queueSended;
 		this.engine = engine;
 
 		sendTimeout = Config.getInstance().getSendTimeout();
-		logger.trace("End Create Istance");
+		logger.trace("End Create Instance");
 	}
 
 	@Override
@@ -86,7 +87,7 @@ public class MsgSender extends Thread {
 					long now = Calendar.getInstance().getTimeInMillis();
 					long create = command.getTimeCreate().getTime();
 					if ((now - create) > sendTimeout) {
-						command.setStatus(SCSMsg.MSG_COLL);
+						command.setStatus(ServerMsg.MSG_COLL.getMsg());
 						command.setTimeSend(Calendar.getInstance().getTime());
 						msgSended.put(command);
 						logger.debug("TX To Bus {}", command.toString());

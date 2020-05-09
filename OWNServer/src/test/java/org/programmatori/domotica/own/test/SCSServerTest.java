@@ -13,6 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.server.Controller;
 import org.programmatori.domotica.own.server.TcpIpServer;
 
@@ -141,7 +142,7 @@ public class SCSServerTest {
 
 		client.connect(SCSClient.MODE_COMMAND);
 		String receive = client.send(command);
-		assertEquals(SCSMsg.MSG_ACK.toString(), receive);
+		assertEquals(ServerMsg.MSG_ACK.toString(), receive);
 
 		//fail("Not yet implemented");
 		Config.getInstance().setExit(true);

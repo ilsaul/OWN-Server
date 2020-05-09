@@ -43,15 +43,13 @@ public final class Emulator implements Engine, SCSComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(Emulator.class);
 
-	private ArrayList<SCSListener> listListener = null;
-	private SCSBus bus;
+	private final transient List<SCSListener> listListener = new ArrayList<>();
+	private final SCSBus bus = new SCSBus();
 
 	/**
 	 * Default Constructor. This constructor load the configuration from a File.
 	 */
-	public Emulator()  {
-		listListener = new ArrayList<>();
-		bus = new SCSBus();
+	public Emulator() {
 		bus.start();
 
 		bus.loadConfig(Config.getInstance().getConfigPath() + "/emuNew.xml");

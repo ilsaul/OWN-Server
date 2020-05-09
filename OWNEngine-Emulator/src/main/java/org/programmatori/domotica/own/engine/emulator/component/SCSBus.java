@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
 public class SCSBus extends ConfigBus {
 	private static final long serialVersionUID = -7685595931533082563L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SCSBus.class);
+	private static final Logger logger = LoggerFactory.getLogger(SCSBus.class);
 
-	private List<SCSComponent> components;
-	private BlockingQueue<MsgBus> msgQueue;
+	private final List<SCSComponent> components;
+	private final BlockingQueue<MsgBus> msgQueue;
 	private boolean ready; // Tell if the bus is ready
 
 	public SCSBus() {
@@ -67,7 +67,7 @@ public class SCSBus extends ConfigBus {
 	public boolean add(SCSComponent c) {
 		boolean result = true;
 
-		if (c == null || components.indexOf(c) > -1) {
+		if (c == null || components.contains(c)) {
 			result = false;
 		} else {
 			components.add(c);
@@ -87,11 +87,11 @@ public class SCSBus extends ConfigBus {
 			if (msg == null) throw new MessageFormatException("msg can't be empty");
 
 			ready = false;
-			LOGGER.debug("Msg Rx: {}", msg);
+			logger.debug("Msg Rx: {}", msg);
 			MsgBus msgBus = new MsgBus(msg, sender);
 			msgQueue.put(msgBus);
 		} catch (Exception e) {
-			LOGGER.error("Error sendCommand:", e);
+			logger.error("Error sendCommand:", e);
 		}
 	}
 
@@ -101,30 +101,28 @@ public class SCSBus extends ConfigBus {
 			MsgBus msgBus = null;
 			try {
 				msgBus = msgQueue.take();
-				LOGGER.debug("MSG Send To Component: {}", msgBus.getMsg());
+				logger.debug("MSG Send To Component: {}", msgBus.getMsg());
 			} catch (InterruptedException e) {
-				LOGGER.error("Error run:", e);
+				logger.error("Error run:", e);
 				Thread.currentThread().interrupt();
 			}
 
 			try {
 				notifyComponents(msgBus);
 			} catch (NullPointerException e) {
-				LOGGER.error("error on notification", e);
+				logger.error("error on notification", e);
 			}
 			ready = true;
 		}
 	}
 
 	private void notifyComponents(MsgBus msgBus) {
-		for (Iterator<SCSComponent> iter = components.iterator(); iter.hasNext();) {
-			SCSComponent c = iter.next();
-
+		for (SCSComponent c : components) {
 			if (!c.equals(msgBus.getComponent())) {
 				c.receiveMessage(msgBus.getMsg());
-				LOGGER.debug("Send to component: {}", c);
+				logger.debug("Send to component: {}", c);
 			} else {
-				LOGGER.debug("I don't send to sender");
+				logger.debug("I don't send to sender");
 			}
 
 		}
@@ -136,14 +134,6 @@ public class SCSBus extends ConfigBus {
 		emu.loadConfig(Config.getInstance().getConfigPath() + "/emuNew.xml");
 
 		// Create Light
-//		SCSMsg lightStatus = new SCSMsg("*1*0*11##");
-//		Light light = new Light(lightStatus);
-//		emu.add(light);
-//
-//		lightStatus = new SCSMsg("*1*0*12##");
-//		light = new Light(lightStatus);
-//		emu.add(light);
-
 
 		SCSMsg msg;
 		try {
@@ -165,7 +155,7 @@ public class SCSBus extends ConfigBus {
 			Config.getInstance().setExit(true);
 
 		} catch (MessageFormatException e) {
-			LOGGER.error("Error main:", e);
+			logger.error("Error main:", e);
 		}
 	}
 

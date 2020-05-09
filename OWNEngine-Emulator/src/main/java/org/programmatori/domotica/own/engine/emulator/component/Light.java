@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -24,6 +24,7 @@ import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.component.Who;
 import org.programmatori.domotica.own.sdk.msg.RuntimeWrongMessageException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.msg.What;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +40,6 @@ public class Light extends SCSBaseComponent {
 	private static final long serialVersionUID = 6385568654373192697L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Light.class);
-
-	//public static final int MUST_WHO = 1;
-	//public static final String NAME = "light";
 
 	public Light(SCSMsg msg, Bus bus) {
 		super(msg, bus);
@@ -62,7 +60,7 @@ public class Light extends SCSBaseComponent {
 				setWhat(msg.getWhat());
 				sendMsgToBus(getStatus());
 			} else {
-				sendMsgToBus(SCSMsg.MSG_NACK);
+				sendMsgToBus(ServerMsg.MSG_NACK.getMsg());
 			}
 		}
 	}

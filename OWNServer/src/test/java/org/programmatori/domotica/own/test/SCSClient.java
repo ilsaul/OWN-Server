@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.server.OpenWebNetProtocol;
 
 public class SCSClient {
@@ -93,7 +94,7 @@ public class SCSClient {
 				ret = send(OpenWebNetProtocol.MSG_MODE_MONITOR.toString());
 			}
 
-			if (!SCSMsg.MSG_ACK.toString().equals(ret)) {
+			if (!ServerMsg.MSG_ACK.getMsgString().equals(ret)) {
 				throw new RuntimeException("Authentication Failed");
 			}
 		}

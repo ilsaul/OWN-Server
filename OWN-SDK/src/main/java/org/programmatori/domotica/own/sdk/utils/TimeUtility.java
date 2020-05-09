@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -20,7 +20,6 @@
 package org.programmatori.domotica.own.sdk.utils;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  * Utility for manage the Time.
@@ -53,22 +52,40 @@ public final class TimeUtility {
 	}
 
 	/**
-	 * Add milliseconds to the date1.
+	 * Add milliseconds to the date.
 	 * @param milliseconds to add
-	 * @param date1 starting date
+	 * @param date starting date
 	 * @return Calendar date with time add by milliseconds
 	 */
-	public static Calendar timeAdd(long milliseconds, Calendar date1) {
+	public static Calendar timeAdd(long milliseconds, Calendar date) {
 		final long days = milliseconds / DAY;
 		final long newMilliseconds = milliseconds - days * DAY;
 
 		// I use res for don't change date1
 		final Calendar res = Calendar.getInstance();
-		res.setTimeInMillis(date1.getTimeInMillis());
+		res.setTimeInMillis(date.getTimeInMillis());
 
 		res.add(Calendar.MILLISECOND, (int)newMilliseconds);
 		res.add(Calendar.DAY_OF_YEAR, (int)days);
 
 		return res;
 	}
+
+	public static long millisFromDays(int days) {
+		return millisFromHours(days * 24);
+	}
+
+	public static int millisFromHours(int hours) {
+		return millisFromMinutes(hours * 60);
+	}
+
+	public static int millisFromMinutes(int minutes) {
+		return millisFromSeconds(minutes * 60);
+	}
+
+	public static int millisFromSeconds(int seconds) {
+		return seconds * 1000;
+	}
+
+
 }

@@ -25,7 +25,8 @@ import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
- * Internal use of SCS Bus
+ * Internal use of Emulator for manage msg and sender
+ *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
 public class MsgBus implements Serializable {
