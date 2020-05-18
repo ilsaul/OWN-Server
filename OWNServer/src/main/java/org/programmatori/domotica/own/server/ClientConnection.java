@@ -28,6 +28,9 @@ import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
+import org.programmatori.domotica.own.server.utils.ConnectionState;
+import org.programmatori.domotica.own.server.utils.GeneratorID;
+import org.programmatori.domotica.own.server.utils.OpenWebNetProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +43,11 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-import static org.programmatori.domotica.own.server.ConnectionStatus.CHECK_IP;
+import static org.programmatori.domotica.own.server.utils.ConnectionState.CHECK_IP;
 
 /**
- * Manager for a single client Connection.
+ * Manage single client Connection. It's execute like a thread.
+ * Any client need to handshake some information.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 29/04/2012
@@ -51,33 +55,33 @@ import static org.programmatori.domotica.own.server.ConnectionStatus.CHECK_IP;
 public class ClientConnection implements Runnable, Monitor, Sender {
 	private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
-	private TcpIpServer server;
 	private final Socket clientSocket;
+	private final EngineManager engine;
 	private final long id;
 
 	private PrintWriter socketOut = null;
 	private InputStream socketIn = null;
 
-	private final EngineManager engine;
 	private int mode;
-	private ConnectionStatus status;
+	private ConnectionState status;
 	private StringBuilder commandBuffer;
 
 	/**
 	 * Access restricted to a local package
 	 */
-	ClientConnection(Socket clientSocket, TcpIpServer server, EngineManager engine) {
+	ClientConnection(Socket clientSocket, EngineManager engine) {
 		logger.trace("Client Start");
-		this.server = server;
+
 		this.clientSocket = clientSocket;
 		this.engine = engine;
-		mode = OpenWebNetProtocol.MODE_COMMAND;
+		mode = OpenWebNetProtocol.MODE_COMMAND; // initial set
 
 		id = GeneratorID.get();
 		logger.debug("Generate ID: {}", id);
+
 		commandBuffer = new StringBuilder();
 
-		status = ConnectionStatus.START;
+		status = ConnectionState.START;
 	}
 
 	@Override
@@ -86,7 +90,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		try {
 			clientSocket.setSoTimeout(timeout);
 		} catch (SocketException e1) {
-			logger.error("Error in timeout setting:", e1);
+			logger.error("Error in setting timeout", e1);
 		}
 
 		try {
@@ -101,6 +105,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 				// Stub !!
 			}
 		}
+	}
+
+	private void setup() throws IOException {
+		socketIn = clientSocket.getInputStream();
+		socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 	}
 
 	private String readMessage() throws IOException {
@@ -132,20 +141,25 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		}
 	}
 
-	private void setup() throws IOException {
-		socketIn = clientSocket.getInputStream();
-		socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
-	}
-
+	/**
+	 * This only send message to client for start the handshake.
+	 * It don't receive any msg.
+	 * @return msg for client
+	 */
 	private SCSMsg commandStart() {
 		// Welcome
 		SCSMsg response = OpenWebNetProtocol.MSG_WELCOME;
 		logger.debug("Welcome msg: {}", response);
-		status = ConnectionStatus.MODE;
+		status = ConnectionState.MODE;
 
 		return response;
 	}
 
+	/**
+	 * The client inform the server what he want to do
+	 *
+	 * @return if server understed the command
+	 */
 	private SCSMsg commandMode() {
 		SCSMsg response = null;
 		try {
@@ -153,19 +167,20 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			if (sMsg != null) {
 				SCSMsg msgSCS = new SCSMsg(sMsg);
 				logger.info("{} RX Msg {}", getId(), msgSCS);
+
 				response = processMode(msgSCS);
 				if (response.equals(ServerMsg.MSG_ACK.getMsg())) {
 					status = CHECK_IP;
 				} else {
-					status = ConnectionStatus.DISCONNECTED;
+					status = ConnectionState.DISCONNECTED;
 				}
 			} else {
-				logger.debug("I continue to wait because because message is not valid");
+				logger.debug("I continue to wait because message is not valid");
 			}
 
 		} catch (MessageFormatException | IOException e) {
 			logger.error("Error Client in Mode setting", e);
-			status = ConnectionStatus.DISCONNECTED;
+			status = ConnectionState.DISCONNECTED;
 			response = ServerMsg.MSG_NACK.getMsg();
 		}
 
@@ -174,10 +189,10 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 	private SCSMsg commandCheckIp() {
 		if (checkValidIP(clientSocket.getInetAddress())) {
-			status = ConnectionStatus.CONNECTED;
+			status = ConnectionState.CONNECTED;
 		} else {
 			//response = createPwAsk();
-			status = ConnectionStatus.PASSWORD;
+			status = ConnectionState.PASSWORD;
 		}
 
 		return null;
@@ -195,7 +210,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		}
 
 		//TODO: Implement PASSWORD case - Bug.ID: #91
-		status = ConnectionStatus.WAIT_IDENT;
+		status = ConnectionState.WAIT_IDENT;
 
 		return response;
 	}
@@ -224,7 +239,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 			if (sMsg != null && mode == OpenWebNetProtocol.MODE_MONITOR) {
 				logger.error("Attempt to send command in monitor mode");
-				status = ConnectionStatus.DISCONNECTED;
+				status = ConnectionState.DISCONNECTED;
 
 			} else if (sMsg != null) {
 				try {
@@ -233,12 +248,12 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 				} catch (MessageFormatException e) {
 					logger.error("Command format received invalid", e);
-					status = ConnectionStatus.DISCONNECTED;
+					status = ConnectionState.DISCONNECTED;
 				}
 			}
 		} catch (IOException e) {
 			logger.error("Error Client in Mode setting", e);
-			status = ConnectionStatus.DISCONNECTED;
+			status = ConnectionState.DISCONNECTED;
 			response = ServerMsg.MSG_NACK.getMsg();
 		}
 
@@ -300,11 +315,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private SCSMsg processMode(SCSMsg msgSCS) {
 		SCSMsg response = ServerMsg.MSG_ACK.getMsg();
 
-		if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_COMMAND)) {
+		if (msgSCS.equals(ServerMsg.MSG_MODE_COMMAND.getMsg())) {
 			mode = OpenWebNetProtocol.MODE_COMMAND;
-			logger.info("{} Mode: Command", getId());
+			logger.info("{} Mode: Command enable", getId());
 
-		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_MONITOR)) {
+		} else if (msgSCS.equals(ServerMsg.MSG_MODE_MONITOR.getMsg())) {
 			mode = OpenWebNetProtocol.MODE_MONITOR;
 
 			//Bug.ID: #3 - Monitor don't have time-out
@@ -314,11 +329,12 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 				logger.error("Error:", e);
 			}
 
-			logger.info("{} Mode: Monitor", getId());
+			logger.info("{} Mode: Monitor enable", getId());
 			engine.addMonitor(this);
 
 		// This mode doesn't exist in BTicino Server
-		} else if (msgSCS.equals(OpenWebNetProtocol.MSG_MODE_TEST)) {
+		// TODO: Enable it in OWN Version only
+		} else if (msgSCS.equals(ServerMsg.MSG_MODE_TEST.getMsg())) {
 			mode = OpenWebNetProtocol.MODE_TEST;
 
 			// A mixed mode: I disable timeout
@@ -330,6 +346,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 			logger.info("{} Mode: Test", getId());
 			engine.addMonitor(this);
+
 		} else {
 			logger.error("Connection Mode not supported {}", msgSCS);
 			response = ServerMsg.MSG_NACK.getMsg();
@@ -348,7 +365,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	 * I haven't yet implement.
 	 */
 	private boolean checkValidIP(InetAddress ip) {
-		//FIXME: Now i accept anyone
+		//FIXME: implement it! I ask pw to anyone
 		return false;
 	}
 
