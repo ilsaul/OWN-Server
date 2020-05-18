@@ -9,12 +9,12 @@ include 'OWN-SDK'
 // Engine
 include 'OWNEngine-Emulator'
 include 'OWNEngine-L4686Sdk'
-include 'OWNEngine-SCSGate'
+//include 'OWNEngine-SCSGate'
 
 // Plugin
 include 'OWNPlugin-System'
 include 'OWNPlugin-Remote'
 include 'OWNPlugin-Map'
 include 'OWNPlugin-Power'
-include 'OWNPlugin-HomeKit'
+//include 'OWNPlugin-HomeKit'
 

@@ -69,6 +69,11 @@ public final class Emulator implements Engine, SCSComponent {
 	}
 
 	@Override
+	public String getName() {
+		return "Emulator";
+	}
+
+	@Override
 	public void sendCommand(SCSMsg msg) {
 		logger.trace("Start sendCommand");
 		//SCSMsg msgOut =

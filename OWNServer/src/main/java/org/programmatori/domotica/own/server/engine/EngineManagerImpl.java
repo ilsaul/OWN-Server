@@ -97,6 +97,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
 			engine = (Engine) c.newInstance();
+			logger.info("Engine start: {}", engine.getName());
 
 		} catch (NoClassDefFoundError e) {
 			// TODO: Fix with new serial

@@ -68,4 +68,9 @@ public interface Engine {
 	 * It is use for close connection with the bus
 	 */
 	void close();
+
+	/**
+	 * Name of the Engine
+	 */
+	String getName();
 }

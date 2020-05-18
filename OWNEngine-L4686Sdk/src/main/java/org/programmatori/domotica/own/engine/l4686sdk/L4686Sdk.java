@@ -74,6 +74,11 @@ public class L4686Sdk extends Serial implements Engine, Observer {
 	}
 
 	@Override
+	public String getName() {
+		return "L4686SDK";
+	}
+
+	@Override
 	public boolean isReady() {
 		return isConnected();
 	}
