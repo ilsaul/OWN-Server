@@ -22,14 +22,10 @@ package org.programmatori.domotica.own.engine.l4686sdk;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
-import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;

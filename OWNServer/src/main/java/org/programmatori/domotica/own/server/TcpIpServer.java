@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -19,54 +19,72 @@
  */
 package org.programmatori.domotica.own.server;
 
+import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * This class wait the network connection. It's
- * designed to received Tcp/Ip connections and send them to
- * {@link ClientConnection} for the management.
+ * This class wait for client that use tcp/ip protocol for connect to SCS Bus.
+ * For any client connected the server create a thread  {@link ClientConnection}
+ * for manage it.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.2.1, 16/10/2010
- * @since OWNServer v0.1.0
+ * @since 16/10/2010
  */
 public class TcpIpServer implements Runnable {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TcpIpServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
-	private EngineManager engine;
-	private int maxConnections;
-	private ExecutorService pool;
+	private final EngineManager engine;
+	private final int maxConnections;
 
 	/**
 	 * Default Constructor.
 	 */
-	public TcpIpServer(EngineManager engine) {
+	public TcpIpServer(String configFile) {
 		Thread.currentThread().setName("TCP/IP Server");
 		Config.getInstance().addThread(Thread.currentThread());
 
-		this.engine = engine;
+		if (configFile != null) {
+			Config.getInstance().setConfig(configFile);
+		}
+
+		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2020 Moreno Cattaneo";
+		String line2 = "This program comes with ABSOLUTELY NO WARRANTY.";
+		String line3 = "This is free software, and you are welcome to redistribute it";
+		String line4 = "under certain conditions.";
+		String line5 = "----";
+
+		logger.info(line1);
+		logger.info(line2);
+		logger.info(line3);
+		logger.info(line4);
+		logger.info(line5);
+		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
+
+		// start the bus manager
+		engine = new EngineManagerImpl();
+		engine.start();
 
 		final int port = Config.getInstance().getServerPort();
 		try {
-			LOGGER.info("Start listen on port: {}", port);
+			logger.info("Opening port {} for receive connections", port);
 			this.serverSocket = new ServerSocket(port);
 
 		} catch (IOException e) {
-			LOGGER.error("Could not listen on port: {}", port);
+			logger.error("Could not open port {}", port);
 			System.exit(-1);
 		}
 
 		maxConnections = Config.getInstance().getMaxConnections();
-		LOGGER.debug("Max Connections: {}", maxConnections);
+		logger.debug("Max connections: {}", maxConnections);
 	}
 
 	/**
@@ -75,26 +93,33 @@ public class TcpIpServer implements Runnable {
 	 */
 	@Override
 	public void run() {
-		pool = Executors.newFixedThreadPool(maxConnections);
+		ExecutorService pool = Executors.newFixedThreadPool(maxConnections);
+
 		while (!Config.getInstance().isExit()) {
 			try {
 				// Connection respond
-				pool.submit(new ClientConnection(this.serverSocket.accept(), this, this.engine));
+				pool.submit(new ClientConnection(this.serverSocket.accept(), this.engine));
 
 			} catch (IOException e) {
-				LOGGER.error("Connection not accepted", e);
+				logger.error("Connection not accepted", e);
 			}
 		}
 
 		pool.shutdownNow();
-		LOGGER.info("Server End");
+		logger.info("Server End");
 	}
 
 	/**
-	 * Check if the server still running.
-	 * @return true if the server is running
+	 * For start the Server
 	 */
-	public boolean isRunning() {
-		return Thread.currentThread().getState() != Thread.State.TERMINATED;
+	public static void main(String[] args) {
+		// Load config
+		String configFile = null;
+		if (args.length > 0) {
+			configFile = args[0];
+		}
+
+		TcpIpServer server = new TcpIpServer(configFile);
+		server.run();
 	}
 }

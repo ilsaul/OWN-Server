@@ -19,10 +19,10 @@
  */
 package org.programmatori.domotica.own.sdk.msg;
 
+import org.programmatori.domotica.own.sdk.utils.StringIterator;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import org.programmatori.domotica.own.sdk.utils.StringIterator;
 
 /**
  * This class represent single message of a SCS Bus

@@ -19,10 +19,6 @@
  */
 package org.programmatori.domotica.own.engine.emulator.component;
 
-import java.io.Serializable;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 import org.programmatori.domotica.own.sdk.component.Bus;
 import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.config.Config;
@@ -35,6 +31,10 @@ import org.programmatori.domotica.own.sdk.msg.Where;
 import org.programmatori.domotica.own.sdk.msg.Who;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author Moreno Cattaneo

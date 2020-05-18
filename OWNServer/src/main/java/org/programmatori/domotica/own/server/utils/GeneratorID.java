@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -17,9 +17,9 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server;
+package org.programmatori.domotica.own.server.utils;
 
-import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Generate a id for any client connection
@@ -29,11 +29,16 @@ import java.util.Calendar;
  * @version 1.0, 22/02/2013
  */
 public class GeneratorID {
+	private static final AtomicLong counter = new AtomicLong(0);
+
+	private GeneratorID() {
+		// For avoid to construct this object
+	}
 
 	/**
 	 * Generate a id for every client
 	 */
 	public static synchronized long get() {
-		return Calendar.getInstance().getTimeInMillis();
+		return counter.incrementAndGet();
 	}
 }

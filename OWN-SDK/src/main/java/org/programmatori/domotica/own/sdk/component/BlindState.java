@@ -26,8 +26,13 @@ package org.programmatori.domotica.own.sdk.component;
  */
 public enum BlindState {
     STOP(0, "stop"),
-    DOWN(1, "down"),
-    UP(2,"up");
+    DOWN(1, "down"), // Manuale 2
+    UP(2,"up"), // Manuale 1
+
+	STOP_ADVANCED(10, "stopAdvansed"),
+	UP_ADVANCED(11, "upAdvansed"),
+	DOWN_ADVANCED(12, "downAdvansed"),
+	;
 
     private final String name;
     private final int value;

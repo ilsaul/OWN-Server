@@ -20,11 +20,6 @@
  */
 package org.programmatori.domotica.own.plugin.power;
 
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.programmatori.domotica.own.sdk.config.Config;
@@ -33,6 +28,11 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
+
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * This class is the main part of the plug-in. This read all information about power consumption and recording in DB.

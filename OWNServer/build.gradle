@@ -1,5 +1,5 @@
 apply plugin:'application'
-mainClassName = "org.programmatori.domotica.own.server.Controller"
+mainClassName = "org.programmatori.domotica.own.server.TcpIpServer"
 applicationDefaultJvmArgs = ["-Dlogback.configurationFile=conf/logback.xml"]
 // -Dlogging.config="/Users/moreno/Programmazione/git/my/OWN/OWNServer/conf/logback.xml"
 

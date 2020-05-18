@@ -19,10 +19,10 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+
 import java.io.Serializable;
 import java.lang.Thread.State;
-
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**
  * This interface is for connect the class that need to talk with the bus with it.

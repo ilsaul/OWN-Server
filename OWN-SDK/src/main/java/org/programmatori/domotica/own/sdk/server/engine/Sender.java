@@ -19,8 +19,6 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
-import java.io.Serializable;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 /**

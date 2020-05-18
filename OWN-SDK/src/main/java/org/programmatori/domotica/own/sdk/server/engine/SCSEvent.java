@@ -19,12 +19,12 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine;
 
-import java.util.EventObject;
-
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EventObject;
 
 /**
  * SCS Event

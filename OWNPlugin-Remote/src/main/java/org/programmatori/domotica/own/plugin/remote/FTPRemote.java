@@ -19,12 +19,15 @@
  */
 package org.programmatori.domotica.own.plugin.remote;
 
-import java.io.*;
-
 import org.apache.commons.net.ftp.FTPClient;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 /**
  * Copy and Retrieve a remote file

@@ -19,11 +19,14 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Manage the association between message send to the bus and the answer received.

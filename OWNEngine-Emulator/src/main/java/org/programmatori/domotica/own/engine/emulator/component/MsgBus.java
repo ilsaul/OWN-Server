@@ -19,10 +19,10 @@
  */
 package org.programmatori.domotica.own.engine.emulator.component;
 
-import java.io.Serializable;
-
 import org.programmatori.domotica.own.sdk.component.SCSComponent;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+
+import java.io.Serializable;
 
 /**
  * Internal use of Emulator for manage msg and sender

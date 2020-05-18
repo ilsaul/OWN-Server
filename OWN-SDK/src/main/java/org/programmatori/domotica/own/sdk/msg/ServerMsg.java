@@ -15,7 +15,15 @@ public enum ServerMsg {
 	/** Command not execute, because interface already busy in transmission */
 	MSG_BUSY("*#*6##"),
 	/** Procedure multi frame not execute complete */
-	MSG_PROC("*#*7##");
+	MSG_PROC("*#*7##"),
+
+	/** If the client want to send command on the bus and receive replay on a direct command */
+	MSG_MODE_COMMAND("*99*0##"),
+	/** If the client want to receive all message from the bus */
+	MSG_MODE_MONITOR("*99*1##"),
+	/** Only for OWN version. It's both the preview */
+	MSG_MODE_TEST("*99*2##"),
+	;
 
 	private final String msgString;
 

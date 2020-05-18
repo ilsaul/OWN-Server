@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2016 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server;
+package org.programmatori.domotica.own.server.utils;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
@@ -26,31 +26,18 @@ import org.programmatori.domotica.own.sdk.msg.ServerMsg;
  * This class maintain some constant for the protocol SCS
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.0, 16/10/2010
- * @since OWNServer v0.1.0
+ * @since 16/10/2010
  */
 public class OpenWebNetProtocol {
 	public static final SCSMsg MSG_WELCOME = ServerMsg.MSG_ACK.getMsg();
-	public static SCSMsg MSG_MODE_COMMAND;
-	public static SCSMsg MSG_MODE_MONITOR;
-	public static SCSMsg MSG_MODE_TEST;
+
 	public static final String STATUS_CHAR_WHO = "#";
 
 	public static final int MODE_COMMAND = 0;
 	public static final int MODE_MONITOR = 1;
 	public static final int MODE_TEST = 2;
 
-	static {
-		try {
-			MSG_MODE_COMMAND = new SCSMsg("*99*0##");
-			MSG_MODE_MONITOR = new SCSMsg("*99*1##");
-			MSG_MODE_TEST = new SCSMsg("*99*2##");
-	    } catch ( Exception e ) {
-	      // Stub !!
-	    }
-	}
-
 	private OpenWebNetProtocol() {
-		// per non instanziare la classe
+		// For not instantiate the class
 	}
 }

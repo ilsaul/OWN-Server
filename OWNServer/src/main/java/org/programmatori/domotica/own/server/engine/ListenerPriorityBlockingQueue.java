@@ -19,11 +19,12 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
-import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * This class is a {@link PriorityBlockingQueue} that implement listener for change data.

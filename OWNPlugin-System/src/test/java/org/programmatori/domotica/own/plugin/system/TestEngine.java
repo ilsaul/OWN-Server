@@ -1,12 +1,12 @@
 package org.programmatori.domotica.own.plugin.system;
 
-import java.lang.Thread.State;
-import java.util.LinkedList;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
+
+import java.lang.Thread.State;
+import java.util.LinkedList;
 
 public class TestEngine implements EngineManager {
 	public LinkedList<SCSMsg> msgs;

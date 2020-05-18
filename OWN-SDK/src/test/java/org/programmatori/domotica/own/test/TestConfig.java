@@ -1,14 +1,15 @@
 package org.programmatori.domotica.own.test;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.AbstractConfig;
 import org.programmatori.domotica.own.sdk.config.Config;
+
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TestConfig {
 

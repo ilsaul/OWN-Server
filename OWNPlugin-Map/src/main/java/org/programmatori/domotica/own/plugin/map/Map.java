@@ -42,7 +42,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;

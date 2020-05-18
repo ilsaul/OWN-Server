@@ -20,16 +20,17 @@
  */
 package org.programmatori.domotica.own.test;
 
-import java.io.*;
+import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.msg.ServerMsg;
+import org.programmatori.domotica.own.server.utils.OpenWebNetProtocol;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
-import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.server.OpenWebNetProtocol;
 
 public class SCSClient {
 	public static final String MODE_COMMAND = "1";

@@ -1,21 +1,17 @@
 package org.programmatori.domotica.own.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.security.Permission;
-import java.util.Calendar;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.server.Controller;
 import org.programmatori.domotica.own.server.TcpIpServer;
+
+import java.security.Permission;
+import java.util.Calendar;
+
+import static org.junit.Assert.*;
 
 public class SCSServerTest {
 	private TcpIpServer server;

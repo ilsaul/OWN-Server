@@ -20,7 +20,6 @@
 package org.programmatori.domotica.own.sdk.msg;
 
 import java.io.Serializable;
-import java.util.Iterator;
 
 /**
  * Part of SCS Message

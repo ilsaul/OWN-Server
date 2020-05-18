@@ -19,13 +19,13 @@
  */
 package org.programmatori.domotica.own.test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.programmatori.domotica.own.sdk.utils.TimeUtility;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.junit.Test;
-import org.programmatori.domotica.own.sdk.utils.TimeUtility;
+import static org.junit.Assert.assertEquals;
 
 public class TestTimeUtility {
 

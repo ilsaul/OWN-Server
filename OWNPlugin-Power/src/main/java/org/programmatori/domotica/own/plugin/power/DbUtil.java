@@ -20,15 +20,27 @@
  */
 package org.programmatori.domotica.own.plugin.power;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.sql.*;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.h2.tools.RunScript;
 import org.programmatori.domotica.own.sdk.utils.LogUtility;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * This class is utility for access to DataBase.

@@ -19,17 +19,16 @@
  */
 package org.programmatori.domotica.own.server.engine;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
 import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class send msg to the bus.

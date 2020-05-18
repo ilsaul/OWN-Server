@@ -1,6 +1,12 @@
 package org.programmatori.domotica.own.plugin.system;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.programmatori.domotica.own.sdk.component.Who;
+import org.programmatori.domotica.own.sdk.config.Config;
+import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
+import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -12,14 +18,7 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.programmatori.domotica.own.sdk.component.Who;
-import org.programmatori.domotica.own.sdk.config.Config;
-import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
-import org.programmatori.domotica.own.sdk.msg.SCSMsg;
-import org.programmatori.domotica.own.sdk.msg.Value;
+import static org.junit.Assert.*;
 
 public class SystemTest {
 

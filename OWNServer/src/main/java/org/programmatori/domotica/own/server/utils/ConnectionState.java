@@ -1,6 +1,9 @@
-package org.programmatori.domotica.own.server;
+package org.programmatori.domotica.own.server.utils;
 
-public enum ConnectionStatus {
+/**
+ * This represent the step the use need to follow for connect
+ */
+public enum ConnectionState {
 	/** Send welcome message */
 	START,
 
@@ -10,8 +13,10 @@ public enum ConnectionStatus {
 	/** I check if connection is secure */
 	CHECK_IP,
 
-
+	/** Only if check IP fail */
 	PASSWORD,
+
+
 	WAIT_IDENT,
 	CONNECTED,
 	DISCONNECTED;

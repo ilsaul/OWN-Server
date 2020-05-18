@@ -26,9 +26,22 @@ package org.programmatori.domotica.own.sdk.component;
  * @since 01/02/2020
  */
 public enum Who {
+	SCENARIO(0, "Scenario"),
     LIGHT(1, "light"),
-    BLIND(2, "blind"),
-	GATEWAY(13, "gateway");
+    BLIND(2, "blind"), // Automation
+	POWER(3, "Power Management"), // Deprecated
+	HEATING(4, "Heating Adjustment"),
+	ALARM(5, "Burglar Alarm"),
+	MULTIMEDIA(7, "Multimedia System"),
+	GATEWAY(13, "gateway"), // External Interface Device
+	CEN(15, "Basic & Evolved CEN"),
+	SOUND(16, "Sound System"),
+	SCENES(17, "Scenes"),
+	ENERGY(18, "Energy Management Function"),
+	SOUND_DIFFUSION(22, "Sound Diffusion"),
+	LIGHTING(24, "Lighting Management"),
+	CEN_PLUS(25, "CEN Plus"), // OR DRY CONTACT
+	;
 
     private final String name;
     private final int value;

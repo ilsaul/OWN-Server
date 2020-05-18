@@ -19,9 +19,9 @@
  */
 package org.programmatori.domotica.own.sdk.component;
 
-import java.io.Serializable;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
+
+import java.io.Serializable;
 
 /**
  * Basic Bus Interface.

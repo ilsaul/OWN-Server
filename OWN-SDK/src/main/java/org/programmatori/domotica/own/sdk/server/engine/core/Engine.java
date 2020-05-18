@@ -19,11 +19,11 @@
  */
 package org.programmatori.domotica.own.sdk.server.engine.core;
 
-import java.io.IOException;
-import java.util.TooManyListenersException;
-
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
+
+import java.io.IOException;
+import java.util.TooManyListenersException;
 
 /**
  * Base Interface if someone want to implement a new engine.
