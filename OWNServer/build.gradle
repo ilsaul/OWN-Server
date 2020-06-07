@@ -27,12 +27,14 @@ dependencies {
 
 	runtime project(':OWNEngine-Emulator')
 	runtime project(':OWNEngine-L4686Sdk')
-	runtime project(':OWNEngine-SCSGate')
+	//runtime project(':OWNEngine-SCSGate')
 	runtime project(':OWNPlugin-Map')
 	runtime project(':OWNPlugin-Power')
 	runtime project(':OWNPlugin-Remote')
 	runtime project(':OWNPlugin-System')
-	runtime project(':OWNPlugin-HomeKit')
+	//runtime project(':OWNPlugin-HomeKit')
+
+    testCompile 'com.github.openwebnet:rx-openwebnet:2.1.1'
 }
 
 startScripts {

@@ -21,6 +21,7 @@ package org.programmatori.domotica.own.server;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
+import org.programmatori.domotica.own.server.clients.ClientConnection;
 import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class wait for client that use tcp/ip protocol for connect to SCS Bus.
- * For any client connected the server create a thread  {@link ClientConnection}
+ * TcpIpServer waits for clients to connect to it using the tcp/ip protocol.
+ * For any client connected, this class create a {@link ClientConnection}
  * for manage it.
+ * This class initialize the bus system through {@link EngineManager} and use it
+ * to let the clients talk with bus.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 16/10/2010
@@ -42,7 +45,7 @@ public class TcpIpServer implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
-	private final EngineManager engine;
+	private final EngineManager engineManager;
 	private final int maxConnections;
 
 	/**
@@ -70,13 +73,13 @@ public class TcpIpServer implements Runnable {
 		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
 
 		// start the bus manager
-		engine = new EngineManagerImpl();
-		engine.start();
+		engineManager = new EngineManagerImpl();
+		engineManager.start();
 
 		final int port = Config.getInstance().getServerPort();
 		try {
 			logger.info("Opening port {} for receive connections", port);
-			this.serverSocket = new ServerSocket(port);
+			serverSocket = new ServerSocket(port);
 
 		} catch (IOException e) {
 			logger.error("Could not open port {}", port);
@@ -95,10 +98,14 @@ public class TcpIpServer implements Runnable {
 	public void run() {
 		ExecutorService pool = Executors.newFixedThreadPool(maxConnections);
 
+		//TODO: Every time 3 handshakes procedures fail within 60 seconds, the authentication service have to be disabled for 60 seconds.
 		while (!Config.getInstance().isExit()) {
 			try {
+
+				//TODO: Check if IP is valid (in the range)
+
 				// Connection respond
-				pool.submit(new ClientConnection(this.serverSocket.accept(), this.engine));
+				pool.submit(new ClientConnection(serverSocket.accept(), engineManager));
 
 			} catch (IOException e) {
 				logger.error("Connection not accepted", e);

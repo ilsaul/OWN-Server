@@ -21,6 +21,7 @@ package org.programmatori.domotica.own.server.utils;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
+import org.programmatori.domotica.own.server.clients.ClientSessionType;
 
 /**
  * This class maintain some constant for the protocol SCS
@@ -33,9 +34,11 @@ public class OpenWebNetProtocol {
 
 	public static final String STATUS_CHAR_WHO = "#";
 
+	/** @deprecated use {@link ClientSessionType} */
+	@Deprecated
 	public static final int MODE_COMMAND = 0;
-	public static final int MODE_MONITOR = 1;
-	public static final int MODE_TEST = 2;
+	//public static final int MODE_MONITOR = 1;
+	//spublic static final int MODE_TEST = 2;
 
 	private OpenWebNetProtocol() {
 		// For not instantiate the class

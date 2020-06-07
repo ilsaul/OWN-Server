@@ -10,12 +10,8 @@ public enum ConnectionState {
 	/** I check what client want to do */
 	MODE,
 
-	/** I check if connection is secure */
-	CHECK_IP,
-
-	/** Only if check IP fail */
+	/** Depend on config */
 	PASSWORD,
-
 
 	WAIT_IDENT,
 	CONNECTED,

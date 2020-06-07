@@ -32,7 +32,7 @@ import java.util.TooManyListenersException;
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  */
-public interface Engine {
+public interface BusDriver {
 
 	/**
 	 * If the engine is ready for receive and send message.
@@ -47,17 +47,18 @@ public interface Engine {
 	void sendCommand(SCSMsg msg) throws IOException;
 
 	/**
-	 * The client add itself to a list of observer of the bus for receive any msg from BUS
-	 * @param listener what want receive the message from the bus
-	 * @throws TooManyListenersException Exception if too musch client is connetced
+	 * The client joins a list of bus observer to receive any messages it sends
+	 *
+	 * @param client who want receive any messages from the bus
+	 * @throws TooManyListenersException throw an exception if too much client connected
 	 */
-	void addEventListener(SCSListener listener) throws TooManyListenersException;
+	void addEventListener(SCSListener client) throws TooManyListenersException;
 
 	/**
 	 * Remove from list of listener
-	 * @param listener The object that Previously ask to receive msg from bus
+	 * @param client The object that Previously ask to receive msg from bus
 	 */
-	void removeEventListener(SCSListener listener);
+	void removeEventListener(SCSListener client);
 
 	/**
 	 * Start to work, normally mean connect to the device.

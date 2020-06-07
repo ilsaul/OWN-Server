@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
  * Light, lamp.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.1.2, 13/01/2015
- * @since OWNServer 0.5.0
+ * @since 13/01/2015
  */
 public class Light extends SCSBaseComponent {
 	private static final long serialVersionUID = 6385568654373192697L;
@@ -52,16 +51,20 @@ public class Light extends SCSBaseComponent {
 
 	@Override
 	public void receiveMessage(SCSMsg msg) {
-		logger.debug("MSG arrive to component: {}", msg);
+		logger.debug("MSG arrive to component Light {}: {}", getWhere(), msg);
 		if (isMyMsg(msg)) {
 			if (msg.isStatus()) {
 				sendMsgToBus(getStatus());
+
 			} else if (msg.getWhat() != null) {
 				setWhat(msg.getWhat());
 				sendMsgToBus(getStatus());
+
 			} else {
 				sendMsgToBus(ServerMsg.MSG_NACK.getMsg());
 			}
+		} else {
+			logger.trace("The message {} is not for me ({})", msg, this);
 		}
 	}
 
@@ -70,4 +73,6 @@ public class Light extends SCSBaseComponent {
 		logger.debug("Create Light Status: {}", msg);
 		return new Light(msg, bus);
 	}
+
+
 }

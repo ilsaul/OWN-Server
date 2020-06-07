@@ -24,7 +24,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
-import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
+import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,23 +48,23 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 
 	private final BlockingQueue<Command> msgReceiveFromBus;
 	private final BlockingQueue<Command> msgSended;
-	private Engine engine;
+	private BusDriver busDriver;
 	private final List<Monitor> monitors;
 	private boolean changeQueue;
 
-	public MsgReceiver(Engine engine, BlockingQueue<Command> queueSended) {
+	public MsgReceiver(BusDriver busDriver, BlockingQueue<Command> queueSended) {
 		logger.trace("Start Create Instance");
 		setName("MsgReceiver");
 		setDaemon(true);
 		Config.getInstance().addThread(this);
 
 		msgReceiveFromBus = new LinkedBlockingQueue<>();
-		this.engine = engine;
+		this.busDriver = busDriver;
 		msgSended = queueSended;
 		changeQueue = false;
 		monitors = new ArrayList<>();
 		try {
-			this.engine.addEventListener(this);
+			this.busDriver.addEventListener(this);
 		} catch (TooManyListenersException e) {
 			logger.error("Error:" , e);
 		}
@@ -99,32 +99,38 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 						logger.debug("Queue sending: {}", msgSended.size());
 						Iterator<Command> iter = msgSended.iterator();
 						while (iter.hasNext() && !changeQueue && received != null) {
-							Command commandSended = (Command) iter.next();
+							Command commandSended = iter.next();
 							logger.debug("Command to examine: {}", commandSended);
 
-							// Don't elaborate again the Binded Msg
-							//if (commandSended.getTimeAnswer() == null) {
-							SCSMsg sended = commandSended.getSendMsg();
-							logger.debug("Msg to examinate: {}", sended);
+							SCSMsg sent = commandSended.getSendMsg();
+							logger.debug("Msg to examine: {}", sent);
 
 							// Search if it is the same msg
 							//TODO: Improve for other case
-							if (sended.getWho().equals(received.getWho())) {
+							if (sent.getWho().getMain() == received.getWho().getMain()) {
+								logger.trace("Who match {} between TX: {} & RX: {}", sent.getWho(), sent, received);
 
 								// Same Command
-								if (sended.getWhere().equals(received.getWhere())) {
-									if (sended.isStatus() || sended.getWhat().equals(received.getWhat())) {
+								if (sent.getWhere().equals(received.getWhere())) {
+									logger.trace("Where match {} between TX: {} & RX: {}", sent.getWhere(), sent, received);
+
+									if (sent.isStatus() || sent.getWhat().equals(received.getWhat())) {
+										logger.debug("Sender {} request status and receive {}", sent, received);
 										addResponse(command, commandSended);
 										received = null;
+									} else {
+										logger.warn("Unknown situation");
 									}
 
 								// Area Command
-								} else if (sended.isAreaMsg() && sended.getWhere().getArea() == received.getWhere().getArea()) {
+								} else if (sent.isAreaMsg() && sent.getWhere().getArea() == received.getWhere().getArea()) {
+									logger.debug("Area match: Sender {} receive {}", sent, received);
 									addResponse(command, commandSended);
 									received = null;
 
 								// Bus Command (same Who)
-								} else if (sended.isWhoMsg()) {
+								} else if (sent.isWhoMsg()) {
+									logger.debug("TODO: Sender {} receive {}", sent, received);
 									addResponse(command, commandSended);
 									received = null;
 								}

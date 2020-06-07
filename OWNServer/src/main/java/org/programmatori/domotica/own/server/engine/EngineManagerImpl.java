@@ -26,7 +26,7 @@ import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
-import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
+import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import java.util.List;
 
 /**
  * EngineManager load the Driver Engine that manage the bus and manage the queue
- * of receive and transmit message to the bus.<br>
+ * of receive and transmit message to the bus from client.<br>
  * <br>
  * This class is configured using a configuration file.<br>
  * In the configuration you need to use tag 'bus' and inside it a class
@@ -49,39 +49,28 @@ import java.util.List;
  * The Emulator Plugin is our default and no need to change if don't want other.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 1.0.1, 29/06/2011
- * @since OWNServer v0.2.0
- *
+ * @since 29/06/2011
  */
 public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
 	private static final long serialVersionUID = -1460745010256569626L;
-
 	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
 
-	/**
-	 * List of Msg waiting to be send
-	 */
-	private final ListenerPriorityBlockingQueue<Command> msgSending= new ListenerPriorityBlockingQueue<>();
+	/** List of Msg waiting to be send */
+	private final ListenerPriorityBlockingQueue<Command> msgSending = new ListenerPriorityBlockingQueue<>();
 
-	/**
-	 * Bus manager
-	 */
-	private Engine engine;
+	/** Bus driver */
+	private BusDriver busDriver;
 
-	/**
-	 * Thread for send msg
-	 */
-	private MsgSender sender;
+	/** send msg from clients to bus */
+	private final MsgSender sender;
 
-	/**
-	 * Thread for receive msg
-	 */
-	private MsgReceiver receiver;
+	/** Receive msg from bus to clients*/
+	private final MsgReceiver receiver;
 
-	/**
-	 * Time to wait before the bus say no replay to msg
-	 */
+	/** Time to wait before the bus say no replay to msg */
 	private final int sendTimeout;
+
+	/** ??? */
 	private boolean changeQueue;
 
 	public EngineManagerImpl() {
@@ -96,8 +85,8 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			logger.debug("Engine Class Name: {}", busName);
 
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
-			engine = (Engine) c.newInstance();
-			logger.info("Engine start: {}", engine.getName());
+			busDriver = (BusDriver) c.newInstance();
+			logger.info("Engine start: {}", busDriver.getName());
 
 		} catch (NoClassDefFoundError e) {
 			// TODO: Fix with new serial
@@ -114,7 +103,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 		}
 
 		try {
-			engine.start();
+			busDriver.start();
 		} catch (IOException e) {
 			logger.error("Error to start engine", e);
 			System.exit(-3);
@@ -123,10 +112,10 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 		msgSending.addListener(this);
 		changeQueue = false;
 
-		sender = new MsgSender(engine, msgSending);
+		sender = new MsgSender(busDriver, msgSending);
 		sender.start();
 
-		receiver = new MsgReceiver(engine, msgSending);
+		receiver = new MsgReceiver(busDriver, msgSending);
 		msgSending.addListener(receiver);
 		receiver.start();
 
@@ -244,7 +233,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			logger.debug("Msg Rx: {}", msg);
 			Command command = new Command(client, msg);
 			sender.sendToBus(command);
-			receiver.sendToMonitor(msg);
+			receiver.sendToMonitor(msg); // TODO: it not arrive from bus ???
 
 		} catch (Exception e) {
 			logger.error("Error:", e);

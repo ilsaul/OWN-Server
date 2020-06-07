@@ -21,7 +21,7 @@ package org.programmatori.domotica.own.server.engine;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
+import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +42,10 @@ public class MsgSender extends Thread {
 
 	private final BlockingQueue<Command> msgSendToBus;
 	private final BlockingQueue<Command> msgSended;
-	private final Engine engine;
+	private final BusDriver busDriver;
 	private final int sendTimeout;
 
-	public MsgSender(Engine engine, BlockingQueue<Command> queueSended) {
+	public MsgSender(BusDriver busDriver, BlockingQueue<Command> queueSended) {
 		logger.trace("Start Create Instance");
 		setName("MsgSender");
 		setDaemon(true);
@@ -53,7 +53,7 @@ public class MsgSender extends Thread {
 
 		msgSendToBus = new LinkedBlockingQueue<>();
 		msgSended = queueSended;
-		this.engine = engine;
+		this.busDriver = busDriver;
 
 		sendTimeout = Config.getInstance().getSendTimeout();
 		logger.trace("End Create Instance");
@@ -70,9 +70,9 @@ public class MsgSender extends Thread {
 					logger.debug("Received Command: {}", command.toString());
 				}
 
-				if (engine.isReady()) {
+				if (busDriver.isReady()) {
 					try {
-						engine.sendCommand(command.getSendMsg());
+						busDriver.sendCommand(command.getSendMsg());
 						command.setTimeSend(Calendar.getInstance().getTime());
 						msgSended.put(command);
 						logger.debug("TX To Bus {}", command.toString());

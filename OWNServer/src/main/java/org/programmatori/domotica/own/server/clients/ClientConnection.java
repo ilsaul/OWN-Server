@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server;
+package org.programmatori.domotica.own.server.clients;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
@@ -38,12 +38,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-
-import static org.programmatori.domotica.own.server.utils.ConnectionState.CHECK_IP;
 
 /**
  * Manage single client Connection. It's execute like a thread.
@@ -62,28 +59,30 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private PrintWriter socketOut = null;
 	private InputStream socketIn = null;
 
-	private int mode;
+	private ClientSessionType mode;
 	private ConnectionState status;
 	private StringBuilder commandBuffer;
 
 	/**
 	 * Access restricted to a local package
 	 */
-	ClientConnection(Socket clientSocket, EngineManager engineManager) {
+	public ClientConnection(Socket clientSocket, EngineManager engineManager) {
 		logger.trace("Client Start");
 
 		this.clientSocket = clientSocket;
 		this.engineManager = engineManager;
-		mode = OpenWebNetProtocol.MODE_COMMAND; // initial set
+		mode = ClientSessionType.NONE; // initial set
+		status = ConnectionState.START;
 
 		id = GeneratorID.get();
-		logger.debug("Generate ID: {}", id);
+		logger.info("Client {} connecting ({})", id, clientSocket.getInetAddress());
 
 		commandBuffer = new StringBuilder();
-
-		status = ConnectionState.START;
 	}
 
+	/**
+	 * Execute in a thread
+	 */
 	@Override
 	public void run() {
 		int timeout = Config.getInstance().getWelcomeTimeout();
@@ -95,6 +94,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 		try {
 			setup();
+			handshake();
 			processCommands();
 		} catch (Exception e) {
 			logger.error("Generic Error", e);
@@ -107,42 +107,69 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		}
 	}
 
+	/**
+	 * Prepare input and output stream for client.
+	 */
 	private void setup() throws IOException {
 		socketIn = clientSocket.getInputStream();
 		socketOut = new PrintWriter(clientSocket.getOutputStream(), true);
 	}
 
-	private String readMessage() throws IOException {
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int length;
+	/**
+	 * Check if client can connect to server and what it want to do.
+	 */
+	private void handshake() {
+		// Loop Message
+		while (clientSocket.isConnected() && !Config.getInstance().isExit()) {
+			SCSMsg response = null;
 
-		//TODO: Make Better
-		do {
-			length = socketIn.read(buffer);
-			if (length != -1) {
-				result.write(buffer, 0, length);
-				commandBuffer.append(result.toString(StandardCharsets.UTF_8.name()));
+			switch (status) {
+				case START: // out
+					response = commandStart();
+					break;
+
+				case MODE: // in
+					response = commandMode();
+					break;
+
+				case PASSWORD: // out
+					response = commandPw();
+					break;
+
+				case WAIT_IDENT: // In
+					response = commandWaitIdent();
+					break;
+
+				case CONNECTED:
+					response = commandConnected();
+					break;
+
+				case DISCONNECTED:
+					if (mode == ClientSessionType.MODE_MONITOR) {
+						engineManager.removeMonitor(this);
+					}
+					return;
+
+				default:
+					logger.error("Unknown Status");
+					break;
 			}
-		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDED) == -1);
 
-		int pos = commandBuffer.indexOf(SCSMsg.MSG_ENDED);
-
-		if (pos > -1) {
-			String newCommand = commandBuffer.substring(0, pos + 2);
-			String tmp = commandBuffer.substring(pos + 2);
-			commandBuffer = new StringBuilder();
-			commandBuffer.append(tmp);
-
-			return newCommand;
-		} else {
-			logger.error("The message is not complete: {}", commandBuffer);
-			return null;
+			if (response != null) {
+				socketOut.print(response.toString());
+				socketOut.flush();
+				logger.debug("{} TX MSG: {}", getId(), response);
+				Config.getInstance().getMessageLog().log(response, true, getId());
+			}
 		}
 	}
 
+	private void processCommands() {
+		logger.trace("Client End");
+	}
+
 	/**
-	 * This only send message to client for start the handshake.
+	 * This only send message to client for start handshake.
 	 * It don't receive any msg.
 	 * @return msg for client
 	 */
@@ -170,7 +197,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 				response = processMode(msgSCS);
 				if (response.equals(ServerMsg.MSG_ACK.getMsg())) {
-					status = CHECK_IP;
+					status = ConnectionState.PASSWORD;
 				} else {
 					status = ConnectionState.DISCONNECTED;
 				}
@@ -187,30 +214,24 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		return response;
 	}
 
-	private SCSMsg commandCheckIp() {
-		if (checkValidIP(clientSocket.getInetAddress())) {
-			status = ConnectionState.CONNECTED;
-		} else {
-			//response = createPwAsk();
-			status = ConnectionState.PASSWORD;
-		}
-
-		return null;
-	}
-
 	private SCSMsg commandPw() {
 		SCSMsg response = null;
 
+		//TODO: HMAC enable ?
+		//TODO: No - Standard Authenticatin
+		//TODO Yes - Send Alghorithm
+
 		try {
-//						SCSMsg msgNo = new SCSMsg("*98*##"); // Open Command
-			response = new SCSMsg("*98*1##"); // sha1 Authentication
-//						SCSMsg msg2 = new SCSMsg("*98*2##"); // sha2 Authentication
+//			SCSMsg msgNo = new SCSMsg("*98*##"); // Open Command
+//			response = new SCSMsg("*98*1##"); // sha1 Authentication
+//			SCSMsg msg2 = new SCSMsg("*98*2##"); // sha2 Authentication
 		} catch (MessageFormatException e) {
 			// Stub!!
 		}
 
 		//TODO: Implement PASSWORD case - Bug.ID: #91
-		status = ConnectionState.WAIT_IDENT;
+		//status = ConnectionState.WAIT_IDENT;
+		status = ConnectionState.CONNECTED;
 
 		return response;
 	}
@@ -237,7 +258,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			String sMsg = readMessage();
 			logger.info("{} RX Msg {}", getId(), sMsg);
 
-			if (sMsg != null && mode == OpenWebNetProtocol.MODE_MONITOR) {
+			if (sMsg != null && mode == ClientSessionType.MODE_MONITOR) {
 				logger.error("Attempt to send command in monitor mode");
 				status = ConnectionState.DISCONNECTED;
 
@@ -260,67 +281,15 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		return response;
 	}
 
-	private void processCommands() {
-		// Loop Message
-		while (clientSocket.isConnected() && !Config.getInstance().isExit()) {
-			SCSMsg response = null;
-
-			switch (status) {
-				case START:
-					response = commandStart();
-					break;
-
-				case MODE:
-					response = commandMode();
-					break;
-
-				case CHECK_IP:
-					commandCheckIp();
-					break;
-
-				case PASSWORD:
-					response = commandPw();
-					break;
-
-				case WAIT_IDENT:
-					response = commandWaitIdent();
-					break;
-
-				case CONNECTED:
-					response = commandConnected();
-					break;
-
-				case DISCONNECTED:
-					if (mode == OpenWebNetProtocol.MODE_MONITOR) {
-						engineManager.removeMonitor(this);
-					}
-					return;
-
-				default:
-					logger.error("Unknown Status");
-					break;
-			}
-
-			if (response != null) {
-				socketOut.print(response.toString());
-				socketOut.flush();
-				logger.debug("{} TX MSG: {}", getId(), response);
-				Config.getInstance().getMessageLog().log(response, true, getId());
-			}
-		}
-
-		logger.trace("Client End");
-	}
-
 	private SCSMsg processMode(SCSMsg msgSCS) {
 		SCSMsg response = ServerMsg.MSG_ACK.getMsg();
 
 		if (msgSCS.equals(ServerMsg.MSG_MODE_COMMAND.getMsg())) {
-			mode = OpenWebNetProtocol.MODE_COMMAND;
+			mode = ClientSessionType.MODE_COMMAND;
 			logger.info("{} Mode: Command enable", getId());
 
 		} else if (msgSCS.equals(ServerMsg.MSG_MODE_MONITOR.getMsg())) {
-			mode = OpenWebNetProtocol.MODE_MONITOR;
+			mode = ClientSessionType.MODE_MONITOR;
 
 			//Bug.ID: #3 - Monitor don't have time-out
 			try {
@@ -335,7 +304,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 		// This mode doesn't exist in BTicino Server
 		// TODO: Enable it in OWN Version only
 		} else if (msgSCS.equals(ServerMsg.MSG_MODE_TEST.getMsg())) {
-			mode = OpenWebNetProtocol.MODE_TEST;
+			mode = ClientSessionType.MODE_TEST;
 
 			// A mixed mode: I disable timeout
 			try {
@@ -358,15 +327,6 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private SCSMsg createPwAsk() {
 		//FIXME: Add algorithm for password
 		return null;
-	}
-
-	/**
-	 * This is for limit who can access to the bus.<br>
-	 * I haven't yet implement.
-	 */
-	private boolean checkValidIP(InetAddress ip) {
-		//FIXME: implement it! I ask pw to anyone
-		return false;
 	}
 
 	@Override
@@ -404,6 +364,35 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 		socketOut.print(msg.toString());
 		socketOut.flush();
+	}
+
+	private String readMessage() throws IOException {
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+
+		//TODO: Make Better
+		do {
+			length = socketIn.read(buffer);
+			if (length != -1) {
+				result.write(buffer, 0, length);
+				commandBuffer.append(result.toString(StandardCharsets.UTF_8.name()));
+			}
+		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDED) == -1);
+
+		int pos = commandBuffer.indexOf(SCSMsg.MSG_ENDED);
+
+		if (pos > -1) {
+			String newCommand = commandBuffer.substring(0, pos + 2);
+			String tmp = commandBuffer.substring(pos + 2);
+			commandBuffer = new StringBuilder();
+			commandBuffer.append(tmp);
+
+			return newCommand;
+		} else {
+			logger.error("The message is not complete: {}", commandBuffer);
+			return null;
+		}
 	}
 
 }

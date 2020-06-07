@@ -106,7 +106,7 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 		if (msg.getWho().getMain() == who.getMain()) {
 			// Component Command
 			if (msg.getWhere() != null && msg.getWhere().equals(where)) {
-				logger.debug("it is My (Component)");
+				logger.debug("message is for me (Component)");
 				return true;
 
 			// General Command
@@ -202,5 +202,14 @@ public abstract class SCSBaseComponent extends Thread implements SCSComponent, S
 			}
 		}
 		logger.trace("End run");
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + "{");
+		sb.append("status=").append(getStatus());
+		sb.append('}');
+
+		return sb.toString();
 	}
 }
