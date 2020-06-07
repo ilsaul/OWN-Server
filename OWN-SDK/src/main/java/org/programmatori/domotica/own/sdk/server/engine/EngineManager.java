@@ -25,12 +25,15 @@ import java.io.Serializable;
 import java.lang.Thread.State;
 
 /**
+ * This interface expose to connected client the method for send to and
+ * receive information from the bus.
+ *
+ * old:
  * This interface is for connect the class that need to talk with the bus with it.
  * Is the interface for plugin and engine of the EngineManagerImpl that is in Server
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @version 0.0.1, 22/02/2013
- * @since OWNServer 0.5.0
+ * @since 22/02/2013
  */
 public interface EngineManager extends Serializable {
 

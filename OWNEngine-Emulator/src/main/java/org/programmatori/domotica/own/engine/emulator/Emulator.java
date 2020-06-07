@@ -25,7 +25,7 @@ import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
-import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
+import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,13 @@ import java.util.List;
 import java.util.TooManyListenersException;
 
 /**
- * This is an Engine emulator. This create a fake BUS for testing.
+ * This is the driver for emulator bus. Create the Bus and attach the component to it.
+ * Manage any message between EngineManager and Bus.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.8.1, 13/01/2015
  */
-public final class Emulator implements Engine, SCSComponent {
+public final class Emulator implements BusDriver, SCSComponent {
 	private static final long serialVersionUID = -4985192779288083426L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Emulator.class);

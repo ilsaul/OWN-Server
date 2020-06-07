@@ -35,7 +35,7 @@ public enum Who {
 	MULTIMEDIA(7, "Multimedia System"),
 	GATEWAY(13, "gateway"), // External Interface Device
 	CEN(15, "Basic & Evolved CEN"),
-	SOUND(16, "Sound System"),
+	SOUND(16, "Sound System"), // Deprecated
 	SCENES(17, "Scenes"),
 	ENERGY(18, "Energy Management Function"),
 	SOUND_DIFFUSION(22, "Sound Diffusion"),

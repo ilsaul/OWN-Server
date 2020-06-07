@@ -26,28 +26,28 @@ import java.io.IOException;
 import java.util.TooManyListenersException;
 
 /**
- * Base Interface if someone want to implement a new engine.
- * The Engine is a component that TcpIpServer use to talk with SCS BUS.
+ * This is the driver that knows how to talk with the bus. Manage any
+ * message between EngineManager and Bus.
+ * This is the Base Interface if someone want to implement a new engine.
  *
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
- * @since TcpIpServer 1.0.0
  */
 public interface Engine {
 
 	/**
-	 * If the engine can start to use.
+	 * If the engine is ready for receive and send message.
 	 * @return true if is ready
 	 */
 	boolean isReady();
 
 	/**
-	 * Use from server to send a command to the bus
+	 * Use from client to send a command to the bus
 	 * @param msg message that it want to send
 	 */
 	void sendCommand(SCSMsg msg) throws IOException;
 
 	/**
-	 * The client connection add itself to a list of listener of the bus for receive a msg from BUS
+	 * The client add itself to a list of observer of the bus for receive any msg from BUS
 	 * @param listener what want receive the message from the bus
 	 * @throws TooManyListenersException Exception if too musch client is connetced
 	 */

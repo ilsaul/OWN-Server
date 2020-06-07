@@ -56,7 +56,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
 	private final Socket clientSocket;
-	private final EngineManager engine;
+	private final EngineManager engineManager;
 	private final long id;
 
 	private PrintWriter socketOut = null;
@@ -69,11 +69,11 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	/**
 	 * Access restricted to a local package
 	 */
-	ClientConnection(Socket clientSocket, EngineManager engine) {
+	ClientConnection(Socket clientSocket, EngineManager engineManager) {
 		logger.trace("Client Start");
 
 		this.clientSocket = clientSocket;
-		this.engine = engine;
+		this.engineManager = engineManager;
 		mode = OpenWebNetProtocol.MODE_COMMAND; // initial set
 
 		id = GeneratorID.get();
@@ -244,7 +244,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			} else if (sMsg != null) {
 				try {
 					SCSMsg msg = new SCSMsg(sMsg);
-					engine.sendCommand(msg, this);
+					engineManager.sendCommand(msg, this);
 
 				} catch (MessageFormatException e) {
 					logger.error("Command format received invalid", e);
@@ -292,7 +292,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 
 				case DISCONNECTED:
 					if (mode == OpenWebNetProtocol.MODE_MONITOR) {
-						engine.removeMonitor(this);
+						engineManager.removeMonitor(this);
 					}
 					return;
 
@@ -330,7 +330,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			}
 
 			logger.info("{} Mode: Monitor enable", getId());
-			engine.addMonitor(this);
+			engineManager.addMonitor(this);
 
 		// This mode doesn't exist in BTicino Server
 		// TODO: Enable it in OWN Version only
@@ -345,7 +345,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			}
 
 			logger.info("{} Mode: Test", getId());
-			engine.addMonitor(this);
+			engineManager.addMonitor(this);
 
 		} else {
 			logger.error("Connection Mode not supported {}", msgSCS);

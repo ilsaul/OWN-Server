@@ -22,6 +22,7 @@ package org.programmatori.domotica.own.test;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
+import org.programmatori.domotica.own.server.clients.ClientSessionType;
 import org.programmatori.domotica.own.server.utils.OpenWebNetProtocol;
 
 import java.io.IOException;
@@ -90,9 +91,9 @@ public class SCSClient {
 		if (mode != null) {
 			String ret = "";
 			if (MODE_COMMAND.equals(mode)) {
-				ret = send(OpenWebNetProtocol.MSG_MODE_COMMAND.toString());
+				ret = send(ServerMsg.MSG_MODE_COMMAND.getMsgString());
 			} else if (MODE_MONITOR.equals(mode)) {
-				ret = send(OpenWebNetProtocol.MSG_MODE_MONITOR.toString());
+				ret = send(ServerMsg.MSG_MODE_MONITOR.getMsgString());
 			}
 
 			if (!ServerMsg.MSG_ACK.getMsgString().equals(ret)) {

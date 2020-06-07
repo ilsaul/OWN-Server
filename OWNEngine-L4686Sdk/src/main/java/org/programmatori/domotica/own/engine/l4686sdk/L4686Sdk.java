@@ -25,7 +25,7 @@ import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.server.engine.SCSEvent;
 import org.programmatori.domotica.own.sdk.server.engine.SCSListener;
 import org.programmatori.domotica.own.sdk.server.engine.Serial;
-import org.programmatori.domotica.own.sdk.server.engine.core.Engine;
+import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ import java.util.TooManyListenersException;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @version 0.3.0, 23/05/2019
  */
-public class L4686Sdk extends Serial implements Engine, Observer {
+public class L4686Sdk extends Serial implements BusDriver, Observer {
 	private static final Logger logger = LoggerFactory.getLogger(L4686Sdk.class);
 
 	/** Milliseconds to block while waiting for port open */
