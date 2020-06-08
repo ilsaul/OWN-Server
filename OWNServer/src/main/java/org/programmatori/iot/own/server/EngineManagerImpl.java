@@ -27,6 +27,7 @@ import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
 import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
+import org.programmatori.domotica.own.sdk.utils.ReflectionUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * SCSServer -> Gateway (Interface)
  * EngineManager load the Driver Engine that manage the bus and manage the queue
  * of receive and transmit message to the bus from client.<br>
  * <br>
@@ -84,8 +86,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			String busName = Config.getInstance().getBus();
 			logger.debug("Engine Class Name: {}", busName);
 
-			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(busName);
-			busDriver = (BusDriver) c.newInstance();
+			busDriver = ReflectionUtility.createClass(busName);
 			logger.info("Engine start: {}", busDriver.getName());
 
 		} catch (NoClassDefFoundError e) {
@@ -133,11 +134,12 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 			logger.debug("Try to load plugins {}", nameClass);
 
 			try {
-				Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
-				@SuppressWarnings("unchecked")
-				Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
+				PlugIn plugIn = ReflectionUtility.createClass(nameClass, (EngineManager) this);
+				//Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
+				//@SuppressWarnings("unchecked")
+				//Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
 
-				PlugIn plugIn = constructor.newInstance(this);
+				//PlugIn plugIn = constructor.newInstance(this);
 				plugIn.start();
 				logger.info("{} started!", plugIn.getClass().getSimpleName());
 			} catch (Exception e) {

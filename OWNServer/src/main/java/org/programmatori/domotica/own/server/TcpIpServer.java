@@ -22,7 +22,7 @@ package org.programmatori.domotica.own.server;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.server.clients.ClientConnection;
-import org.programmatori.domotica.own.server.engine.EngineManagerImpl;
+import org.programmatori.iot.own.server.EngineManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * TcpIpServer waits for clients to connect to it using the tcp/ip protocol.
- * For any client connected, this class create a {@link ClientConnection}
+ * The TcpIpServer waits for the connects to the OWN Server.
+ * For any client connected, TcpIpServer instantiate a {@link ClientConnection}
  * for manage it.
  * This class initialize the bus system through {@link EngineManager} and use it
  * to let the clients talk with bus.
