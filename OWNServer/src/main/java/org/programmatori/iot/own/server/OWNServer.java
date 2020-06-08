@@ -57,9 +57,9 @@ import java.util.List;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 29/06/2011
  */
-public final class EngineManagerImpl extends Thread implements QueueListener, EngineManager {
+public final class OWNServer extends Thread implements QueueListener, EngineManager {
 	private static final long serialVersionUID = -1460745010256569626L;
-	private static final Logger logger = LoggerFactory.getLogger(EngineManagerImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(OWNServer.class);
 
 	/** List of Msg waiting to be send */
 	private final ListenerPriorityBlockingQueue<Command> msgSending = new ListenerPriorityBlockingQueue<>();
@@ -79,7 +79,7 @@ public final class EngineManagerImpl extends Thread implements QueueListener, En
 	/** ??? */
 	private boolean changeQueue;
 
-	public EngineManagerImpl() {
+	public OWNServer() {
 		logger.trace("Start Create Instance");
 		setName("SCS Engine");
 		//setDaemon(true);
