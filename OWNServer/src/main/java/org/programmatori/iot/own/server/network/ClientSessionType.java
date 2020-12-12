@@ -1,4 +1,4 @@
-package org.programmatori.domotica.own.server.clients;
+package org.programmatori.iot.own.server.network;
 
 public enum ClientSessionType {
 

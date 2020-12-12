@@ -17,12 +17,10 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server;
+package org.programmatori.iot.own.server.network;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
-import org.programmatori.domotica.own.server.clients.ClientConnection;
-import org.programmatori.iot.own.server.OWNServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,7 @@ import java.util.concurrent.Executors;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 16/10/2010
  */
-public class TcpIpServer implements Runnable {
+public class TcpIpServer extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(TcpIpServer.class);
 
 	private ServerSocket serverSocket;
@@ -51,30 +49,9 @@ public class TcpIpServer implements Runnable {
 	/**
 	 * Default Constructor.
 	 */
-	public TcpIpServer(String configFile) {
-		Thread.currentThread().setName("TCP/IP Server");
-		Config.getInstance().addThread(Thread.currentThread());
-
-		if (configFile != null) {
-			Config.getInstance().setConfig(configFile);
-		}
-
-		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2020 Moreno Cattaneo";
-		String line2 = "This program comes with ABSOLUTELY NO WARRANTY.";
-		String line3 = "This is free software, and you are welcome to redistribute it";
-		String line4 = "under certain conditions.";
-		String line5 = "----";
-
-		logger.info(line1);
-		logger.info(line2);
-		logger.info(line3);
-		logger.info(line4);
-		logger.info(line5);
-		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
-
-		// start the bus manager
-		engineManager = new OWNServer();
-		engineManager.start();
+	public TcpIpServer(EngineManager engineManager) {
+		setName("TCP/IP Server");
+		this.engineManager = engineManager;
 
 		final int port = Config.getInstance().getServerPort();
 		try {
@@ -114,19 +91,5 @@ public class TcpIpServer implements Runnable {
 
 		pool.shutdownNow();
 		logger.info("Server End");
-	}
-
-	/**
-	 * For start the Server
-	 */
-	public static void main(String[] args) {
-		// Load config
-		String configFile = null;
-		if (args.length > 0) {
-			configFile = args[0];
-		}
-
-		TcpIpServer server = new TcpIpServer(configFile);
-		server.run();
 	}
 }

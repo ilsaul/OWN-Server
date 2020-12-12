@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server.utils;
+package org.programmatori.iot.own.server.network;
 
 import java.util.concurrent.atomic.AtomicLong;
 

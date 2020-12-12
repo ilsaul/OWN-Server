@@ -29,15 +29,4 @@ public class TestEngine implements EngineManager {
 	public void removeMonitor(Monitor monitor) {
 		// stub
 	}
-
-	@Override
-	public void start() {
-		// stub
-	}
-
-	@Override
-	public State getState() {
-		// stub
-		return null;
-	}
 }

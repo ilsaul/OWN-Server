@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server.engine;
+package org.programmatori.iot.own.server.engine;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;

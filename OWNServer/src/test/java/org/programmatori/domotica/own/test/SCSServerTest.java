@@ -1,12 +1,15 @@
 package org.programmatori.domotica.own.test;
 
+import com.github.niqdev.openwebnet.OpenWebNet;
+import com.github.niqdev.openwebnet.message.Lighting;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.server.TcpIpServer;
+import org.programmatori.iot.own.server.network.TcpIpServer;
 
 import java.security.Permission;
 import java.util.Calendar;
@@ -102,6 +105,15 @@ public class SCSServerTest {
 		}
 	}
 
+	@Test
+	public void testProva() {
+		OpenWebNet simpleClient = OpenWebNet.newClient(OpenWebNet.defaultGateway("localhost"));
+		simpleClient.send(Lighting.requestStatus("21", Lighting.Type.POINT_TO_POINT, ""))
+			.map(Lighting.handleStatus(() -> System.out.println("ON"), () -> System.out.println("OFF")))
+			.subscribe(System.out::println);
+		Assert.assertNotNull("Client not start", simpleClient);
+	}
+
 	@Ignore("disable becase need remake")
 	@Test
 	public void testClientSendCommand() {
@@ -116,9 +128,10 @@ public class SCSServerTest {
 
 	private void startUpServer() {
 		try {
-			Controller contr = new Controller(Config.DEFAULT_CONFIG_PATH + "/configTest.xml");
+			//Controller contr = new Controller(Config.DEFAULT_CONFIG_PATH  + "/configTest.xml");
+			TcpIpServer server = new TcpIpServer(Config.DEFAULT_CONFIG_PATH  + "/configTest.xml");
 			//Controller contr = new Controller();
-			contr.start();
+			server.run();
 		} catch (ExitException e) {
 			fail("Exit status :" + e.status);
 		}

@@ -57,10 +57,10 @@ public interface EngineManager extends Serializable {
 	/**
 	 * Start Engine
 	 */
-	void start();
+	//void start();
 
 	/**
 	 * Status of the engine
 	 */
-	State getState();
+	//State getState();
 }

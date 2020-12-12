@@ -28,11 +28,12 @@ import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
 import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.programmatori.domotica.own.sdk.utils.ReflectionUtility;
-import org.programmatori.domotica.own.server.engine.Command;
-import org.programmatori.domotica.own.server.engine.ListenerPriorityBlockingQueue;
-import org.programmatori.domotica.own.server.engine.MsgReceiver;
-import org.programmatori.domotica.own.server.engine.MsgSender;
-import org.programmatori.domotica.own.server.engine.QueueListener;
+import org.programmatori.iot.own.server.network.TcpIpServer;
+import org.programmatori.iot.own.server.engine.Command;
+import org.programmatori.iot.own.server.engine.ListenerPriorityBlockingQueue;
+import org.programmatori.iot.own.server.engine.MsgReceiver;
+import org.programmatori.iot.own.server.engine.MsgSender;
+import org.programmatori.iot.own.server.engine.QueueListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * SCSServer -> Gateway (Interface)
- * EngineManager load the Driver Engine that manage the bus and manage the queue
+ * Send e Receive message from clients and talk with the bus.
+ * <p>
+ * OWNServer load the Driver Engine that manage the bus and manage the queue
  * of receive and transmit message to the bus from client.<br>
  * <br>
  * This class is configured using a configuration file.<br>
@@ -57,35 +59,86 @@ import java.util.List;
  * @author Moreno Cattaneo (moreno.cattaneo@gmail.com)
  * @since 29/06/2011
  */
-public final class OWNServer extends Thread implements QueueListener, EngineManager {
+public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	private static final long serialVersionUID = -1460745010256569626L;
 	private static final Logger logger = LoggerFactory.getLogger(OWNServer.class);
 
-	/** List of Msg waiting to be send */
+	/**
+	 * List of Msg waiting to be send
+	 */
 	private final ListenerPriorityBlockingQueue<Command> msgSending = new ListenerPriorityBlockingQueue<>();
 
-	/** Bus driver */
+	/**
+	 * Bus driver
+	 */
 	private BusDriver busDriver;
 
-	/** send msg from clients to bus */
+	/**
+	 * send msg from clients to bus
+	 */
 	private final MsgSender sender;
 
-	/** Receive msg from bus to clients*/
+	/**
+	 * Receive msg from bus to clients
+	 */
 	private final MsgReceiver receiver;
 
-	/** Time to wait before the bus say no replay to msg */
+	/**
+	 * Time to wait before the bus say no replay to msg
+	 */
 	private final int sendTimeout;
 
-	/** ??? */
+	/**
+	 * ???
+	 */
 	private boolean changeQueue;
 
-	public OWNServer() {
+	public OWNServer(String configFile) {
 		logger.trace("Start Create Instance");
-		setName("SCS Engine");
-		//setDaemon(true);
-		Config.getInstance().addThread(this);
+		Thread.currentThread().setName("OWN Server");
 
-		//Load Engine
+		if (configFile != null) {
+			Config.getInstance().setConfig(configFile);
+		}
+
+		String line1 = Config.SERVER_NAME + " is Copyright (C) 2010-2020 Moreno Cattaneo";
+		String line2 = "This program comes with ABSOLUTELY NO WARRANTY.";
+		String line3 = "This is free software, and you are welcome to redistribute it";
+		String line4 = "under certain conditions.";
+		String line5 = "----";
+
+		logger.info(line1);
+		logger.info(line2);
+		logger.info(line3);
+		logger.info(line4);
+		logger.info(line5);
+		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
+
+		//Load Bus Driver
+		loadDriver();
+
+		msgSending.addListener(this);
+		changeQueue = false;
+
+		sender = new MsgSender(busDriver, msgSending);
+		sender.start();
+
+		receiver = new MsgReceiver(busDriver, msgSending);
+		msgSending.addListener(receiver);
+		receiver.start();
+
+		sendTimeout = Config.getInstance().getSendTimeout();
+
+		// load Module
+		loadPlugIn();
+
+		TcpIpServer tcpIpServer = new TcpIpServer(this);
+		tcpIpServer.start();
+
+		logger.trace("End Create Instance");
+	}
+
+	private void loadDriver() {
 		try {
 			String busName = Config.getInstance().getBus();
 			logger.debug("Engine Class Name: {}", busName);
@@ -113,23 +166,6 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 			logger.error("Error to start engine", e);
 			System.exit(-3);
 		}
-
-		msgSending.addListener(this);
-		changeQueue = false;
-
-		sender = new MsgSender(busDriver, msgSending);
-		sender.start();
-
-		receiver = new MsgReceiver(busDriver, msgSending);
-		msgSending.addListener(receiver);
-		receiver.start();
-
-		sendTimeout = Config.getInstance().getSendTimeout();
-
-		// load Module
-		loadPlugIn();
-
-		logger.trace("End Create Istance");
 	}
 
 	private void loadPlugIn() {
@@ -156,7 +192,7 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 	public void run() {
 		logger.trace("Start run");
 		while (!Config.getInstance().isExit()) {
-			changeQueue  = false;
+			changeQueue = false;
 
 			// Iterate sent command to see if i can replay to someone
 			Iterator<Command> iter = msgSending.iterator();
@@ -171,7 +207,7 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 						commandSended.getClient().receiveMsg(commandSended.getStatus());
 						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
 
-					// searching a msg with replay added
+						// searching a msg with replay added
 					} else if (commandSended.getReceiveMsg().size() > 0) {
 						if (!isTimeWait(commandSended)) {
 							msgSending.remove(commandSended);
@@ -179,7 +215,7 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 								logger.debug("requst is status");
 								logger.debug("Command: {}", commandSended);
 
-								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext();) {
+								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext(); ) {
 									SCSMsg msg = (SCSMsg) iter2.next();
 									logger.debug("msg to send to client: {}", msg);
 									commandSended.getClient().receiveMsg(msg);
@@ -192,7 +228,7 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 							logger.debug("Reply to client by without status: ACK");
 						}
 
-					// searching a timeout msg
+						// searching a timeout msg
 					} else {
 						if (!Config.getInstance().isDebug()) {
 							long now = Calendar.getInstance().getTimeInMillis();
@@ -267,5 +303,19 @@ public final class OWNServer extends Thread implements QueueListener, EngineMana
 		logger.trace("Start changeNotify");
 		changeQueue = true;
 		logger.trace("End changeNotify");
+	}
+
+	/**
+	 * For start the Server
+	 */
+	public static void main(String[] args) {
+		// Load config
+		String configFile = null;
+		if (args.length > 0) {
+			configFile = args[0];
+		}
+
+		OWNServer server = new OWNServer(configFile);
+		server.run();
 	}
 }

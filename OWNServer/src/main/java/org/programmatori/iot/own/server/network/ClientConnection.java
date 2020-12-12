@@ -17,7 +17,7 @@
  * License along with OWN Server.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.programmatori.domotica.own.server.clients;
+package org.programmatori.iot.own.server.network;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.MessageFormatException;
@@ -28,9 +28,7 @@ import org.programmatori.domotica.own.sdk.msg.Who;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.sdk.server.engine.Monitor;
 import org.programmatori.domotica.own.sdk.server.engine.Sender;
-import org.programmatori.domotica.own.server.utils.ConnectionState;
-import org.programmatori.domotica.own.server.utils.GeneratorID;
-import org.programmatori.domotica.own.server.utils.OpenWebNetProtocol;
+import org.programmatori.iot.own.server.utils.OpenWebNetProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

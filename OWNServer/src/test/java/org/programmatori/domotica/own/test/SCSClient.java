@@ -22,8 +22,7 @@ package org.programmatori.domotica.own.test;
 
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.server.clients.ClientSessionType;
-import org.programmatori.domotica.own.server.utils.OpenWebNetProtocol;
+import org.programmatori.iot.own.server.utils.OpenWebNetProtocol;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -52,7 +52,7 @@ public class Config extends AbstractConfig {
 	private static final String CONF_PLUGINS_PLUGIN = "plugins.plugin";
 
 	private static final String DEFAULT_BUS = "org.programmatori.domotica.bticino.bus.L4686Sdk";
-	public static final String SERVER_VERSION = "0.4.8";
+	public static final String SERVER_VERSION = "0.5.0";
 	public static final String SERVER_NAME = "OWN Server";
 
 	private static Config instance = null;
