@@ -21,7 +21,7 @@ package org.programmatori.domotica.own.server.utils;
 
 import org.programmatori.domotica.own.sdk.msg.SCSMsg;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
-import org.programmatori.domotica.own.server.clients.ClientSessionType;
+import org.programmatori.iot.own.server.network.ClientSessionType;
 
 /**
  * This class maintain some constant for the protocol SCS

@@ -22,7 +22,7 @@ package org.programmatori.domotica.own.server;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
 import org.programmatori.domotica.own.server.clients.ClientConnection;
-import org.programmatori.iot.own.server.EngineManagerImpl;
+import org.programmatori.iot.own.server.OWNServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class TcpIpServer implements Runnable {
 		logger.info("{} v.{} Start", Config.SERVER_NAME, Config.SERVER_VERSION);
 
 		// start the bus manager
-		engineManager = new EngineManagerImpl();
+		engineManager = new OWNServer();
 		engineManager.start();
 
 		final int port = Config.getInstance().getServerPort();

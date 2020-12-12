@@ -217,6 +217,17 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	private SCSMsg commandPw() {
 		SCSMsg response = null;
 
+		//TODO: Implement PASSWORD case - Bug.ID: #91
+		try {
+			String sMsg = readMessage();
+			logger.debug("PW: {}", sMsg);
+
+			status = ConnectionState.CONNECTED;
+			return ServerMsg.MSG_ACK.getMsg();
+		} catch (IOException e) {
+			logger.error("Error Client in retrieve password", e);
+		}
+
 		//TODO: HMAC enable ?
 		//TODO: No - Standard Authenticatin
 		//TODO Yes - Send Alghorithm
@@ -229,7 +240,7 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 			// Stub!!
 		}
 
-		//TODO: Implement PASSWORD case - Bug.ID: #91
+
 		//status = ConnectionState.WAIT_IDENT;
 		status = ConnectionState.CONNECTED;
 
