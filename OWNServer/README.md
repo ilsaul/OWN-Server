@@ -6,19 +6,17 @@ send and/or receive information from a SCS Bus. The SCS Bus is a Bus make by BTi
 
 INSTALL
 -------
+Create a folder conf with inside the file config.xml. The first tag must be configuration. The whole configuration goes into the configuration tag. Insert the following configuration:
 
-You must add these lines where ever you want in the server configuration file:
+&lt;server&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;port&gt;20000&lt;/port&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;maxConnections&gt;50&lt;/maxConnections&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;timeoutWelcome&gt;30000&lt;/timeoutWelcome&gt; &lt;!-- Milliseconds --&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;timeoutSend&gt;4000&lt;/timeoutSend&gt; &lt;!-- Milliseconds --&gt;<br>
+&lt;/server&gt;
 
-<server>
-		<port>20000</port>
-		<maxConnections>50</maxConnections>
-		<timeoutWelcome>30000</timeoutWelcome> <!-- Milliseconds -->
-		<timeoutSend>4000</timeoutSend> <!-- Milliseconds -->
-	</server>
-
+Insert the following line for the default engine:
 ```
-<bus>org.programmatori.domotica.own.server.engine.l4686sdk.L4686Sdk</bus>
+<bus>org.programmatori.domotica.own.engine.emulator.Emulator</bus>
 ```
-
-
-I promise to finish this document us fast as I can.
+for other engines search OWNEngine prefix in project name.

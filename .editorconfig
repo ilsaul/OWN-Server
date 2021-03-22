@@ -11,7 +11,7 @@ ij_visual_guides = 40,60
 # See: https://editorconfig.org/#file-format-details
 
 # indent_style = tab|space
-indent_style = space
+indent_style = tab
 # indent_size = <number>|tab
 indent_size = 4
 # tab_width = <number>
