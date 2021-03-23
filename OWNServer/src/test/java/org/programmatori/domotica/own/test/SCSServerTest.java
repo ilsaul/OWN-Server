@@ -9,8 +9,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.programmatori.domotica.own.sdk.config.Config;
 import org.programmatori.domotica.own.sdk.msg.ServerMsg;
+import org.programmatori.iot.own.server.OWNServer;
 import org.programmatori.iot.own.server.network.TcpIpServer;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.Permission;
 import java.util.Calendar;
 
@@ -57,7 +61,7 @@ public class SCSServerTest {
 		System.setSecurityManager(null); // or save and restore original
 	}
 
-	@Ignore("disable becase need remake")
+	@Ignore("disable because need remake")
 	@Test
 	public void testStartUp() {
 		startUpServer();
@@ -107,6 +111,8 @@ public class SCSServerTest {
 
 	@Test
 	public void testProva() {
+		startUpServer();
+
 		OpenWebNet simpleClient = OpenWebNet.newClient(OpenWebNet.defaultGateway("localhost"));
 		simpleClient.send(Lighting.requestStatus("21", Lighting.Type.POINT_TO_POINT, ""))
 			.map(Lighting.handleStatus(() -> System.out.println("ON"), () -> System.out.println("OFF")))
@@ -114,13 +120,13 @@ public class SCSServerTest {
 		Assert.assertNotNull("Client not start", simpleClient);
 	}
 
-	@Ignore("disable becase need remake")
+	@Ignore("disable because need remake")
 	@Test
 	public void testClientSendCommand() {
 		clientSend("*1*1*11##");
 	}
 
-	@Ignore("disable becase need remake")
+	@Ignore("disable because need remake")
 	@Test
 	public void testClientSendStatusOne() {
 		clientSend("*#1*11##");
@@ -128,12 +134,11 @@ public class SCSServerTest {
 
 	private void startUpServer() {
 		try {
-			//Controller contr = new Controller(Config.DEFAULT_CONFIG_PATH  + "/configTest.xml");
-			TcpIpServer server = new TcpIpServer(Config.DEFAULT_CONFIG_PATH  + "/configTest.xml");
-			//Controller contr = new Controller();
-			server.run();
-		} catch (ExitException e) {
-			fail("Exit status :" + e.status);
+			URL resource = getClass().getClassLoader().getResource("config-Test.xml");
+			OWNServer own = new OWNServer(new File(resource.toURI()));
+			own.run();
+		} catch (ExitException | URISyntaxException e) {
+			fail("Exit status :" + e.toString());
 		}
 	}
 

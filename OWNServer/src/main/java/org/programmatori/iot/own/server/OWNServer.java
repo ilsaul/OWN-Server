@@ -37,13 +37,14 @@ import org.programmatori.iot.own.server.engine.QueueListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Send e Receive message from clients and talk with the bus.
+ * Send and Receive message from clients and talk with the bus.
  * <p>
  * OWNServer load the Driver Engine that manage the bus and manage the queue
  * of receive and transmit message to the bus from client.<br>
@@ -74,12 +75,12 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	private BusDriver busDriver;
 
 	/**
-	 * send msg from clients to bus
+	 * It's use for send msg from clients to bus
 	 */
 	private final MsgSender sender;
 
 	/**
-	 * Receive msg from bus to clients
+	 * It's use for receive msg from bus to clients
 	 */
 	private final MsgReceiver receiver;
 
@@ -93,7 +94,7 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	 */
 	private boolean changeQueue;
 
-	public OWNServer(String configFile) {
+	public OWNServer(File  configFile) {
 		logger.trace("Start Create Instance");
 		Thread.currentThread().setName("OWN Server");
 
@@ -138,13 +139,20 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 		logger.trace("End Create Instance");
 	}
 
+	/**
+	 * Load and start the Bus
+	 */
 	private void loadDriver() {
 		try {
 			String busName = Config.getInstance().getBus();
 			logger.debug("Engine Class Name: {}", busName);
 
 			busDriver = ReflectionUtility.createClass(busName);
-			logger.info("Engine start: {}", busDriver.getName());
+			if (busDriver != null) {
+				logger.info("Engine starting: {}", busDriver.getName());
+
+				busDriver.start();
+			}
 
 		} catch (NoClassDefFoundError e) {
 			// TODO: Fix with new serial
@@ -155,16 +163,13 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 			}
 			System.exit(-1);
 
-		} catch (Exception e) {
-			logger.error("Error", e);
-			System.exit(-2);
-		}
-
-		try {
-			busDriver.start();
 		} catch (IOException e) {
 			logger.error("Error to start engine", e);
 			System.exit(-3);
+
+		} catch (Exception e) {
+			logger.error("Error", e);
+			System.exit(-2);
 		}
 	}
 
@@ -175,13 +180,15 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 
 			try {
 				PlugIn plugIn = ReflectionUtility.createClass(nameClass, (EngineManager) this);
-				//Class<?> c = ClassLoader.getSystemClassLoader().loadClass(nameClass);
-				//@SuppressWarnings("unchecked")
-				//Constructor<PlugIn> constructor = (Constructor<PlugIn>) c.getConstructor(EngineManager.class);
 
-				//PlugIn plugIn = constructor.newInstance(this);
-				plugIn.start();
-				logger.info("{} started!", plugIn.getClass().getSimpleName());
+				if (plugIn != null) {
+					plugIn.start();
+					logger.info("{} started!", plugIn.getClass().getSimpleName());
+
+				} else {
+					logger.error("Plugin {} not exist", nameClass);
+				}
+
 			} catch (Exception e) {
 				logger.error("Error:", e);
 			}
@@ -197,38 +204,37 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 			// Iterate sent command to see if i can replay to someone
 			Iterator<Command> iter = msgSending.iterator();
 			while (iter.hasNext() && !changeQueue) {
-				Command commandSended = (Command) iter.next();
-				commandSended = msgSending.peek();
+				//Command commandSended; = (Command) iter.next();
+				Command commandSended = msgSending.peek();
 
 				// searching a command that have status (with problem)
 				if (commandSended != null) {
 					if (commandSended.getStatus() != null) {
-						msgSending.remove(commandSended);
+						boolean remove =msgSending.remove(commandSended);
 						commandSended.getClient().receiveMsg(commandSended.getStatus());
-						logger.debug("Reply to client by status: {}", commandSended.getStatus().toString());
+						logger.debug("Reply to client by status: {} and remove: {}", commandSended.getStatus(), remove);
 
-						// searching a msg with replay added
-					} else if (commandSended.getReceiveMsg().size() > 0) {
+					// searching a msg with replay added
+					} else if (!commandSended.getReceiveMsg().isEmpty()) {
 						if (!isTimeWait(commandSended)) {
-							msgSending.remove(commandSended);
+							boolean remove = msgSending.remove(commandSended);
 							if (commandSended.getSendMsg().isStatus()) {
-								logger.debug("requst is status");
+								logger.debug("request is status");
 								logger.debug("Command: {}", commandSended);
 
-								for (Iterator<SCSMsg> iter2 = commandSended.getReceiveMsg().iterator(); iter2.hasNext(); ) {
-									SCSMsg msg = (SCSMsg) iter2.next();
+								for (SCSMsg msg : commandSended.getReceiveMsg()) {
 									logger.debug("msg to send to client: {}", msg);
 									commandSended.getClient().receiveMsg(msg);
 								}
 
 							} else {
-								logger.debug("requst is command");
+								logger.debug("request is command");
 							}
 							commandSended.getClient().receiveMsg(ServerMsg.MSG_ACK.getMsg());
 							logger.debug("Reply to client by without status: ACK");
 						}
 
-						// searching a timeout msg
+					// searching a timeout msg
 					} else {
 						if (!Config.getInstance().isDebug()) {
 							long now = Calendar.getInstance().getTimeInMillis();
@@ -253,18 +259,14 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	 * Indicate if can be wait for an answer. Use only for area message
 	 */
 	private boolean isTimeWait(Command command) {
-		boolean ret = false;
-
 		if (command.getSendMsg().isAreaMsg()) {
 			long now = Calendar.getInstance().getTimeInMillis();
 
-			long sended = command.getTimeSend().getTime();
-			if ((now - sended) < (sendTimeout - 1000)) {
-				ret = true;
-			}
+			long sent = command.getTimeSend().getTime();
+			return (now - sent) < (sendTimeout - 1000);
 		}
 
-		return ret;
+		return false;
 	}
 
 	public void sendCommand(SCSMsg msg, Sender client) {
@@ -310,9 +312,9 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	 */
 	public static void main(String[] args) {
 		// Load config
-		String configFile = null;
+		File configFile = null;
 		if (args.length > 0) {
-			configFile = args[0];
+			configFile = new File(args[0]);
 		}
 
 		OWNServer server = new OWNServer(configFile);

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<server>
+		<port>20000</port>
+		<maxConnections>5</maxConnections>
+		<timeoutWelcome>30000</timeoutWelcome> <!-- Milliseconds -->
+		<timeoutSend>4000</timeoutSend> <!-- Milliseconds -->
+		<security>
+			<auth>sha1</auth>
+			<pwd_open>12345</pwd_open>
+		</security>
+	</server>
+	<bus>org.programmatori.domotica.own.engine.emulator.Emulator</bus>
+	<version>0.4.7</version>
+	<areas>
+		<area id="1">Service Bathroom</area>
+		<area id="3">Balconi + Parti Esterne</area>
+		<area id="2">Second Bathroom (Errore: Studio)</area>
+		<area id="4">Disimpegni + Main Enter</area>
+		<area id="5">Baby Bedroom</area>
+		<area id="6">Studio</area>
+		<area id="7">Living Room</area>
+		<area id="8">Main Bedroom</area>
+		<area id="9">Dress Room</area>
+	</areas>
+	<plugins>
+		<plugin id="1">org.programmatori.domotica.own.plugin.system.System</plugin>
+	</plugins>
+	<system>
+		<!-- BTicino know model value:
+		2) MHServer
+		4) MH2000
+		6) F452
+		7) F452V
+		11) MHServer2
+		13) H4684
+
+		99) OWNServer
+		-->
+		<model>99</model>
+
+		<kernel>0.0.0</kernel>
+		<firmware>0.0.0</firmware>
+		<version>0.0.0</version>
+	</system>
+	<map>
+		<path>conf</path>
+		<pause>
+			<start>5000</start>
+			<unit>5000</unit>
+		</pause>
+		<interval unit="min">10</interval>
+		<file version="2.0">log/homeState.xml</file>
+	</map>
+</configuration>

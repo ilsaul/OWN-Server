@@ -5,7 +5,7 @@ public enum ClientSessionType {
 	/** Before Connection */
 	NONE(-1),
 
-	/** If client want to send command and receive the replay for the command */
+	/** If client want to send command and receive the replay for the command it send */
 	MODE_COMMAND(0),
 
 	/** If client want to receive any message from the bus */

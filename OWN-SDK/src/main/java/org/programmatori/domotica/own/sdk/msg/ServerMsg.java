@@ -18,7 +18,7 @@ public enum ServerMsg {
 	MSG_PROC("*#*7##"),
 
 	/** If the client want to send command on the bus and receive replay on a direct command */
-	MSG_MODE_COMMAND("*99*0##"),
+	MSG_MODE_COMMAND("*99*0##"), // before I set *99*9## ????
 	/** If the client want to receive all message from the bus */
 	MSG_MODE_MONITOR("*99*1##"),
 	/** Only for OWN version. It's both the preview */

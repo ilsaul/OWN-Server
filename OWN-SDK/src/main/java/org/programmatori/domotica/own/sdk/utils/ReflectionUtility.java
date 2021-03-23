@@ -1,12 +1,10 @@
 package org.programmatori.domotica.own.sdk.utils;
 
-import org.programmatori.domotica.own.sdk.server.engine.EngineManager;
-import org.programmatori.domotica.own.sdk.server.engine.PlugIn;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 public class ReflectionUtility {
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionUtility.class);
@@ -15,15 +13,33 @@ public class ReflectionUtility {
 		// stubb
 	}
 
-	public static <T> T createClass(String fullyQualifiedName) {
+	@Nullable
+	private static Class<?> getClass(String fullyQualifiedName) {
 
-		Class<?> c;
 		try {
-			c = ClassLoader.getSystemClassLoader().loadClass(fullyQualifiedName);
+			return ClassLoader.getSystemClassLoader().loadClass(fullyQualifiedName);
+
 		} catch (ClassNotFoundException e) {
 			logger.error("Class not found", e);
 			return null;
 		}
+	}
+
+	@Nullable
+	private static <T> T instantiateObject(Constructor<T> constructor) {
+		try {
+			return constructor.newInstance();
+
+		} catch (ReflectiveOperationException e) {
+			logger.error("Instantiate Error", e);
+			return null;
+		}
+	}
+
+	public static <T> T createClass(String fullyQualifiedName) {
+
+		Class<?> c = getClass(fullyQualifiedName);
+		if (c == null) return null;
 
 		Constructor<T> constructor;
 		try {
@@ -33,25 +49,13 @@ public class ReflectionUtility {
 			return null;
 		}
 
-		T newObject;
-		try {
-			newObject = constructor.newInstance();
-		} catch (ReflectiveOperationException e) {
-			logger.error("Instantiate Error", e);
-			return null;
-		}
-
-		return newObject;
+		return instantiateObject(constructor);
 	}
 
 	public static <T> T createClass(String fullyQualifiedName, Object param) {
-		Class<?> c;
-		try {
-			c = ClassLoader.getSystemClassLoader().loadClass(fullyQualifiedName);
-		} catch (ClassNotFoundException e) {
-			logger.error("Class not found", e);
-			return null;
-		}
+
+		Class<?> c = getClass(fullyQualifiedName);
+		if (c == null) return null;
 
 		Constructor<T> constructor;
 		try {
@@ -62,14 +66,6 @@ public class ReflectionUtility {
 			return null;
 		}
 
-		T newObject;
-		try {
-			newObject = constructor.newInstance(param);
-		} catch (ReflectiveOperationException e) {
-			logger.error("Instantiate Error", e);
-			return null;
-		}
-
-		return newObject;
+		return instantiateObject(constructor);
 	}
 }

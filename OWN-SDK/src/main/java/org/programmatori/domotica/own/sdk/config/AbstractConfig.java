@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2019 Moreno Cattaneo <moreno.cattaneo@gmail.com>
+ * Copyright (C) 2010-2020 Moreno Cattaneo <moreno.cattaneo@gmail.com>
  *
  * This file is part of OWN Server.
  *
@@ -50,36 +50,41 @@ public abstract class AbstractConfig {
 	private XMLConfiguration config = null;
 
 	protected AbstractConfig() {
-		this(null, DEFAULT_CONFIG_FILE);
+		this(new File(DEFAULT_CONFIG_PATH
+			+ File.separator + DEFAULT_CONFIG_FILE));
 	}
 
-	protected AbstractConfig(String configPath, String configFile) {
-		this.configPath = configPath;
+	protected AbstractConfig(File configFile) {
+		//this.configPath = configPath;
 		configLoaded = false;
 
 		loadConfig(configFile);
 	}
 
-	private void loadConfig(String configFile) {
-		logger.debug("Config File: {}", configFile);
-		if (configFile == null || configFile.trim().length() == 0) return;
+	/**
+	 * Load from file
+	 */
+	private void loadConfig(File configFile) {
+		if (configFile == null) return;
+		if (!configFile.exists()) return;
+		logger.debug("Config File: {}", configFile.getAbsolutePath());
 
 		try {
-			String cfg = getConfigPath() + File.separatorChar + configFile;
 			config = new XMLConfiguration();
-			config.load(cfg);
+			config.load(configFile);
 
 			config.setThrowExceptionOnMissing(true);
 			config.setAutoSave(true);
 
-			logger.info("Full Config: {}", config.getURL());
-
 			configLoaded = true;
 		} catch (ConfigurationException e) {
-			logger.error("Error", e);
+			logger.error("Error read from file", e);
 		}
 	}
 
+	/**
+	 * Load from Stream
+	 */
 	private void loadConfig(InputStream is) {
 		if (is == null) return;
 
@@ -92,7 +97,7 @@ public abstract class AbstractConfig {
 
 			configLoaded = true;
 		} catch (ConfigurationException e) {
-			logger.error("Error", e);
+			logger.error("Error read from stream", e);
 		}
 	}
 
@@ -100,19 +105,8 @@ public abstract class AbstractConfig {
 		return configLoaded;
 	}
 
-	public void setConfig(String configFile) {
-		File f = new File(configFile);
-		String fileName;
-
-		if (f.isDirectory()) {
-			this.configPath = configFile;
-			fileName = DEFAULT_CONFIG_FILE;
-		} else {
-			this.configPath = f.getParent();
-			fileName = f.getName();
-		}
-
-		loadConfig(fileName);
+	public void setConfig(File configFile) {
+		loadConfig(configFile);
 	}
 
 	public void setConfig(InputStream is) {
@@ -237,47 +231,47 @@ public abstract class AbstractConfig {
 		return getPathFromString(filePath);
 	}
 
-		private static String getPathFromString(String path) {
-			Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
+	private static String getPathFromString(String path) {
+		Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
-			String separator = File.separator;
-			boolean first = true;
-			StringBuilder home = new StringBuilder();
+		String separator = File.separator;
+		boolean first = true;
+		StringBuilder home = new StringBuilder();
 
-			logger.debug("Path {}", path);
+		logger.debug("Path {}", path);
 
-			StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
-			while (st.hasMoreTokens()) {
-				String folder = st.nextToken();
-				logger.debug("Foledr: {}", folder);
+		StringTokenizer st = new StringTokenizer(path, "/"); // URI Separator
+		while (st.hasMoreTokens()) {
+			String folder = st.nextToken();
+			logger.debug("Foledr: {}", folder);
 
-				boolean bFile = !(folder.equals("file:"));
+			boolean bFile = !(folder.equals("file:"));
 
-				// BUG Linux starting slash
-				if (separator.equals("/") && first) {
-					folder = separator + folder;
-					first = false;
-				}
-
-				// BUG Eclipse put in the bin
-				boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
-
-				// BUG jar can not support . then use a real file for find a path
-				boolean bRealFile = true; //TODO: fix me
-
-				// BUG the home directory it cannot end with .jar
-				boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));
-
-				if (bBin && bRealFile && bJar && bFile) { // If i build under bin i don't insert in
-					// home path
-					if (home.length() > 0)
-						home.append("/");
-					home.append(folder);
-					logger.debug("home: {}", home);
-				}
+			// BUG Linux starting slash
+			if (separator.equals("/") && first) {
+				folder = separator + folder;
+				first = false;
 			}
 
-			return home.toString();
+			// BUG Eclipse put in the bin
+			boolean bBin = !(folder.equals("bin") && (st.countTokens() < 2));
+
+			// BUG jar can not support . then use a real file for find a path
+			boolean bRealFile = true; //TODO: fix me
+
+			// BUG the home directory it cannot end with .jar
+			boolean bJar = !(folder.endsWith(".jar!") && (st.countTokens() < 2));
+
+			if (bBin && bRealFile && bJar && bFile) { // If i build under bin i don't insert in
+				// home path
+				if (home.length() > 0)
+					home.append("/");
+				home.append(folder);
+				logger.debug("home: {}", home);
+			}
 		}
+
+		return home.toString();
+	}
 
 }
