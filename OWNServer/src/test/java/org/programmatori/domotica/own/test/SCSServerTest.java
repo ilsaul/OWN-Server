@@ -21,7 +21,7 @@ import java.util.Calendar;
 import static org.junit.Assert.*;
 
 public class SCSServerTest {
-	private TcpIpServer server;
+	private ServerLauncher server;
 
 	protected static class ExitException extends SecurityException {
 		private static final long serialVersionUID = -2845481264737315099L;
@@ -133,13 +133,16 @@ public class SCSServerTest {
 	}
 
 	private void startUpServer() {
-		try {
-			URL resource = getClass().getClassLoader().getResource("config-Test.xml");
-			OWNServer own = new OWNServer(new File(resource.toURI()));
-			own.run();
-		} catch (ExitException | URISyntaxException e) {
-			fail("Exit status :" + e.toString());
-		}
+		server = new ServerLauncher();
+		server.start();
+
+//		try {
+//			URL resource = getClass().getClassLoader().getResource("config-Test.xml");
+//			OWNServer own = new OWNServer(new File(resource.toURI()));
+//			own.run();
+//		} catch (ExitException | URISyntaxException e) {
+//			fail("Exit status :" + e.toString());
+//		}
 	}
 
 	public void clientSend(String command) {

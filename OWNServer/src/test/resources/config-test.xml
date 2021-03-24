@@ -24,7 +24,7 @@
 		<area id="9">Dress Room</area>
 	</areas>
 	<plugins>
-		<plugin id="1">org.programmatori.domotica.own.plugin.system.System</plugin>
+		<pluginNo id="1">org.programmatori.domotica.own.plugin.system.System</pluginNo>
 	</plugins>
 	<system>
 		<!-- BTicino know model value:
