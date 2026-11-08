@@ -10,5 +10,5 @@ jar {
 }
 
 dependencies {
-    compile project(':OWN-SDK')
+    implementation project(':OWN-SDK')
 }

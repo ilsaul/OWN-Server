@@ -33,23 +33,23 @@ jar {
 }
 
 dependencies {
-	api 'commons-configuration:commons-configuration:1.+'
+	api 'commons-configuration:commons-configuration:1.10'
 
-	implementation 'commons-lang:commons-lang:2.+'
-	implementation 'org.slf4j:slf4j-api:1.+'
-	implementation 'ch.qos.logback:logback-classic:1.+'
+	implementation 'commons-lang:commons-lang:2.6'
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'ch.qos.logback:logback-classic:1.2.13'
 	implementation 'net.jcip:jcip-annotations:1.0'
 	compileOnly 'org.jetbrains:annotations:24.1.0'
 
 
 
-	runtimeOnly 'commons-collections:commons-collections:3.+'
+	runtimeOnly 'commons-collections:commons-collections:3.2.2'
 
-	implementation 'com.fazecast:jSerialComm:2.4.+'
+	implementation 'com.fazecast:jSerialComm:2.10.4'
 }
 
 distributions {
 	main {
-		baseName = project.name
+		distributionBaseName = project.name
 	}
 }

@@ -1,6 +1,8 @@
 apply plugin:'application'
-mainClassName = "org.programmatori.iot.own.server.OWNServer"
-applicationDefaultJvmArgs = ["-Dlogback.configurationFile=conf/logback.xml"]
+application {
+	mainClass = "org.programmatori.iot.own.server.OWNServer"
+	applicationDefaultJvmArgs = ["-Dlogback.configurationFile=conf/logback.xml"]
+}
 // -Dlogging.config="/Users/moreno/Programmazione/git/my/OWN/OWNServer/conf/logback.xml"
 
 version = '0.5.0'
@@ -12,21 +14,21 @@ jar {
 		'Built-JDK': System.getProperty('java.version'),
 		'Built-Host': InetAddress.getLocalHost().getHostName(),
 		'Built-Date': new Date(),
-		'Source-Compatibility': project.sourceCompatibility,
-		'Target-Compatibility': project.targetCompatibility
+		'Source-Compatibility': java.sourceCompatibility,
+		'Target-Compatibility': java.targetCompatibility
 	}
 }
 
 dependencies {
-	compile project(':OWN-SDK')
+	implementation project(':OWN-SDK')
 
-	runtime project(':OWNEngine-Emulator')
-	runtime project(':OWNEngine-L4686Sdk')
+	runtimeOnly project(':OWNEngine-Emulator')
+	runtimeOnly project(':OWNEngine-L4686Sdk')
 	//runtime project(':OWNEngine-SCSGate')
-	runtime project(':OWNPlugin-Map')
-	runtime project(':OWNPlugin-Power')
-	runtime project(':OWNPlugin-Remote')
-	runtime project(':OWNPlugin-System')
+	runtimeOnly project(':OWNPlugin-Map')
+	runtimeOnly project(':OWNPlugin-Power')
+	runtimeOnly project(':OWNPlugin-Remote')
+	runtimeOnly project(':OWNPlugin-System')
 	//runtime project(':OWNPlugin-HomeKit')
 
 }

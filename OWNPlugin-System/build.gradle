@@ -6,7 +6,7 @@ jar {
 }
 
 dependencies {
-    compile project(':OWN-SDK')
+    implementation project(':OWN-SDK')
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
     //testRuntime 'commons-configuration:commons-configuration:1.+'

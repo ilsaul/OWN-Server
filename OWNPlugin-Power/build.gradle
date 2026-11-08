@@ -7,6 +7,6 @@ jar {
 }
 
 dependencies {
-	compile project(':OWN-SDK')
-	compile 'com.h2database:h2:1.4.+'
+	implementation project(':OWN-SDK')
+	implementation 'com.h2database:h2:1.4.200'
 }

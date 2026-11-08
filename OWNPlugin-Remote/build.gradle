@@ -6,6 +6,6 @@ jar {
 }
 
 dependencies {
-	compile project(':OWN-SDK')
-	compile group: 'commons-net', name: 'commons-net', version: '3.+'
+	implementation project(':OWN-SDK')
+	implementation 'commons-net:commons-net:3.11.1'
 }
