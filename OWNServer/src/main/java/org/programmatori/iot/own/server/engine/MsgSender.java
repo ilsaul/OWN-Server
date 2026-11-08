@@ -95,7 +95,9 @@ public class MsgSender extends Thread {
 					}
 				}
 			} catch (InterruptedException e) {
-				logger.error("Error:" , e);
+				Thread.currentThread().interrupt();
+				logger.debug("Message sender interrupted");
+				break;
 			}
 		}
 

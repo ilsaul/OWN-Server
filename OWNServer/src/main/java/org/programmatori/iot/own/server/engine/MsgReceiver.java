@@ -28,11 +28,11 @@ import org.programmatori.domotica.own.sdk.server.engine.core.BusDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TooManyListenersException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -62,7 +62,7 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 		this.busDriver = busDriver;
 		msgSended = queueSended;
 		changeQueue = false;
-		monitors = new ArrayList<>();
+		monitors = new CopyOnWriteArrayList<>();
 		try {
 			this.busDriver.addEventListener(this);
 		} catch (TooManyListenersException e) {
@@ -80,7 +80,9 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 				command = msgReceiveFromBus.take();
 
 			} catch (InterruptedException e) {
-				logger.error("Error:" , e);
+				Thread.currentThread().interrupt();
+				logger.debug("Message receiver interrupted");
+				break;
 			}
 
 			if (command != null) {
@@ -153,7 +155,8 @@ public class MsgReceiver extends Thread implements SCSListener, QueueListener {
 			msgSended.put(commandSended);
 
 		} catch (InterruptedException e) {
-			logger.error("Error:" , e);
+			Thread.currentThread().interrupt();
+			logger.debug("Message receiver interrupted while matching a response");
 		}
 	}
 

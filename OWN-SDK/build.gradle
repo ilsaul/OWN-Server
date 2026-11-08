@@ -39,6 +39,7 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:1.+'
 	implementation 'ch.qos.logback:logback-classic:1.+'
 	implementation 'net.jcip:jcip-annotations:1.0'
+	compileOnly 'org.jetbrains:annotations:24.1.0'
 
 
 
@@ -52,4 +53,3 @@ distributions {
 		baseName = project.name
 	}
 }
-

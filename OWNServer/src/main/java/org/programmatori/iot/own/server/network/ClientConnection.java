@@ -32,7 +32,7 @@ import org.programmatori.iot.own.server.utils.OpenWebNetProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -376,16 +376,16 @@ public class ClientConnection implements Runnable, Monitor, Sender {
 	}
 
 	private String readMessage() throws IOException {
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int length;
 
-		//TODO: Make Better
 		do {
 			length = socketIn.read(buffer);
-			if (length != -1) {
-				result.write(buffer, 0, length);
-				commandBuffer.append(result.toString(StandardCharsets.UTF_8.name()));
+			if (length == -1) {
+				throw new EOFException("Client closed the connection");
+			}
+			if (length > 0) {
+				commandBuffer.append(new String(buffer, 0, length, StandardCharsets.UTF_8));
 			}
 		} while (commandBuffer.indexOf(SCSMsg.MSG_ENDED) == -1);
 

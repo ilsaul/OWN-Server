@@ -17,10 +17,6 @@ jar {
 	}
 }
 
-repositories {
-	maven { url "http://clojars.org/repo/" }
-}
-
 dependencies {
 	compile project(':OWN-SDK')
 
@@ -33,7 +29,6 @@ dependencies {
 	runtime project(':OWNPlugin-System')
 	//runtime project(':OWNPlugin-HomeKit')
 
-    testCompile 'com.github.openwebnet:rx-openwebnet:2.1.1'
 }
 
 startScripts {

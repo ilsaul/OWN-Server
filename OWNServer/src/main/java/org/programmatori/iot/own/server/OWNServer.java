@@ -92,7 +92,7 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 	/**
 	 * ???
 	 */
-	private boolean changeQueue;
+	private volatile boolean changeQueue;
 
 	public OWNServer(File  configFile) {
 		logger.trace("Start Create Instance");
@@ -200,6 +200,17 @@ public final class OWNServer implements Runnable, QueueListener, EngineManager {
 		logger.trace("Start run");
 		while (!Config.getInstance().isExit()) {
 			changeQueue = false;
+
+			if (msgSending.isEmpty()) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					logger.debug("OWN Server interrupted");
+					break;
+				}
+				continue;
+			}
 
 			// Iterate sent command to see if i can replay to someone
 			Iterator<Command> iter = msgSending.iterator();
